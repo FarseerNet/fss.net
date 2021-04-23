@@ -12,11 +12,11 @@ namespace FSS.Com.MetaInfoServer.Task
     /// </summary>
     public class TaskList : ITaskList
     {
-        public IIocResolver IocResolver { get; set; }
+        public ITaskAgent TaskAgent { get; set; }
 
         /// <summary>
         /// 获取全部任务列表
         /// </summary>
-        public List<TaskVO> ToList() => IocResolver.Resolve<ITaskAgent>().ToList().Map<TaskVO>();
+        public List<TaskVO> ToList() => TaskAgent.ToList().Map<TaskVO>();
     }
 }

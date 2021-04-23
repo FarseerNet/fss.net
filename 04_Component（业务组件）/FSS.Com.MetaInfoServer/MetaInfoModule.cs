@@ -1,3 +1,4 @@
+using FS.Data;
 using FS.Modules;
 
 namespace FSS.Com.MetaInfoServer
@@ -5,7 +6,7 @@ namespace FSS.Com.MetaInfoServer
     /// <summary>
     ///     元信息模块
     /// </summary>
-    [DependsOn]
+    [DependsOn(typeof(DataModule))]
     public class MetaInfoModule : FarseerModule
     {
         public override void PreInitialize()

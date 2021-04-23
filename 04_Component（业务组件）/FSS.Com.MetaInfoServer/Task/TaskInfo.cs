@@ -8,11 +8,11 @@ namespace FSS.Com.MetaInfoServer.Task
 {
     public class TaskInfo : ITaskInfo
     {
-        public IIocResolver IocResolver { get; set; }
+        public ITaskAgent TaskAgent { get; set; }
 
         /// <summary>
         /// 获取任务信息
         /// </summary>
-        public TaskVO ToInfo(int id) => IocResolver.Resolve<ITaskAgent>().ToEntity(id).Map<TaskVO>();
+        public TaskVO ToInfo(int id) => TaskAgent.ToEntity(id).Map<TaskVO>();
     }
 }
