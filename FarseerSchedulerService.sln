@@ -1,8 +1,44 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02_UserLogic（前端逻辑）", "02_UserLogic（前端逻辑）", "{3920FFE5-9D7F-4C0B-865E-076477D71D99}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01_UserInterface（前端界面）", "01_UserInterface（前端界面）", "{006D1F16-0D6D-47C1-90B6-10B934ABB579}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "04_Component（业务组件）", "04_Component（业务组件）", "{9DBAC993-2CB8-48C5-9E12-68FF156ACDBF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "05_Infrastructure（基础设施）", "05_Infrastructure（基础设施）", "{EEEE309A-3C36-48C6-8396-FD7E1F9603F5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "06_Framework（项目组件）", "06_Framework（项目组件）", "{1684AFF4-C227-4EAD-A272-CE78CFB8AB8A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "07_Solution Items（项目文件）", "07_Solution Items（项目文件）", "{DE512203-1552-4F65-80A5-2831B434ED36}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "08_Project Tools（工具程序)", "08_Project Tools（工具程序)", "{67C4D8A1-CCAF-4D4E-8413-64064ECEFD4C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "09_Unit Tests（单元测试)", "09_Unit Tests（单元测试)", "{4E9B28E3-5C01-4959-BCFA-61EDD52842B6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "03_Abstract（组件接口）", "03_Abstract（组件接口）", "{617108D6-32F3-453C-B934-5ED96F828B3C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FSS.Abstract", "03_Abstract（组件接口）\FSS.Abstract\FSS.Abstract.csproj", "{4831230E-2AA0-426D-A7A6-13BC59345ACC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FSS.Com.MetaInfoServer", "04_Component（业务组件）\FSS.Com.MetaInfoServer\FSS.Com.MetaInfoServer.csproj", "{7172EED7-0E4B-4E3E-B23E-4C2A16E52458}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4831230E-2AA0-426D-A7A6-13BC59345ACC} = {617108D6-32F3-453C-B934-5ED96F828B3C}
+		{7172EED7-0E4B-4E3E-B23E-4C2A16E52458} = {9DBAC993-2CB8-48C5-9E12-68FF156ACDBF}
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4831230E-2AA0-426D-A7A6-13BC59345ACC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4831230E-2AA0-426D-A7A6-13BC59345ACC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4831230E-2AA0-426D-A7A6-13BC59345ACC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4831230E-2AA0-426D-A7A6-13BC59345ACC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7172EED7-0E4B-4E3E-B23E-4C2A16E52458}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7172EED7-0E4B-4E3E-B23E-4C2A16E52458}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7172EED7-0E4B-4E3E-B23E-4C2A16E52458}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7172EED7-0E4B-4E3E-B23E-4C2A16E52458}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
