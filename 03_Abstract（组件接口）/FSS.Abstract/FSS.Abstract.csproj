@@ -10,7 +10,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Server\RemoteCall" />
       <Folder Include="Server\Scheduler" />
     </ItemGroup>
 

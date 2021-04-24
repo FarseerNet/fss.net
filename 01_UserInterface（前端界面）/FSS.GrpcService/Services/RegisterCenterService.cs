@@ -1,6 +1,8 @@
 using System.Threading.Tasks;
 using FS.DI;
+using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Server.RegisterCenter;
+using FSS.Abstract.Server.RemoteCall;
 using FSS.Infrastructure.Common;
 using Grpc.Core;
 
@@ -22,7 +24,10 @@ namespace FSS.GrpcService.Services
         {
             var ip = context.Peer.Split(':')[1];
             // 注册
-            return GrpcTools.Try(() => _ioc.Resolve<IClientRegister>().Register(request.ClientId, $"http://{ip}:{request.ReceiveNotifyPort}"));
+            var result   = GrpcTools.Try(() => _ioc.Resolve<IClientRegister>().Register(request.ClientId, $"http://{ip}:{request.ReceiveNotifyPort}"));
+            var clientVO = _ioc.Resolve<IClientSlb>().Slb();
+            _ioc.Resolve<IClientNotifyGrpc>().Invoke(clientVO,new TaskVO());
+            return result;
         }
     }
 }
