@@ -1,3 +1,5 @@
+using FSS.Com.MetaInfoServer.Abstract;
+
 namespace FSS.Com.MetaInfoServer.RunLog.Dal
 {
     /// <summary>

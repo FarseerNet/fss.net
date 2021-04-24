@@ -6,10 +6,11 @@
 
     <ItemGroup>
       <PackageReference Include="Farseer.Net" Version="2.5.0" />
+      <PackageReference Include="Farseer.Net.Cache.Redis" Version="2.5.0" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Abstract" />
+      <ProjectReference Include="..\..\03_Abstract（组件接口）\FSS.Abstract\FSS.Abstract.csproj" />
     </ItemGroup>
 
 </Project>

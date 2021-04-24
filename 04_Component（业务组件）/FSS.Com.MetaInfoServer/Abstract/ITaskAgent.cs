@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using FS.DI;
+using FSS.Com.MetaInfoServer.Task.Dal;
 
-namespace FSS.Com.MetaInfoServer.Task.Dal
+namespace FSS.Com.MetaInfoServer.Abstract
 {
     public interface ITaskAgent : ITransientDependency
     {

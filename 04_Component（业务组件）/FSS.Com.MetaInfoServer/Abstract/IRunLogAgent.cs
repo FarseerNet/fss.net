@@ -1,6 +1,7 @@
 using FS.DI;
+using FSS.Com.MetaInfoServer.RunLog.Dal;
 
-namespace FSS.Com.MetaInfoServer.RunLog.Dal
+namespace FSS.Com.MetaInfoServer.Abstract
 {
     public interface IRunLogAgent : ITransientDependency
     {

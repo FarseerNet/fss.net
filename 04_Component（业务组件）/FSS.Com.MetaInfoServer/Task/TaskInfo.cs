@@ -2,6 +2,7 @@ using FS.DI;
 using FS.Extends;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Server.MetaInfo;
+using FSS.Com.MetaInfoServer.Abstract;
 using FSS.Com.MetaInfoServer.Task.Dal;
 
 namespace FSS.Com.MetaInfoServer.Task

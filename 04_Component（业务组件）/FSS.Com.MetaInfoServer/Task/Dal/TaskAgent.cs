@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using FSS.Com.MetaInfoServer.Abstract;
 
 namespace FSS.Com.MetaInfoServer.Task.Dal
 {

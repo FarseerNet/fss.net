@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    </PropertyGroup>
+
+    <ItemGroup>
+<!--        <Protobuf Include="Protos\Public\rpcResponse.proto" GrpcServices="Server" />-->
+        <Protobuf Include="Protos\registerCenter.proto" GrpcServices="Server" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Farseer.Net" Version="2.5.0" />
+        <PackageReference Include="Grpc.AspNetCore" Version="2.34.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\03_Abstract（组件接口）\FSS.Abstract\FSS.Abstract.csproj" />
+      <ProjectReference Include="..\..\04_Component（业务组件）\FSS.Com.SchedulerServer\FSS.Com.SchedulerServer.csproj" />
+      <ProjectReference Include="..\..\05_Infrastructure（基础设施）\FSS.Infrastructure.Common\FSS.Infrastructure.Common.csproj" />
+    </ItemGroup>
+
+</Project>

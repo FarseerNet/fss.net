@@ -8,4 +8,8 @@
       <PackageReference Include="Farseer.Net" Version="2.5.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Abstract" />
+    </ItemGroup>
+
 </Project>

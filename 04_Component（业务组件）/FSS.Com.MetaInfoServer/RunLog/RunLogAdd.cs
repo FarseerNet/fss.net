@@ -1,5 +1,6 @@
 using System;
 using FSS.Abstract.Server.MetaInfo;
+using FSS.Com.MetaInfoServer.Abstract;
 using FSS.Com.MetaInfoServer.RunLog.Dal;
 using Microsoft.Extensions.Logging;
 
