@@ -1,6 +1,8 @@
+using FS.DI;
+
 namespace FSS.Abstract.Server.RegisterCenter
 {
-    public interface IClientRegister
+    public interface IClientRegister: ITransientDependency
     {
         /// <summary>
         /// 注册
