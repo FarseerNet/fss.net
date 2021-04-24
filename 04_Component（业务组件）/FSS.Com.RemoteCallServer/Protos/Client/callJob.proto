@@ -1,0 +1,9 @@
+syntax = "proto3";
+import "Protos/Client/rpcResponse.proto";
+option csharp_namespace = "FSS.Client";
+package FSS.Client;
+
+service CallJob {
+    // 获取
+    rpc Run (DefaultRequest) returns (RpcResponse);
+}

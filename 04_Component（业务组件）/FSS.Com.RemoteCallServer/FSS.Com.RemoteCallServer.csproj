@@ -6,6 +6,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net\Farseer.Net.csproj" />
+        <ProjectReference Include="..\..\03_Abstract（组件接口）\FSS.Abstract\FSS.Abstract.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -13,8 +14,13 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Protobuf Include="Protos\Public\RpcResponse.proto" GrpcServices="Client" />
-        <Protobuf Include="Protos\CallJob.proto" GrpcServices="Client" />
+        <Protobuf Include="Protos\Client\callJob.proto" GrpcServices="Client" />
+        <Protobuf Include="Protos\Client\rpcResponse.proto" GrpcServices="Client" />
     </ItemGroup>
-    
+
+    <ItemGroup>
+      <PackageReference Include="Google.Protobuf" Version="3.15.8" />
+      <PackageReference Include="Grpc" Version="2.37.0" />
+      <PackageReference Include="Grpc.Net.Client" Version="2.37.0" />
+    </ItemGroup>
 </Project>

@@ -1,5 +1,6 @@
 using System;
 using FS.Core.Mapping.Attribute;
+using FSS.Abstract.Enum;
 
 namespace FSS.Com.MetaInfoServer.Task.Dal
 {
@@ -15,10 +16,10 @@ namespace FSS.Com.MetaInfoServer.Task.Dal
         public int? Id { get; set; }
         
         /// <summary>
-        /// 任务的标题
+        /// 任务组ID
         /// </summary>
-        [Field(Name = "caption")]
-        public string Caption { get; set; }
+        [Field(Name = "task_group_id")]
+        public int TaskGroupId { get; set; }
         
         /// <summary>
         /// 开始时间
@@ -27,39 +28,39 @@ namespace FSS.Com.MetaInfoServer.Task.Dal
         public DateTime? StartAt { get; set; }
         
         /// <summary>
-        /// 下次执行时间
+        /// 运行耗时
         /// </summary>
-        [Field(Name = "next_at")]
-        public DateTime? NextAt { get; set; }
+        [Field(Name = "run_speed")]
+        public int? RunSpeed { get; set; }
         
         /// <summary>
-        /// 活动时间
+        /// 客户端
         /// </summary>
-        [Field(Name = "activate_at")]
-        public DateTime? ActivateAt { get; set; }
+        [Field(Name = "client_id")]
+        public int? ClientId { get; set; }
         
         /// <summary>
-        /// 最后一次完成时间
+        /// 客户端IP
         /// </summary>
-        [Field(Name = "last_run_at")]
-        public DateTime? LastRunAt { get; set; }
+        [Field(Name = "client_endpoint")]
+        public string ClientEndpoint { get; set; }
         
         /// <summary>
-        /// 上一次运行耗时
+        /// 进度0-100
         /// </summary>
-        [Field(Name = "last_run_speed")]
-        public int? LastRunSpeed { get; set; }
+        [Field(Name = "progress")]
+        public int? Progress { get; set; }
         
         /// <summary>
-        /// 运行次数
+        /// 状态
         /// </summary>
-        [Field(Name = "run_count")]
-        public int? RunCount { get; set; }
+        [Field(Name = "status")]
+        public EumTaskType? Status { get; set; }
         
         /// <summary>
-        /// 是否开启
+        /// 任务创建时间
         /// </summary>
-        [Field(Name = "is_enable")]
-        public bool? IsEnable { get; set; }
+        [Field(Name = "create_at")]
+        public DateTime? CreateAt { get; set; }
     }
 }

@@ -12,7 +12,7 @@ service RegisterCenter {
 // 注册入参
 message RegisterRequest {
   // 客户端Id
-  string clientId = 1;
+  string ClientId = 1;
   // 客户访问
-  string endpoint = 2;
+  int32 ReceiveNotifyPort = 2;
 }

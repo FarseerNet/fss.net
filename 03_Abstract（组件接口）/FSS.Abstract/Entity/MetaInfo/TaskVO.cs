@@ -1,4 +1,5 @@
 using System;
+using FSS.Abstract.Enum;
 
 namespace FSS.Abstract.Entity.MetaInfo
 {
@@ -13,9 +14,9 @@ namespace FSS.Abstract.Entity.MetaInfo
         public int Id { get; set; }
         
         /// <summary>
-        /// 任务的标题
+        /// 任务组ID
         /// </summary>
-        public string Caption { get; set; }
+        public int TaskGroupId { get; set; }
         
         /// <summary>
         /// 开始时间
@@ -23,33 +24,33 @@ namespace FSS.Abstract.Entity.MetaInfo
         public DateTime StartAt { get; set; }
         
         /// <summary>
-        /// 下次执行时间
+        /// 运行耗时
         /// </summary>
-        public DateTime NextAt { get; set; }
+        public int RunSpeed { get; set; }
         
         /// <summary>
-        /// 活动时间
+        /// 客户端
         /// </summary>
-        public DateTime ActivateAt { get; set; }
+        public int ClientId { get; set; }
         
         /// <summary>
-        /// 最后一次完成时间
+        /// 客户端IP
         /// </summary>
-        public DateTime LastRunAt { get; set; }
+        public string ClientEndpoint { get; set; }
         
         /// <summary>
-        /// 上一次运行耗时
+        /// 进度0-100
         /// </summary>
-        public int LastRunSpeed { get; set; }
+        public int Progress { get; set; }
         
         /// <summary>
-        /// 运行次数
+        /// 状态
         /// </summary>
-        public int RunCount { get; set; }
+        public EumTaskType Status { get; set; }
         
         /// <summary>
-        /// 是否开启
+        /// 任务创建时间
         /// </summary>
-        public bool IsEnable { get; set; }
+        public DateTime CreateAt { get; set; }
     }
 }
