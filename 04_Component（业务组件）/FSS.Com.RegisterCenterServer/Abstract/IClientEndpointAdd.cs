@@ -9,7 +9,7 @@ namespace FSS.Com.RegisterCenterServer.Abstract
         /// <summary>
         /// 添加客户端信息到客户端列表
         /// </summary>
-        void Add(string clientId, ClientVO client);
+        void Save(string clientId, ClientVO client);
 
         /// <summary>
         /// 获取客户端

@@ -21,7 +21,7 @@ namespace FSS.Com.RegisterCenterServer.Client
         /// <summary>
         /// 添加客户端信息到客户端列表
         /// </summary>
-        public void Add(string clientId, ClientVO client)
+        public void Save(string clientId, ClientVO client)
         {
             RedisCacheManager.Db.HashSet(key, clientId, JsonConvert.SerializeObject(client));
         }

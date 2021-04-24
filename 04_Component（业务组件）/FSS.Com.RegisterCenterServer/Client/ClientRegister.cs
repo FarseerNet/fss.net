@@ -27,7 +27,7 @@ namespace FSS.Com.RegisterCenterServer.Client
             // 更新激活时间
             clientVO.ActivityAt = DateTime.Now;
             
-            ClientEndpoint.Add(clientId, clientVO);
+            ClientEndpoint.Save(clientId, clientVO);
             return true;
         }
     }
