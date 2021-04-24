@@ -8,6 +8,7 @@ namespace FSS.Com.RegisterCenterServer.Client
     /// <summary>
     /// 客户端注册
     /// </summary>
+    // ReSharper disable once UnusedType.Global
     public class ClientRegister : IClientRegister
     {
         public IClientEndpoint ClientEndpoint { get; set; }

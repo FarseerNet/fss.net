@@ -1,7 +1,14 @@
 ﻿using System;
 using System.Threading;
+using FS.Cache.Redis;
+using FS.Core;
+using FS.Data;
 using FS.DI;
+using FS.Mapper;
 using FS.Modules;
+using FSS.Com.MetaInfoServer;
+using FSS.Com.RegisterCenterServer;
+using FSS.Com.RemoteCallServer;
 using FSS.Com.SchedulerServer;
 using FSS.GrpcService.Services;
 using Microsoft.AspNetCore.Builder;
@@ -12,15 +19,23 @@ using Microsoft.Extensions.Hosting;
 
 namespace FSS.GrpcService
 {
-    [DependsOn(typeof(SchedulerModule))]
-    public class Startup: FarseerModule
+    [DependsOn(
+        typeof(FarseerCoreModule),
+        typeof(MapperModule),
+        typeof(RedisModule),
+        typeof(DataModule),
+        typeof(MetaInfoModule),
+        typeof(SchedulerModule),
+        typeof(RegisterCenterModule),
+        typeof(RemoteCallModule))]
+    public class Startup : FarseerModule
     {
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddGrpc(options => { options.Interceptors.Add<AuthInterceptor>(); });
-            services.AddSingleton<IIocManager>(IocManager);
+            services.AddSingleton<IIocManager>(FS.DI.IocManager.Instance.Resolve<IIocManager>());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -36,11 +51,10 @@ namespace FSS.GrpcService
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapGrpcService<RegisterCenterService>();
-
                 endpoints.MapGet("/", async context => { await context.Response.WriteAsync("Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909"); });
             });
         }
-        
+
 
         public override void PreInitialize()
         {

@@ -6,6 +6,7 @@ using FSS.Com.RegisterCenterServer.Abstract;
 
 namespace FSS.Com.RegisterCenterServer.Client
 {
+    // ReSharper disable once UnusedType.Global
     public class ClientSlb : IClientSlb
     {
         public IClientEndpoint ClientEndpoint { get; set; }

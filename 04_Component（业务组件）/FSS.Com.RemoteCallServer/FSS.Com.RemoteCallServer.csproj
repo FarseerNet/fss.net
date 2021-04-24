@@ -5,11 +5,16 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Farseer.Net" Version="2.5.0" />
+        <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net\Farseer.Net.csproj" />
     </ItemGroup>
 
     <ItemGroup>
       <Folder Include="Abstract" />
     </ItemGroup>
 
+    <ItemGroup>
+        <Protobuf Include="Protos\Public\RpcResponse.proto" GrpcServices="Client" />
+        <Protobuf Include="Protos\CallJob.proto" GrpcServices="Client" />
+    </ItemGroup>
+    
 </Project>
