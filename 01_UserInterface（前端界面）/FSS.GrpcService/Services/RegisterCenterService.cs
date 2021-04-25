@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using FS.DI;
 using FSS.Abstract.Entity.MetaInfo;
@@ -20,14 +21,26 @@ namespace FSS.GrpcService.Services
         /// <summary>
         /// 注册
         /// </summary>
-        public override Task<RpcResponse> Register(RegisterRequest request, ServerCallContext context)
+        public override async Task Register(IAsyncStreamReader<RegisterRequest> requestStream, IServerStreamWriter<RpcResponse> responseStream, ServerCallContext context)
         {
             var ip = context.Peer.Split(':')[1];
-            // 注册
-            var result   = GrpcTools.Try(() => _ioc.Resolve<IClientRegister>().Register(request.ClientId, $"http://{ip}:{request.ReceiveNotifyPort}"));
-            var clientVO = _ioc.Resolve<IClientSlb>().Slb();
-            _ioc.Resolve<IClientNotifyGrpc>().Invoke(clientVO,new TaskVO());
-            return result;
+            // 持续注册
+            await foreach (var registerRequest in requestStream.ReadAllAsync())
+            {
+                // 注册
+                var result = await GrpcTools.Try(() =>
+                {
+                    var registerResult = _ioc.Resolve<IClientRegister>().Register(registerRequest.ClientId, $"http://{ip}:{registerRequest.ReceiveNotifyPort}");
+
+                    // 测试使用
+                    var clientVO = _ioc.Resolve<IClientSlb>().Slb();
+                    //_ioc.Resolve<IClientNotifyGrpc>().Invoke(clientVO, new TaskVO());
+                    
+                    return registerResult;
+                }, "注册成功");
+
+                await responseStream.WriteAsync(result);
+            }
         }
     }
 }

@@ -6,7 +6,7 @@ package fss;
 // 注册中心
 service RegisterCenter {
   // 客户端注册
-  rpc Register (RegisterRequest) returns (RpcResponse);
+  rpc Register (stream RegisterRequest) returns (stream RpcResponse);
 }
 
 // 注册入参
