@@ -64,12 +64,14 @@ FSS的设计初衷是为了实现分布式的调度，并且运行Job的程序�
     2、会启动Grpc服务（端口可自定义），用于接收FSS调度平台的消息通知
 
 `appsettings.json配置`
-```config
+```json
+{
   "FSS": {
     "Server": "http://localhost", // FSS平台地址
     "GrpcServicePort": 5672,      // 本地打开的端口（用于FSS平台有任务要执行时通知到我）
     "ConnectFssServerTime": 1000  // 对FSS平台的心跳时间（毫秒）
   }
+}
 ```
 `Program.cs`
 ```c#
