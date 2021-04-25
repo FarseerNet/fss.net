@@ -5,6 +5,11 @@ namespace FSS.Abstract.Entity.RegisterCenter
     public class ClientVO
     {
         /// <summary>
+        /// 客户端ID
+        /// </summary>
+        public string Id { get; set; }
+
+        /// <summary>
         /// 客户端节点
         /// </summary>
         public string Endpoint { get; set; }

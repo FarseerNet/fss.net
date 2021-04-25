@@ -37,7 +37,7 @@ namespace FSS.Com.MetaInfoServer.Task.Dal
         /// 客户端
         /// </summary>
         [Field(Name = "client_id")]
-        public int? ClientId { get; set; }
+        public string ClientId { get; set; }
         
         /// <summary>
         /// 客户端IP

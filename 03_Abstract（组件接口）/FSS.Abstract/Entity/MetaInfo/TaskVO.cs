@@ -31,7 +31,7 @@ namespace FSS.Abstract.Entity.MetaInfo
         /// <summary>
         /// 客户端
         /// </summary>
-        public int ClientId { get; set; }
+        public string ClientId { get; set; }
         
         /// <summary>
         /// 客户端IP
