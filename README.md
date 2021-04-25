@@ -57,12 +57,70 @@ FSS的设计初衷是为了实现分布式的调度，并且运行Job的程序�
     1、当调度器开始工作时，会通过客户端列表（客户端启动后注册进来），以轮询的方式取出其中一个客户端，然后使用Grpc进行调度通知。
     2、客户端在收到要执行的任务时，会实时通知服务端当前任务的状态、进度。
 
-## 客户端启动
+## 客户端使用
 通过Farseer.Net.Job组件，运行job的程序在启动之后会做：
 
     1、向FSS调度平台注册（Grpc双流方式）客户端的信息。
     2、会启动Grpc服务（端口可自定义），用于接收FSS调度平台的消息通知
 
+`appsettings.json配置`
+```config
+  "FSS": {
+    "Server": "http://localhost", // FSS平台地址
+    "GrpcServicePort": 5672,      // 本地打开的端口（用于FSS平台有任务要执行时通知到我）
+    "ConnectFssServerTime": 1000  // 对FSS平台的心跳时间（毫秒）
+  }
+```
+`Program.cs`
+```c#
+[Fss] // 开启后，才能注册到FSS平台
+public class Program
+{
+    public static void Main()
+    {
+        // 初始化模块
+        FarseerApplication.Run<StartupModule>().Initialize();
+        Thread.Sleep(-1);
+    }
+}
+```
+`StartupModule.cs`
+```c#
+/// <summary>
+/// 启动模块
+/// </summary>
+[DependsOn(typeof(JobModule))] // 依赖Job模块
+public class StartupModule : FarseerModule
+{
+    public override void PreInitialize()
+    {
+    }
+}
+```
+`HelloWorldJob.cs`
+```c#
+[FssJob(Name = "bbb")] // Name与FSS平台配置的JobTypeName保持一致
+public class HelloWorldJob : IFssJob
+{
+    /// <summary>
+    /// 执行任务
+    /// </summary>
+    public bool Execute(ReceiveContext context)
+    {
+        // 告诉FSS平台，当前进度执行了 20%
+        context.SetProgress(20);
+        
+        // 让FSS平台，记录日志
+        context.Logger(LogLevel.Information, "你好，世界！");
+        
+        // 下一次执行时间为10秒后（如果不设置，则使用任务组设置的时间）
+        context.SetNextAt(DateTime.Now.AddSeconds(10));
+        
+        // 任务执行成功
+        return true;
+    }
+}
+```
 ## 任务组
 任务组：是要执行任务的基本信息：任务名称、开始时间、执行次数、执行耗时、启用状态、下一次执行的任务ID。
 
