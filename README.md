@@ -140,7 +140,7 @@ public class HelloWorldJob : IFssJob
 | 6  | 实现任务组功能 |  |
 | 7  | 动态创建任务 |  |
 | 8  | 根据任务，基于Quartz.Net创建触发器、调度，并通知客户端 |  |
-| 9  | 记录客户端的运行日志、异常日志 |  |
+| 9  | 记录客户端的运行日志、异常日志 | 完成 |
 | 10  | 去中心化、分布式实现 |  |
 
 ## .NET客户端(Farseer.Net.Job)开发进度
@@ -156,3 +156,4 @@ public class HelloWorldJob : IFssJob
 |  序号   | 功能  |
 |  ----  | ----  |
 | 1  | 踢除客户端 |
+| 2  | 日志改用Redis作消费写入 |

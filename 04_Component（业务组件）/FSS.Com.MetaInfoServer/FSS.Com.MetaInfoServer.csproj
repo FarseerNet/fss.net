@@ -5,6 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.Cache.Redis\Farseer.Net.Cache.Redis.csproj" />
       <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.Data\Farseer.Net.Data.csproj" />
       <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.Mapper\Farseer.Net.Mapper.csproj" />
       <ProjectReference Include="..\..\03_Abstract（组件接口）\FSS.Abstract\FSS.Abstract.csproj" />

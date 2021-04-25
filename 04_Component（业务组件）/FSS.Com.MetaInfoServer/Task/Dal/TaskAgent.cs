@@ -17,5 +17,10 @@ namespace FSS.Com.MetaInfoServer.Task.Dal
         /// 获取任务信息
         /// </summary>
         public TaskPO ToEntity(int id) => MetaInfoContext.Data.Task.Where(o => o.Id == id).ToEntity();
+
+        /// <summary>
+        /// 更新任务信息
+        /// </summary>
+        public void Update(int id, TaskPO task) => MetaInfoContext.Data.Task.Where(o => o.Id == id).Update(task);
     }
 }

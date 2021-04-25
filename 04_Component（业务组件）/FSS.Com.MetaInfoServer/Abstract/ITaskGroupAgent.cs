@@ -16,5 +16,10 @@ namespace FSS.Com.MetaInfoServer.Abstract
         /// 获取任务信息
         /// </summary>
         TaskGroupPO ToEntity(int id);
+
+        /// <summary>
+        /// 更新任务组信息
+        /// </summary>
+        void Update(int id, TaskGroupPO taskGroup);
     }
 }
