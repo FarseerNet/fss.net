@@ -10,6 +10,7 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
     {
         public ITaskGroupCache TaskGroupCache { get; set; }
         public ITaskGroupAgent TaskGroupAgent { get; set; }
+        public ITaskGroupInfo  TaskGroupInfo { get; set; }
 
         /// <summary>
         /// 更新TaskGroup
@@ -26,6 +27,17 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
         {
             Update(taskGroup);
             TaskGroupAgent.Update(taskGroup.Id, taskGroup.Map<TaskGroupPO>());
+        }
+
+        /// <summary>
+        /// 更新任务ID
+        /// </summary>
+        public void UpdateTaskId(int taskGroupId, int taskId)
+        {
+            var taskGroupVO = TaskGroupInfo.ToInfo(taskGroupId);
+            taskGroupVO.TaskId = taskId;
+            Update(taskGroupVO);
+            TaskGroupAgent.UpdateTaskId(taskGroupId, taskId);
         }
     }
 }

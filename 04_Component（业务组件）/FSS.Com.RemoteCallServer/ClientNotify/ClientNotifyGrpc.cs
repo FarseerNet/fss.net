@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using FS.DI;
 using FS.Extends;
 using FS.Utils.Component;
 using FSS.Abstract.Entity.MetaInfo;
@@ -16,10 +17,11 @@ namespace FSS.Com.RemoteCallServer.ClientNotify
 {
     public class ClientNotifyGrpc : IClientNotifyGrpc
     {
-        public ITaskGroupInfo   TaskGroupInfo    { get; set; }
-        public ITaskUpdate      TaskUpdate       { get; set; }
+        public ITaskGroupInfo   TaskGroupInfo   { get; set; }
+        public ITaskUpdate      TaskUpdate      { get; set; }
         public ITaskGroupUpdate TaskGroupUpdate { get; set; }
-        public IRunLogAdd       RunLogAdd        { get; set; }
+        public IRunLogAdd       RunLogAdd       { get; set; }
+        public IIocManager       IocManager      { get; set; }
 
         /// <summary>
         /// 远程通知客户端执行JOB
@@ -35,7 +37,6 @@ namespace FSS.Com.RemoteCallServer.ClientNotify
             var registerCenterClient = new ReceiveNotify.ReceiveNotifyClient(GrpcChannel.ForAddress(client.Endpoint));
             
             // 通知客户端执行任务
-            var speedResult = new SpeedTestMultiple().Begin();
             var rpc = registerCenterClient.JobInvoke(new JobInvokeRequest
             {
                 TaskId      = task.Id,
@@ -45,9 +46,16 @@ namespace FSS.Com.RemoteCallServer.ClientNotify
                 NextAt      = taskGroup.NextAt.ToTimestamps(),
             });
 
+            task.Status = EumTaskType.Working;
+            TaskUpdate.Update(task);
+            RunLogAdd.Add(task.Id, LogLevel.Information, $"任务ID：{task.Id}，开始工作");
+
+            var speedResult    = new SpeedTestMultiple().Begin();
+            var isHaveResponse = false;
             // 读取客户端返回的实时进度、状态、日志
             while (await rpc.ResponseStream.MoveNext())
             {
+                isHaveResponse = true;
                 var responseStreamCurrent = rpc.ResponseStream.Current;
                 
                 // 更新Task
@@ -69,9 +77,14 @@ namespace FSS.Com.RemoteCallServer.ClientNotify
 
             // 计算耗时、并保存Task
             task.RunSpeed = speedResult.Timer.ElapsedMilliseconds.ConvertType(0);
+            if (!isHaveResponse && task.Status == EumTaskType.Working)
+            {
+                task.Status = EumTaskType.Fail;
+                RunLogAdd.Add(task.Id, LogLevel.Warning, $"任务ID：{task.Id}，已调度，但客户端没有响应");
+                IocManager.Logger<ClientNotifyGrpc>().LogWarning($"任务ID：{task.Id}，已调度，但客户端没有响应");
+            }
             TaskUpdate.Save(task);
             speedResult.Dispose();
-            
             return task;
         }
     }

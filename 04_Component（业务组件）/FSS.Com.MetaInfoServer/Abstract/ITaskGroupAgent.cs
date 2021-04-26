@@ -21,5 +21,10 @@ namespace FSS.Com.MetaInfoServer.Abstract
         /// 更新任务组信息
         /// </summary>
         void Update(int id, TaskGroupPO taskGroup);
+
+        /// <summary>
+        /// 更新任务ID
+        /// </summary>
+        void UpdateTaskId(int taskGroupId, int taskId);
     }
 }

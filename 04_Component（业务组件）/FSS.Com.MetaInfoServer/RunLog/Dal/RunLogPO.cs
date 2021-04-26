@@ -1,5 +1,6 @@
 using System;
 using FS.Core.Mapping.Attribute;
+using FS.Mapper;
 using Microsoft.Extensions.Logging;
 
 namespace FSS.Com.MetaInfoServer.RunLog.Dal
@@ -7,6 +8,7 @@ namespace FSS.Com.MetaInfoServer.RunLog.Dal
     /// <summary>
     /// 运行日志
     /// </summary>
+    //[Map(typeof(RunLogVO))]
     public class RunLogPO
     {
         /// <summary>

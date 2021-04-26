@@ -11,7 +11,11 @@ namespace FSS.Com.MetaInfoServer.TaskGroup.Dal
         /// <summary>
         /// 获取所有任务组列表
         /// </summary>
-        public List<TaskGroupPO> ToList() => MetaInfoContext.Data.TaskGroup.ToList();
+        public List<TaskGroupPO> ToList()
+        {
+            var lst = MetaInfoContext.Data.TaskGroup.ToList();
+            return lst;
+        }
 
         /// <summary>
         /// 获取任务组信息
@@ -22,5 +26,10 @@ namespace FSS.Com.MetaInfoServer.TaskGroup.Dal
         /// 更新任务组信息
         /// </summary>
         public void Update(int id, TaskGroupPO taskGroup) => MetaInfoContext.Data.TaskGroup.Where(o => o.Id == id).Update(taskGroup);
+
+        /// <summary>
+        /// 更新任务ID
+        /// </summary>
+        public void UpdateTaskId(int taskGroupId, int taskId) => MetaInfoContext.Data.TaskGroup.Where(o => o.Id == taskGroupId).Update(new TaskGroupPO {TaskId = taskId});
     }
 }

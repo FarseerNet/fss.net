@@ -8,19 +8,21 @@ using FSS.Abstract.Server.MetaInfo;
 using FSS.Abstract.Server.RegisterCenter;
 using FSS.Abstract.Server.RemoteCall;
 using FSS.Abstract.Server.Scheduler;
+using FSS.Com.RegisterCenterServer.Abstract;
 using Microsoft.Extensions.Logging;
 
 namespace FSS.Com.SchedulerServer.Scheduler
 {
     public class TaskGroupScheduler : ITaskGroupScheduler
     {
-        public                  IIocManager          IocManager       { get; set; }
-        public                  ITaskInfo            TaskInfo         { get; set; }
-        public                  ITaskUpdate          TaskUpdate       { get; set; }
-        public                  IClientSlb           ClientSlb        { get; set; }
-        public                  IClientNotifyGrpc    ClientNotifyGrpc { get; set; }
-        public                  ITaskAdd             TaskAdd          { get; set; }
-        private static readonly Dictionary<int, int> DicSleep = new();
+        public                  IIocManager           IocManager       { get; set; }
+        public                  ITaskInfo             TaskInfo         { get; set; }
+        public                  ITaskUpdate           TaskUpdate       { get; set; }
+        public                  IClientSlb            ClientSlb        { get; set; }
+        public                  IClientNotifyGrpc     ClientNotifyGrpc { get; set; }
+        public                  ITaskAdd              TaskAdd          { get; set; }
+        public                  IClientEndpoint       ClientEndpoint   { get; set; }
+        private static readonly Dictionary<int, bool> DicSleep = new();
 
         /// <summary>
         /// 根据任务组ID，进行任务调度
@@ -36,27 +38,30 @@ namespace FSS.Com.SchedulerServer.Scheduler
             {
                 // 默认500Ms执行一次
                 var groupIdState = (int) taskGroupIdState;
-                DicSleep[groupIdState] = 500;
+                DicSleep[groupIdState] = false;
+                
+                IocManager.Logger<TaskGroupScheduler>().LogInformation($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 任务组ID：{taskGroupId} 执行任务触发器");
                 while (true)
                 {
                     // 取出Task
                     var task = TaskInfo.ToGroupTask(taskGroupId);
                     if (task.Status is EumTaskType.Fail or EumTaskType.Success)
                     {
-                        task = TaskAdd.Create(taskGroupId);
+                        task                   = TaskAdd.Create(taskGroupId);
+                        DicSleep[groupIdState] = false;
                     }
 
                     // 大于2S，说明没有线程在执行当前任务
-                    if ((DateTime.Now - task.SchedulerActiveAt).TotalSeconds > 2)
+                    if (!DicSleep[groupIdState])
                     {
                         // 开启一个线程执行
                         Scheduler(taskGroupId: taskGroupId, task: task);
+                        DicSleep[groupIdState] = true;
                     }
 
-                    while (DicSleep[groupIdState] > 0)
+                    while (DicSleep[groupIdState])
                     {
-                        Thread.Sleep(5);
-                        DicSleep[groupIdState] -= 5;
+                        Thread.Sleep(10);
                     }
                 }
             }, taskGroupId);
@@ -71,47 +76,53 @@ namespace FSS.Com.SchedulerServer.Scheduler
             {
                 var taskVO = (TaskVO) taskState;
 
-                // 更新当前调度活动时间
-                task.SchedulerActiveAt = DateTime.Now;
-                TaskUpdate.Update(task);
-
-                var timeSpan = DateTime.Now - task.StartAt;
+                var timeSpan = task.StartAt - DateTime.Now;
                 while (timeSpan.TotalMilliseconds > 0)
                 {
                     // 休眠500ms
                     Thread.Sleep(timeSpan.TotalMilliseconds > 500 ? 500 : (int) timeSpan.TotalMilliseconds);
-
-                    // 更新当前调度活动时间，证明线程还活着
-                    taskVO.SchedulerActiveAt = DateTime.Now;
-                    TaskUpdate.Update(task);
-
-                    timeSpan = DateTime.Now - task.StartAt;
+                    timeSpan = task.StartAt - DateTime.Now;
                 }
 
                 // 取出空间客户端、开始调度执行
+                var clientVO = ClientSlb.Slb();
                 try
                 {
-                    var clientVO = ClientSlb.Slb();
-                    
                     // 当前没有客户端注册进来
                     if (clientVO == null)
                     {
-                        taskVO.SchedulerActiveAt = DateTime.MinValue;
-                        TaskUpdate.Update(task);
+                        IocManager.Logger<TaskGroupScheduler>().LogWarning($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 任务ID：{taskVO.Id}、任务组ID：{taskVO.TaskGroupId} 需要在（{taskVO.StartAt:yyyy-MM-dd HH:mm:ss}）执行，但没有找到可以调度的客户端");
+                        Thread.Sleep(5000);
                         return;
                     }
-                    ClientNotifyGrpc.Invoke(clientVO, taskVO);
+
+                    IocManager.Logger<TaskGroupScheduler>().LogInformation($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 任务ID：{taskVO.Id}、任务组ID：{taskVO.TaskGroupId} 调度给{clientVO.Endpoint} 执行");
+                    var result = ClientNotifyGrpc.Invoke(clientVO, taskVO).Result;
+                    // 不成功，则暂停3秒
+                    if (result.Status != EumTaskType.Success)
+                    {
+                        IocManager.Logger<TaskGroupScheduler>().LogWarning($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 任务ID：{taskVO.Id}、任务组ID：{taskVO.TaskGroupId} 执行失败");
+                        Thread.Sleep(3000);
+                    }
                 }
                 catch (Exception e)
                 {
                     IocManager.Logger<TaskGroupScheduler>().LogError(e, e.Message);
                     task.Status = EumTaskType.Fail;
                     TaskUpdate.Save(task);
+                    Thread.Sleep(3000);
                 }
                 finally
                 {
                     TaskAdd.Create(taskGroupId);
-                    DicSleep[task.TaskGroupId] = 0;
+                    DicSleep[task.TaskGroupId] = false;
+                    
+                    // 更新客户端统计
+                    if (clientVO != null)
+                    {
+                        clientVO.UseAt = DateTime.Now;
+                        ClientEndpoint.Save(clientVO.Id, clientVO);
+                    }
                 }
             }, task);
         }

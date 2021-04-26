@@ -56,6 +56,6 @@ namespace FSS.Abstract.Entity.MetaInfo
         /// <summary>
         /// 调度器活动时间
         /// </summary>
-        public DateTime SchedulerActiveAt { get; set; }
+        //public DateTime SchedulerActiveAt { get; set; }
     }
 }

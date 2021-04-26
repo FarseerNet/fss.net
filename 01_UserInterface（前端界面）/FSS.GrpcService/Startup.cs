@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace FSS.GrpcService
 {
@@ -68,6 +69,7 @@ namespace FSS.GrpcService
         {
             IocManager.RegisterAssemblyByConvention(GetType());
 
+            IocManager.Logger<Startup>().LogInformation("遍历任务组、开启调度线程");
             // 遍历任务组、开启调度线程
             var taskGroupVos = IocManager.Resolve<ITaskGroupList>().ToList();
             foreach (var taskGroupVo in taskGroupVos)

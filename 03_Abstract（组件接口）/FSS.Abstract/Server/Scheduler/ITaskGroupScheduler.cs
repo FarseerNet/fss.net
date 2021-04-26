@@ -1,6 +1,8 @@
+using FS.DI;
+
 namespace FSS.Abstract.Server.Scheduler
 {
-    public interface ITaskGroupScheduler
+    public interface ITaskGroupScheduler: ITransientDependency
     {
         /// <summary>
         /// 根据任务组ID，进行任务调度

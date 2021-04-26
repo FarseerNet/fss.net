@@ -11,9 +11,10 @@ namespace FSS.Com.MetaInfoServer.Task
 {
     public class TaskAdd : ITaskAdd
     {
-        public ITaskAgent     TaskAgent     { get; set; }
-        public ICacheManager  CacheManager  { get; set; }
-        public ITaskGroupInfo TaskGroupInfo { get; set; }
+        public ITaskAgent       TaskAgent        { get; set; }
+        public ICacheManager    CacheManager     { get; set; }
+        public ITaskGroupInfo   TaskGroupInfo    { get; set; }
+        public ITaskGroupUpdate TaskGroupUpdate { get; set; }
         
         /// <summary>
         /// 创建Task，并更新到缓存
@@ -46,10 +47,10 @@ namespace FSS.Com.MetaInfoServer.Task
                 };
                 TaskAgent.Add(task, out int id);
                 task.Id = id;
+                TaskGroupUpdate.UpdateTaskId(taskGroup.Id, id);
             }
 
             var taskVo = task.Map<TaskVO>();
-            taskVo.SchedulerActiveAt = DateTime.MinValue;
             CacheManager.Save(TaskCache.Key, taskVo, taskVo.TaskGroupId);
 
             return taskVo;
