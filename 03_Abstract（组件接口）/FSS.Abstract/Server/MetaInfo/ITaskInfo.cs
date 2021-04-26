@@ -9,5 +9,10 @@ namespace FSS.Abstract.Server.MetaInfo
         /// 获取任务信息
         /// </summary>
         TaskVO ToInfo(int id);
+
+        /// <summary>
+        /// 获取当前任务组的任务
+        /// </summary>
+        TaskVO ToGroupTask(int taskGroupId);
     }
 }

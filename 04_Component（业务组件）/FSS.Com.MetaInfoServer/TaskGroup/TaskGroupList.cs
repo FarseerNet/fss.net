@@ -4,6 +4,7 @@ using FS.Extends;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Server.MetaInfo;
 using FSS.Com.MetaInfoServer.Abstract;
+using FSS.Com.MetaInfoServer.TaskGroup.Dal;
 
 namespace FSS.Com.MetaInfoServer.TaskGroup
 {
@@ -13,7 +14,6 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
     public class TaskGroupList : ITaskGroupList
     {
         public ITaskGroupAgent TaskGroupAgent { get; set; }
-        public ITaskGroupCache TaskGroupCache { get; set; }
         public ICacheManager   CacheManager   { get; set; }
 
         /// <summary>
@@ -21,7 +21,7 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
         /// </summary>
         public List<TaskGroupVO> ToList()
         {
-            return CacheManager.GetList("TaskGroup",
+            return CacheManager.GetList(TaskGroupCache.Key,
                 opt => TaskGroupAgent.ToList().Map<TaskGroupVO>()
                 , o => o.Id);
         }

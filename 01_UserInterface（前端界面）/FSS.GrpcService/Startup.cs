@@ -6,6 +6,8 @@ using FS.Data;
 using FS.DI;
 using FS.Mapper;
 using FS.Modules;
+using FSS.Abstract.Server.MetaInfo;
+using FSS.Abstract.Server.Scheduler;
 using FSS.Com.MetaInfoServer;
 using FSS.Com.RegisterCenterServer;
 using FSS.Com.RemoteCallServer;
@@ -65,6 +67,13 @@ namespace FSS.GrpcService
         public override void PostInitialize()
         {
             IocManager.RegisterAssemblyByConvention(GetType());
+
+            // 遍历任务组、开启调度线程
+            var taskGroupVos = IocManager.Resolve<ITaskGroupList>().ToList();
+            foreach (var taskGroupVo in taskGroupVos)
+            {
+                IocManager.Resolve<ITaskGroupScheduler>().Scheduler(taskGroupVo.Id);
+            }
         }
     }
 }

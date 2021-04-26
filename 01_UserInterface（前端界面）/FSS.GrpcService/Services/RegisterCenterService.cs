@@ -28,17 +28,7 @@ namespace FSS.GrpcService.Services
             await foreach (var registerRequest in requestStream.ReadAllAsync())
             {
                 // 注册
-                var result = await GrpcTools.Try(() =>
-                {
-                    var registerResult = _ioc.Resolve<IClientRegister>().Register(registerRequest.ClientId, $"http://{ip}:{registerRequest.ReceiveNotifyPort}");
-
-                    // 测试使用
-                    var clientVO = _ioc.Resolve<IClientSlb>().Slb();
-                    //_ioc.Resolve<IClientNotifyGrpc>().Invoke(clientVO, new TaskVO());
-                    
-                    return registerResult;
-                }, "注册成功");
-
+                var result = await GrpcTools.Try(() => _ioc.Resolve<IClientRegister>().Register(registerRequest.ClientId, $"http://{ip}:{registerRequest.ReceiveNotifyPort}"), "注册成功");
                 await responseStream.WriteAsync(result);
             }
         }

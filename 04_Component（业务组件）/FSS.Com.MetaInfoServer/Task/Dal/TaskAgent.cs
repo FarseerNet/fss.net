@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using FSS.Abstract.Enum;
 using FSS.Com.MetaInfoServer.Abstract;
 
 namespace FSS.Com.MetaInfoServer.Task.Dal
@@ -22,5 +23,15 @@ namespace FSS.Com.MetaInfoServer.Task.Dal
         /// 更新任务信息
         /// </summary>
         public void Update(int id, TaskPO task) => MetaInfoContext.Data.Task.Where(o => o.Id == id).Update(task);
+
+        /// <summary>
+        /// 添加任务信息
+        /// </summary>
+        public void Add(TaskPO task, out int id) => MetaInfoContext.Data.Task.Insert(task, out id);
+
+        /// <summary>
+        /// 获取未执行的任务信息
+        /// </summary>
+        public TaskPO ToUnExecutedTask(int groupId) => MetaInfoContext.Data.Task.Where(o => o.TaskGroupId == groupId && o.Status == EumTaskType.None).ToEntity();
     }
 }

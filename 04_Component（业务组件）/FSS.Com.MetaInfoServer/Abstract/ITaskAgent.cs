@@ -20,5 +20,15 @@ namespace FSS.Com.MetaInfoServer.Abstract
         /// 更新任务信息
         /// </summary>
         void Update(int id, TaskPO task);
+
+        /// <summary>
+        /// 添加任务信息
+        /// </summary>
+        void Add(TaskPO task, out int id);
+
+        /// <summary>
+        /// 获取未执行的任务信息
+        /// </summary>
+        TaskPO ToUnExecutedTask(int groupId);
     }
 }

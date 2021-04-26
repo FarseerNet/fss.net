@@ -15,14 +15,14 @@ namespace FSS.Com.MetaInfoServer.TaskGroup.Dal
     {
         public IRedisCacheManager RedisCacheManager { get; set; }
 
-        private string key = "TaskGroup";
+        public const string Key = "TaskGroup";
 
         /// <summary>
         /// 保存任务组信息
         /// </summary>
         public void Save(int taskGroupId, TaskGroupVO taskGroup)
         {
-            RedisCacheManager.Db.HashSet(key, taskGroupId, JsonConvert.SerializeObject(taskGroup));
+            RedisCacheManager.Db.HashSet(Key, taskGroupId, JsonConvert.SerializeObject(taskGroup));
         }
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace FSS.Com.MetaInfoServer.TaskGroup.Dal
         /// </summary>
         public List<TaskGroupVO> ToList()
         {
-            return RedisCacheManager.Db.HashGetAll(key).Select(o => JsonConvert.DeserializeObject<TaskGroupVO>(o.Value)).ToList();
+            return RedisCacheManager.Db.HashGetAll(Key).Select(o => JsonConvert.DeserializeObject<TaskGroupVO>(o.Value)).ToList();
         }
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace FSS.Com.MetaInfoServer.TaskGroup.Dal
         /// </summary>
         public TaskGroupVO ToEntity(int taskGroupId)
         {
-            var redisValue = RedisCacheManager.Db.HashGet(key, taskGroupId);
+            var redisValue = RedisCacheManager.Db.HashGet(Key, taskGroupId);
             return !redisValue.HasValue ? null : JsonConvert.DeserializeObject<TaskGroupVO>(redisValue.ToString());
         }
     }

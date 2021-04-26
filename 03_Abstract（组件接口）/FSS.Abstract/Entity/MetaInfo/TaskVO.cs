@@ -52,5 +52,10 @@ namespace FSS.Abstract.Entity.MetaInfo
         /// 任务创建时间
         /// </summary>
         public DateTime CreateAt { get; set; }
+        
+        /// <summary>
+        /// 调度器活动时间
+        /// </summary>
+        public DateTime SchedulerActiveAt { get; set; }
     }
 }

@@ -1,3 +1,4 @@
+using FS.Cache;
 using FS.Extends;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Server.MetaInfo;
@@ -8,15 +9,15 @@ namespace FSS.Com.MetaInfoServer.Task
 {
     public class TaskUpdate : ITaskUpdate
     {
-        public ITaskCache TaskCache { get; set; }
-        public ITaskAgent  TaskAgent { get; set; }
+        public ICacheManager CacheManager { get; set; }
+        public ITaskAgent    TaskAgent    { get; set; }
 
         /// <summary>
         /// 更新Task
         /// </summary>
         public void Update(TaskVO task)
         {
-            TaskCache.Save(task.Id, task);
+            CacheManager.Save(TaskCache.Key, task, task.Id,new CacheOption());
         }
 
         /// <summary>
