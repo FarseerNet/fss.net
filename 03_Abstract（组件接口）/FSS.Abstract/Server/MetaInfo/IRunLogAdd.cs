@@ -8,6 +8,6 @@ namespace FSS.Abstract.Server.MetaInfo
         /// <summary>
         /// 添加日志记录
         /// </summary>
-        void Add(int taskId, LogLevel logLevel, string content);
+        void Add(int taskGroupId, int taskId, LogLevel logLevel, string content);
     }
 }

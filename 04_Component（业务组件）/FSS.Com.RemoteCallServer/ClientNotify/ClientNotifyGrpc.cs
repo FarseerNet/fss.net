@@ -48,7 +48,7 @@ namespace FSS.Com.RemoteCallServer.ClientNotify
 
             task.Status = EumTaskType.Working;
             TaskUpdate.Update(task);
-            RunLogAdd.Add(task.Id, LogLevel.Information, $"任务ID：{task.Id}，开始工作");
+            RunLogAdd.Add(task.TaskGroupId, task.Id, LogLevel.Information, $"任务ID：{task.Id}，开始工作");
 
             var speedResult    = new SpeedTestMultiple().Begin();
             var isHaveResponse = false;
@@ -71,7 +71,7 @@ namespace FSS.Com.RemoteCallServer.ClientNotify
                 // 如果有日志
                 if (responseStreamCurrent.Log != null && !string.IsNullOrWhiteSpace(responseStreamCurrent.Log.Log))
                 {
-                    RunLogAdd.Add(task.Id, (LogLevel)responseStreamCurrent.Log.LogLevel, responseStreamCurrent.Log.Log);
+                    RunLogAdd.Add(task.TaskGroupId, task.Id, (LogLevel)responseStreamCurrent.Log.LogLevel, responseStreamCurrent.Log.Log);
                 }
             }
 
@@ -80,7 +80,7 @@ namespace FSS.Com.RemoteCallServer.ClientNotify
             if (!isHaveResponse && task.Status == EumTaskType.Working)
             {
                 task.Status = EumTaskType.Fail;
-                RunLogAdd.Add(task.Id, LogLevel.Warning, $"任务ID：{task.Id}，已调度，但客户端没有响应");
+                RunLogAdd.Add(task.TaskGroupId, task.Id, LogLevel.Warning, $"任务ID：{task.Id}，已调度，但客户端没有响应");
                 IocManager.Logger<ClientNotifyGrpc>().LogWarning($"任务ID：{task.Id}，已调度，但客户端没有响应");
             }
             TaskUpdate.Save(task);

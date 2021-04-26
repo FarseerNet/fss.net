@@ -16,6 +16,12 @@ namespace FSS.Com.MetaInfoServer.RunLog.Dal
         /// </summary>
         [Field(Name = "id",IsPrimaryKey = true)]
         public long Id { get; set; }
+
+        /// <summary>
+        /// 任务组记录ID
+        /// </summary>
+        [Field(Name = "task_group_id")]
+        public int TaskGroupId { get; set; }
         
         /// <summary>
         /// 任务记录ID

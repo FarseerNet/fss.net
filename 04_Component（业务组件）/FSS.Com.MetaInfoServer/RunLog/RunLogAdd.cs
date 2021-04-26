@@ -18,15 +18,16 @@ namespace FSS.Com.MetaInfoServer.RunLog
         /// <summary>
         /// 添加日志记录
         /// </summary>
-        public void Add(int taskId, LogLevel logLevel, string content)
+        public void Add(int taskGroupId, int taskId, LogLevel logLevel, string content)
         {
-            if (logLevel== LogLevel.Error) IocManager.Logger<RunLogAdd>().LogWarning($"任务ID：{taskId}，发生错误：{content}");
+            if (logLevel == LogLevel.Error) IocManager.Logger<RunLogAdd>().LogWarning($"任务组：{taskGroupId} 任务ID：{taskId}，发生错误：{content}");
             RunLogAgent.Add(new RunLogPO
             {
-                TaskId   = taskId,
-                LogLevel = logLevel,
-                Content  = content,
-                CreateAt = DateTime.Now
+                TaskGroupId = taskGroupId,
+                TaskId      = taskId,
+                LogLevel    = logLevel,
+                Content     = content,
+                CreateAt    = DateTime.Now
             });
         }
     }
