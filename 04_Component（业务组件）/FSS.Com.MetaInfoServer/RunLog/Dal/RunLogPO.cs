@@ -28,7 +28,7 @@ namespace FSS.Com.MetaInfoServer.RunLog.Dal
         public LogLevel LogLevel { get; set; }
         
         /// <summary>
-        /// 任务的标题
+        /// 日志内容
         /// </summary>
         [Field(Name = "content")]
         public string Content { get; set; }
