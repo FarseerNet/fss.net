@@ -1,20 +1,14 @@
-﻿FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
+# 添加基础镜像
+FROM mcr.microsoft.com/dotnet/aspnet:5.0
 WORKDIR /app
-EXPOSE 80
-EXPOSE 443
+COPY . ./
 
-FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
-WORKDIR /src
-COPY ["01_UserInterface（前端界面）/FSS.GrpcService/FSS.GrpcService.csproj", "FSS.GrpcService/"]
-RUN dotnet restore "01_UserInterface（前端界面）/FSS.GrpcService/FSS.GrpcService.csproj"
-COPY . .
-WORKDIR "/src/FSS.GrpcService"
-RUN dotnet build "FSS.GrpcService.csproj" -c Release -o /app/build
+#设置时区
+#RUN cp /usr/share/zoneinfo/GMT /etc/localtime
+#RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai    /etc/localtime
 
-FROM build AS publish
-RUN dotnet publish "FSS.GrpcService.csproj" -c Release -o /app/publish
+#设置Docker容器对外暴露的端口
+#EXPOSE 80
 
-FROM base AS final
-WORKDIR /app
-COPY --from=publish /app/publish .
+#容器中使用 ["dotnet","系统启动的dll"] 来运行应用程序
 ENTRYPOINT ["dotnet", "FSS.GrpcService.dll"]

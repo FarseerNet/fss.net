@@ -25,4 +25,10 @@
       <ProjectReference Include="..\..\05_Infrastructure（基础设施）\FSS.Infrastructure.Common\FSS.Infrastructure.Common.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="Dockerfile">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>

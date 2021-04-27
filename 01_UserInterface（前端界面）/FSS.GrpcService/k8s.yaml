@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fss-grpc
+  labels:
+    app: fss-grpc
+    k8s.kuboard.cn/layer: svc
+spec:
+  replicas: 1
+  revisionHistoryLimit: 1
+  minReadySeconds: 10     # 这里需要估一个比较合理的值，从容器启动到应用正常提供服务
+  strategy:               # k8s 默认的 strategy 就是 RollingUpdate， 这里写明出来可以调节细节参数
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1         # 更新时允许最大激增的容器数，默认 replicas 的 1/4 向上取整
+      maxUnavailable: 0   # 更新时允许最大 unavailable 容器数，默认 replicas 的 1/4 向下取整
+  selector:
+    matchLabels:
+      app: fss-grpc
+  template:
+    metadata:
+      name: fss-grpc
+      labels:
+        app: fss-grpc
+    spec:
+      dnsPolicy: "Default"
+      dnsConfig:
+        options:
+          - name: single-request-reopen
+      nodeSelector:   #节点筛选器
+        rt: web
+      containers:
+        - name: fss-grpc
+          image: fss-grpc:latest
+          imagePullPolicy: IfNotPresent
+          imagePullSecrets:
+            - name: regsecret
+          ports:
+            - containerPort: 80
+          env:
+            - name: TZ
+              value: Asia/Shanghai
+#            - name: ASPNETCORE_ENVIRONMENT
+#              value: Test
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fss-grpc
+spec:
+  selector:
+    app: fss-grpc
+  type: ClusterIP
+  ports:
+    - name: http # 请为所有端口指定名称
+      port: 80 # 暴露在集群内的服务端口
+      protocol: TCP
+      targetPort: 80
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: fss-grpc
+spec:
+  rules:
+    - host: your.domain # 内网则可以直接使用Service
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: fss-grpc
+              servicePort: 80
