@@ -5,6 +5,7 @@ appPath='/root/nfs/git/FarseerSchedulerService/01_UserInterface（前端界面�
 v=`date +%Y_%m_%d_%H_%M_%S`
 dockerHub='10.102.171.169:5000'
 
+git -C /root/nfs/git/Farseer.Net pull
 git -C ${appPath} pull
 
 cd ${appPath}
