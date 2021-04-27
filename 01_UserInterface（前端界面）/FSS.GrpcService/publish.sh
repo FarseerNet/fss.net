@@ -16,3 +16,5 @@ docker build -t ${dockerHub}:${n}-${v} --network=host .
 #docker push ${dockerHub}:${n}-${v} # jenkins与k8s在同一台机器，不需删除
 #docker rmi ${dockerHub}:${n}-${v} # jenkins与k8s在同一台机器，不需删除
 kubectl set image deployment/${n} ${n}=${dockerHub}:${n}-${v}
+
+dotnet publish -nowarn:msb3202,nu1503,cs1591 -c Release -o /home/release/fss-grpc
