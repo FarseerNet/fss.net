@@ -33,5 +33,13 @@ namespace FSS.Com.RegisterCenterServer.Client
             clientVO.UseAt = useAt;
             ClientEndpoint.Save(clientId, clientVO);
         }
+
+        /// <summary>
+        /// 下线客户端
+        /// </summary>
+        public void Remove(string clientId)
+        {
+            ClientEndpoint.Remove(clientId);
+        }
     }
 }

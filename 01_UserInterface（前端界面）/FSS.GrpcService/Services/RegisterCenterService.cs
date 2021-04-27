@@ -6,6 +6,7 @@ using FSS.Abstract.Server.RegisterCenter;
 using FSS.Abstract.Server.RemoteCall;
 using FSS.Infrastructure.Common;
 using Grpc.Core;
+using Microsoft.AspNetCore.Connections;
 using Microsoft.Extensions.Logging;
 
 namespace FSS.GrpcService.Services
@@ -24,19 +25,38 @@ namespace FSS.GrpcService.Services
         /// </summary>
         public override async Task Register(IAsyncStreamReader<RegisterRequest> requestStream, IServerStreamWriter<RpcResponse> responseStream, ServerCallContext context)
         {
-            var ip = context.Peer.Split(':')[1];
-            _ioc.Logger<RegisterCenterService>().LogInformation($"客户端:{ip}注册进来了");
-            
-            // 持续注册
-            await foreach (var registerRequest in requestStream.ReadAllAsync())
+            var    ip       = context.Peer.Split(':')[1];
+            var    clientId = "";
+            string endpoint = null;
+            try
             {
-                // 注册
-                var result = await GrpcTools.Try(() =>
+                await foreach (var registerRequest in requestStream.ReadAllAsync())
                 {
-                    var endpoint = $"http://{ip}:{registerRequest.ReceiveNotifyPort}";
-                    return _ioc.Resolve<IClientRegister>().Register(registerRequest.ClientId, endpoint);
-                }, "注册成功");
-                await responseStream.WriteAsync(result);
+                    // 注册、心跳
+                    var result = await GrpcTools.Try(() =>
+                    {
+                        if (endpoint == null)
+                        {
+                            endpoint = $"http://{ip}:{registerRequest.ReceiveNotifyPort}";
+                            clientId = registerRequest.ClientId;
+                            _ioc.Logger<RegisterCenterService>().LogInformation($"客户端:{endpoint} 注册进来了");
+                        }
+
+                        return _ioc.Resolve<IClientRegister>().Register(registerRequest.ClientId, endpoint);
+                    }, "注册成功");
+                    await responseStream.WriteAsync(result);
+                }
+            }
+            catch (Exception e)
+            {
+                if (e.InnerException is ConnectionAbortedException)
+                {
+                    if (!string.IsNullOrWhiteSpace(clientId))
+                    {
+                        _ioc.Resolve<IClientSlb>().Remove(clientId);
+                        _ioc.Logger<RegisterCenterService>().LogWarning($"客户端{endpoint} 断开连接");
+                    }
+                }
             }
         }
     }

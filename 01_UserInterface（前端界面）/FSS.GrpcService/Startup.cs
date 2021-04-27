@@ -39,6 +39,8 @@ namespace FSS.GrpcService
         {
             services.AddGrpc(options => { options.Interceptors.Add<AuthInterceptor>(); });
             services.AddSingleton<IIocManager>(FS.DI.IocManager.Instance.Resolve<IIocManager>());
+            // 开启任务组调度
+            services.AddSingleton<IHostedService, StartTaskGroupScheduler>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -46,7 +48,7 @@ namespace FSS.GrpcService
         {
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
+                //app.UseDeveloperExceptionPage();
             }
 
             app.UseRouting();
@@ -68,14 +70,6 @@ namespace FSS.GrpcService
         public override void PostInitialize()
         {
             IocManager.RegisterAssemblyByConvention(GetType());
-
-            IocManager.Logger<Startup>().LogInformation("遍历任务组、开启调度线程");
-            // 遍历任务组、开启调度线程
-            var taskGroupVos = IocManager.Resolve<ITaskGroupList>().ToList();
-            foreach (var taskGroupVo in taskGroupVos)
-            {
-                IocManager.Resolve<ITaskGroupScheduler>().Scheduler(taskGroupVo.Id);
-            }
         }
     }
 }

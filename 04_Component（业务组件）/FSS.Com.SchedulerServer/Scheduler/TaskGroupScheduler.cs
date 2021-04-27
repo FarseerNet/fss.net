@@ -9,6 +9,7 @@ using FSS.Abstract.Server.RegisterCenter;
 using FSS.Abstract.Server.RemoteCall;
 using FSS.Abstract.Server.Scheduler;
 using FSS.Com.RegisterCenterServer.Abstract;
+using Grpc.Core;
 using Microsoft.Extensions.Logging;
 
 namespace FSS.Com.SchedulerServer.Scheduler
@@ -39,8 +40,8 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 // 默认500Ms执行一次
                 var groupIdState = (int) taskGroupIdState;
                 DicSleep[groupIdState] = false;
-                
-                IocManager.Logger<TaskGroupScheduler>().LogInformation($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 任务组ID：{taskGroupId} 执行任务触发器");
+
+                IocManager.Logger<TaskGroupScheduler>().LogInformation($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 任务组：{taskGroupId} 执行任务触发器");
                 while (true)
                 {
                     // 取出Task
@@ -84,30 +85,52 @@ namespace FSS.Com.SchedulerServer.Scheduler
                     timeSpan = task.StartAt - DateTime.Now;
                 }
 
-                // 取出空间客户端、开始调度执行
+                // 取出空闲客户端、开始调度执行
                 var clientVO = ClientSlb.Slb();
                 try
                 {
                     // 当前没有客户端注册进来
                     if (clientVO == null)
                     {
-                        IocManager.Logger<TaskGroupScheduler>().LogWarning($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 任务ID：{taskVO.Id}、任务组ID：{taskVO.TaskGroupId} 需要在（{taskVO.StartAt:yyyy-MM-dd HH:mm:ss}）执行，但没有找到可以调度的客户端");
+                        IocManager.Logger<TaskGroupScheduler>().LogWarning($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 任务：{taskVO.TaskGroupId}-{taskVO.Id} 需要在（{taskVO.StartAt:yyyy-MM-dd HH:mm:ss}）执行，但没有找到可以调度的客户端");
                         Thread.Sleep(5000);
                         return;
                     }
 
-                    IocManager.Logger<TaskGroupScheduler>().LogInformation($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 任务ID：{taskVO.Id}、任务组ID：{taskVO.TaskGroupId} 调度给{clientVO.Endpoint} 执行");
+                    IocManager.Logger<TaskGroupScheduler>().LogInformation($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 任务：{taskVO.TaskGroupId}-{taskVO.Id} 调度给{clientVO.Endpoint} 执行");
                     var result = ClientNotifyGrpc.Invoke(clientVO, taskVO).Result;
                     // 不成功，则暂停3秒
                     if (result.Status != EumTaskType.Success)
                     {
-                        IocManager.Logger<TaskGroupScheduler>().LogWarning($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 任务ID：{taskVO.Id}、任务组ID：{taskVO.TaskGroupId} 执行失败");
+                        IocManager.Logger<TaskGroupScheduler>().LogWarning($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 任务：{taskVO.TaskGroupId}-{taskVO.Id} 执行失败");
                         Thread.Sleep(3000);
+                    }
+                    else
+                    {
+                        IocManager.Logger<TaskGroupScheduler>().LogInformation($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 任务：{taskVO.TaskGroupId}-{taskVO.Id} 执行成功，耗时：{result.RunSpeed} ms");
                     }
                 }
                 catch (Exception e)
                 {
-                    IocManager.Logger<TaskGroupScheduler>().LogError(e, e.Message);
+                    if (e.InnerException != null) e = e.InnerException;
+
+                    var statusCode = StatusCode.Unknown;
+                    var msg        = e.Message;
+                    if (e is RpcException rpcException1)
+                    {
+                        msg        = rpcException1.Status.Detail;
+                        statusCode = rpcException1.Status.StatusCode;
+                    }
+
+                    // 客户端断开连接
+                    if (statusCode == StatusCode.Unavailable)
+                    {
+                        ClientSlb.Remove(clientVO.Id);
+                        IocManager.Logger<TaskGroupScheduler>().LogWarning(msg);
+                    }
+                    else
+                        IocManager.Logger<TaskGroupScheduler>().LogError(msg);
+
                     task.Status = EumTaskType.Fail;
                     TaskUpdate.Save(task);
                     Thread.Sleep(3000);
@@ -116,7 +139,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 {
                     TaskAdd.Create(taskGroupId);
                     DicSleep[task.TaskGroupId] = false;
-                    
+
                     // 更新客户端统计
                     if (clientVO != null)
                     {

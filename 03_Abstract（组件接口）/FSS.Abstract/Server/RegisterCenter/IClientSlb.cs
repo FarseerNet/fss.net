@@ -15,5 +15,10 @@ namespace FSS.Abstract.Server.RegisterCenter
         /// 更新客户端调用的使用时间
         /// </summary>
         void UpdateUseAt(string clientId, DateTime useAt);
+
+        /// <summary>
+        /// 下线客户端
+        /// </summary>
+        void Remove(string clientId);
     }
 }

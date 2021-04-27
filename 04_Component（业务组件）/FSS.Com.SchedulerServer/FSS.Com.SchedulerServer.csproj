@@ -16,4 +16,8 @@
       <Folder Include="Abstract" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Grpc.Core.Api" Version="2.37.0" />
+    </ItemGroup>
+
 </Project>

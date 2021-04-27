@@ -33,6 +33,15 @@ namespace FSS.Com.RegisterCenterServer.Client
         {
             return RedisCacheManager.Db.HashGetAll(key).Select(o => JsonConvert.DeserializeObject<ClientVO>(o.Value)).ToList();
         }
+        
+        /// <summary>
+        /// 下线客户端
+        /// </summary>
+        /// <param name="clientId"></param>
+        public void Remove(string clientId)
+        {
+            RedisCacheManager.Db.HashDelete(key, clientId);
+        }
 
         /// <summary>
         /// 获取客户端

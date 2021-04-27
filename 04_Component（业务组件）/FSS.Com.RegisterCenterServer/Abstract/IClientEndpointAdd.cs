@@ -20,5 +20,10 @@ namespace FSS.Com.RegisterCenterServer.Abstract
         /// 当前注册的列表
         /// </summary>
         List<ClientVO> ToList();
+
+        /// <summary>
+        /// 下线客户端
+        /// </summary>
+        void Remove(string clientId);
     }
 }
