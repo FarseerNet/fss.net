@@ -25,7 +25,7 @@ namespace FSS.GrpcService
             return Host.CreateDefaultBuilder(args).ConfigureWebHostDefaults(webBuilder =>
             {
                 //Setup a HTTP/2 endpoint without TLS.
-                webBuilder.ConfigureKestrel(options => options.Listen(IPAddress.Any, 80, o => o.Protocols = HttpProtocols.Http2)).UseStartup<Startup>();
+                webBuilder.ConfigureKestrel(options => options.Listen(IPAddress.Any, 80)).UseStartup<Startup>();
             });
         }
     }

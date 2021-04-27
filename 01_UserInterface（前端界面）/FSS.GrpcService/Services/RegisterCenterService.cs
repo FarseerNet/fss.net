@@ -23,6 +23,8 @@ namespace FSS.GrpcService.Services
         /// </summary>
         public override async Task Register(IAsyncStreamReader<RegisterRequest> requestStream, IServerStreamWriter<RpcResponse> responseStream, ServerCallContext context)
         {
+            Console.WriteLine(context.Host);
+            Console.WriteLine(context.Peer);
             var    ip       = context.Peer.Split(':')[1];
             var    clientId = "";
             string endpoint = null;

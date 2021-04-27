@@ -64,7 +64,6 @@ namespace FSS.GrpcService
         public override void PreInitialize()
         {
             ThreadPool.SetMinThreads(200, 200);
-            AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
         }
 
         public override void PostInitialize()
