@@ -1,6 +1,6 @@
 syntax = "proto3";
 option csharp_namespace = "FSS.GrpcService";
-import "Protos/Public/RpcResponse.proto";
+import "Protos/Public/rpcResponse.proto";
 package fss;
 
 // 注册中心
