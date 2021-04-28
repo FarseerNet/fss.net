@@ -25,8 +25,8 @@ namespace FSS.Com.MetaInfoServer.Task
         /// </summary>
         public void Save(TaskVO task)
         {
-            Update(task);
             TaskAgent.Update(task.Id, task.Map<TaskPO>());
+            Update(task);
         }
     }
 }

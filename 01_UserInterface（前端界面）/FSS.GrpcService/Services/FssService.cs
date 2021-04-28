@@ -102,7 +102,20 @@ namespace FSS.GrpcService.Services
                     task.Progress = registerRequest.Progress;
                     task.Status   = (EumTaskType) registerRequest.Status;
                     task.RunSpeed = registerRequest.RunSpeed;
-                    taskUpdate.Update(task);
+                    
+                    // 如果是成功、错误状态，则要立即更新数据库
+                    switch (task.Status)
+                    {
+                        case EumTaskType.Fail:
+                        case EumTaskType.Success:
+                        case EumTaskType.ReScheduler:
+                            taskUpdate.Save(task);
+                            break;
+                        default:
+                            taskUpdate.Update(task);
+                            break;
+                    }
+                    
 
                     // 设置下一次的执行时间，并更新
                     taskGroup.NextAt = registerRequest.NextAt.ToTimestamps();
@@ -135,11 +148,6 @@ namespace FSS.GrpcService.Services
                 task.Status = EumTaskType.Fail;
                 logger.LogError(e.Message);
                 return (CommandResponse) _ioc.Resolve<IClientResponse>().Print(e.Message);
-            }
-            finally
-            {
-                taskAdd.GetOrCreate(taskGroup);
-                taskUpdate.Save(task);
             }
         }
     }

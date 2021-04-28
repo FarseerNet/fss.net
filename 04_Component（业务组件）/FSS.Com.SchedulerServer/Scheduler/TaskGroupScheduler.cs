@@ -49,18 +49,21 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 {
                     try
                     {
-                        Console.WriteLine($"1、{tGroupId}");
                         // 取出当前任务组的Task
                         dicTaskGroupIsRun[tGroupId] = TaskInfo.ToGroupTask(tGroupId);
                         if (dicTaskGroupIsRun[tGroupId].Status is EumTaskType.Fail or EumTaskType.Success or EumTaskType.ReScheduler)
                         {
+                            Console.WriteLine($"1、{tGroupId} {dicTaskGroupIsRun[tGroupId].Id} 新建任务1 {dicTaskGroupIsRun[tGroupId].Status}");
                             dicTaskGroupIsRun[tGroupId] = TaskAdd.GetOrCreate(tGroupId);
                         }
 
+                        Console.WriteLine($"1、{tGroupId} {dicTaskGroupIsRun[tGroupId].Id}  {dicTaskGroupIsRun[tGroupId].Status}");
+                        
                         // 没有在跑，则开始一个Task线程
                         if (dicTaskGroupIsRun[tGroupId].Status == EumTaskType.None)
                         {
                             // 执行调度
+                            Console.WriteLine($"1、{tGroupId} {dicTaskGroupIsRun[tGroupId].Id}  执行调度");
                             await SchedulerTask(tGroupId, dicTaskGroupIsRun[tGroupId]);
                         }
 
@@ -76,9 +79,10 @@ namespace FSS.Com.SchedulerServer.Scheduler
 
                             // 说明已调度成功
                             if (dicTaskGroupIsRun[tGroupId].Status != EumTaskType.Scheduler) break;
+                            
                             // 处于Scheduler状态，如果时间>2S，认为客户端无法处理当前JOB，重新调度
-                            var taskTimeSpan = DateTime.Now - dicTaskGroupIsRun[tGroupId].CreateAt;
-                            if (taskTimeSpan.TotalMilliseconds > 5000)
+                            var taskTimeSpan = DateTime.Now - dicTaskGroupIsRun[tGroupId].SchedulerAt;
+                            if (taskTimeSpan.TotalMilliseconds > 2000)
                             {
                                 var content = $"任务ID：{dicTaskGroupIsRun[tGroupId].Id}，已调度，{(int) taskTimeSpan.TotalMilliseconds} ms未执行，重新调度";
                                 logger.LogWarning(content);
@@ -89,9 +93,10 @@ namespace FSS.Com.SchedulerServer.Scheduler
                                 TaskUpdate.Save(newTask);
                                 break;
                             }
-
+                            
                             Thread.Sleep(10);
                         }
+                        Thread.Sleep(10);
                     }
                     catch (Exception e)
                     {
@@ -112,7 +117,11 @@ namespace FSS.Com.SchedulerServer.Scheduler
             var timeSpan = task.StartAt - DateTime.Now;
 
             // 任务没开始，休眠
-            if (timeSpan.TotalMilliseconds > 0) Thread.Sleep((int) timeSpan.TotalMilliseconds);
+            if (timeSpan.TotalMilliseconds > 0)
+            {
+                Console.WriteLine($"休眠 {timeSpan.TotalMilliseconds} ms");
+                Thread.Sleep((int) timeSpan.TotalMilliseconds);
+            }
 
             // 取出空闲客户端、开始调度执行
             var clientVO = ClientSlb.Slb();
@@ -137,6 +146,10 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 // 通知客户端开始任务调度
                 var taskGroup = TaskGroupInfo.ToInfo(taskGroupId);
                 await ClientResponse.JobSchedulerAsync(clientVO, taskGroup, task);
+                
+                // 更新调度时间
+                task.SchedulerAt = DateTime.Now;
+                TaskUpdate.Update(task);
             }
             catch (Exception e) // 通知失败
             {
