@@ -44,7 +44,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 // 默认500Ms执行一次
                 var tGroupId = (int) taskGroupIdState;
 
-                logger.LogInformation($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 任务组：{tGroupId} 执行任务触发器");
+                logger.LogInformation($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 任务组：ID={tGroupId} 开始运行");
                 while (true)
                 {
                     try
@@ -58,17 +58,16 @@ namespace FSS.Com.SchedulerServer.Scheduler
                         }
 
                         Console.WriteLine($"1、{tGroupId} {dicTaskGroupIsRun[tGroupId].Id}  {dicTaskGroupIsRun[tGroupId].Status}");
-                        
+
                         // 没有在跑，则开始一个Task线程
                         if (dicTaskGroupIsRun[tGroupId].Status == EumTaskType.None)
                         {
                             // 执行调度
-                            Console.WriteLine($"1、{tGroupId} {dicTaskGroupIsRun[tGroupId].Id}  执行调度");
                             await SchedulerTask(tGroupId, dicTaskGroupIsRun[tGroupId]);
                         }
 
                         // 一直处于调度状态时，要注意是否客户端断开链接、或同步JOB状态时有异常
-                        while (dicTaskGroupIsRun[tGroupId].Status is EumTaskType.None or EumTaskType.Scheduler)
+                        while (dicTaskGroupIsRun[tGroupId].Status is EumTaskType.Scheduler)
                         {
                             Console.WriteLine($"2、{tGroupId}、{dicTaskGroupIsRun[tGroupId].Id}、{dicTaskGroupIsRun[tGroupId].Status}");
                             var newTask = TaskInfo.ToGroupTask(tGroupId);
@@ -79,23 +78,22 @@ namespace FSS.Com.SchedulerServer.Scheduler
 
                             // 说明已调度成功
                             if (dicTaskGroupIsRun[tGroupId].Status != EumTaskType.Scheduler) break;
-                            
+
                             // 处于Scheduler状态，如果时间>2S，认为客户端无法处理当前JOB，重新调度
                             var taskTimeSpan = DateTime.Now - dicTaskGroupIsRun[tGroupId].SchedulerAt;
                             if (taskTimeSpan.TotalMilliseconds > 2000)
                             {
-                                var content = $"任务ID：{dicTaskGroupIsRun[tGroupId].Id}，已调度，{(int) taskTimeSpan.TotalMilliseconds} ms未执行，重新调度";
-                                logger.LogWarning(content);
-
+                                RunLogAdd.Add(tGroupId, newTask.Id, LogLevel.Warning, $"任务ID：{dicTaskGroupIsRun[tGroupId].Id}，已调度，{(int) taskTimeSpan.TotalMilliseconds} ms未执行，重新调度");
+                                
                                 // 标记为重新调度
                                 newTask.Status = EumTaskType.ReScheduler;
-                                RunLogAdd.Add(tGroupId, newTask.Id, LogLevel.Warning, content);
                                 TaskUpdate.Save(newTask);
                                 break;
                             }
-                            
+
                             Thread.Sleep(10);
                         }
+
                         Thread.Sleep(10);
                     }
                     catch (Exception e)
@@ -111,7 +109,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
         /// </summary>
         private async Task SchedulerTask(int taskGroupId, TaskVO task)
         {
-            Console.WriteLine($"3、{taskGroupId}、{task.Id}");
+            var logger = IocManager.Logger<TaskGroupScheduler>();
             var taskVO = task;
 
             var timeSpan = task.StartAt - DateTime.Now;
@@ -119,7 +117,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
             // 任务没开始，休眠
             if (timeSpan.TotalMilliseconds > 0)
             {
-                Console.WriteLine($"休眠 {timeSpan.TotalMilliseconds} ms");
+                logger.LogInformation($"执行任务：id={task.Id}，还需要等待 {timeSpan.TotalMilliseconds} ms，休眠中...");
                 Thread.Sleep((int) timeSpan.TotalMilliseconds);
             }
 
@@ -146,7 +144,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 // 通知客户端开始任务调度
                 var taskGroup = TaskGroupInfo.ToInfo(taskGroupId);
                 await ClientResponse.JobSchedulerAsync(clientVO, taskGroup, task);
-                
+
                 // 更新调度时间
                 task.SchedulerAt = DateTime.Now;
                 TaskUpdate.Update(task);

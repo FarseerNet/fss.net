@@ -23,7 +23,7 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
         {
             return CacheManager.GetList(TaskGroupCache.Key,
                 opt => TaskGroupAgent.ToList().Map<TaskGroupVO>()
-                , o => o.Id);
+                , o => o.Id).FindAll(o => o.IsEnable);
         }
     }
 }

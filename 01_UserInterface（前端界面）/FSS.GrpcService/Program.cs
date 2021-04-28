@@ -3,6 +3,7 @@ using FS;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace FSS.GrpcService
 {
@@ -22,11 +23,13 @@ namespace FSS.GrpcService
         // For instructions on how to configure Kestrel and gRPC clients on macOS, visit https://go.microsoft.com/fwlink/?linkid=2099682
         public static IHostBuilder CreateHostBuilder(string[] args)
         {
-            return Host.CreateDefaultBuilder(args).ConfigureWebHostDefaults(webBuilder =>
-            {
-                //Setup a HTTP/2 endpoint without TLS.
-                webBuilder.ConfigureKestrel(options => options.Listen(IPAddress.Any, 80)).UseStartup<Startup>();
-            });
+            return Host.CreateDefaultBuilder(args)
+                .ConfigureLogging(log => log.ClearProviders())
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    //Setup a HTTP/2 endpoint without TLS.
+                    webBuilder.ConfigureKestrel(options => options.Listen(IPAddress.Any, 80)).UseStartup<Startup>();
+                });
         }
     }
 }

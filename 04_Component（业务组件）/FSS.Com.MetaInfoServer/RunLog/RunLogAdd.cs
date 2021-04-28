@@ -20,7 +20,7 @@ namespace FSS.Com.MetaInfoServer.RunLog
         /// </summary>
         public void Add(int taskGroupId, int taskId, LogLevel logLevel, string content)
         {
-            if (logLevel == LogLevel.Error) IocManager.Logger<RunLogAdd>().LogWarning($"任务组：{taskGroupId} 任务ID：{taskId}，发生错误：{content}");
+            if (logLevel is LogLevel.Error or LogLevel.Warning) IocManager.Logger<RunLogAdd>().Log(logLevel, content);
             RunLogAgent.Add(new RunLogPO
             {
                 TaskGroupId = taskGroupId,

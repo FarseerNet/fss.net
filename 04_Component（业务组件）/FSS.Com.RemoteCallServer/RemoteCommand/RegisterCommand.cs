@@ -52,7 +52,7 @@ namespace FSS.Com.RemoteCallServer.RemoteCommand
             };
             ClientRegister.Register(clientConnectVO);
 
-            IocManager.Instance.Logger<RegisterCommand>().LogInformation($"客户端:{clientConnectVO.ClientIp} 注册进来了");
+            IocManager.Instance.Logger<RegisterCommand>().LogInformation($"客户端:{clientConnectVO.ServerHost}、{clientConnectVO.ClientIp} 成功建立连接");
             await ClientResponse.PrintAsync(_responseStream, $"FSS平台==>{clientConnectVO.ServerHost}：成功建立连接，欢迎{clientConnectVO.ClientIp}");
         }
     }

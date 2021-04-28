@@ -39,6 +39,7 @@ namespace FSS.GrpcService
         {
             services.AddGrpc(options => { options.Interceptors.Add<AuthInterceptor>(); });
             services.AddSingleton<IIocManager>(FS.DI.IocManager.Instance.Resolve<IIocManager>());
+            
             // 开启任务组调度
             services.AddSingleton<IHostedService, StartTaskGroupScheduler>();
         }

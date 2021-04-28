@@ -1,3 +1,4 @@
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using FS.DI;
@@ -22,15 +23,20 @@ namespace FSS.GrpcService
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await Task.Delay(2000, stoppingToken);
+            var taskGroupList      = _ioc.Resolve<ITaskGroupList>();
+            var taskGroupScheduler = _ioc.Resolve<ITaskGroupScheduler>();
+            var logger             = _ioc.Logger<Startup>();
+            logger.LogInformation($"服务启动完成，监听 http://{IPAddress.Any}:80 ");
             
             // 遍历任务组、开启调度线程
-            var taskGroupVos = _ioc.Resolve<ITaskGroupList>().ToList();
+            logger.LogInformation($"正在读取所有任务组信息");
+            var taskGroupVos  = taskGroupList.ToList();
+            logger.LogInformation($"共获取到：{taskGroupVos.Count} 条任务组信息");
             foreach (var taskGroupVo in taskGroupVos)
             {
-                _ioc.Logger<Startup>().LogInformation($"任务组：{taskGroupVo.Id}、{taskGroupVo.Caption}、开启调度线程");
-                _ioc.Resolve<ITaskGroupScheduler>().SchedulerTaskGroup(taskGroupVo.Id);
+                taskGroupScheduler.SchedulerTaskGroup(taskGroupVo.Id);
             }
+            
         }
     }
 }

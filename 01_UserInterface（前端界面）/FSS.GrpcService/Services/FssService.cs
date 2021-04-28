@@ -83,7 +83,6 @@ namespace FSS.GrpcService.Services
                 var clientConnect = clientRegister.ToInfo(serverHost);
                 clientConnect.UseAt = DateTime.Now;
 
-
                 // 不相等，说明被覆盖了（JOB请求慢了。被调度重新执行了）
                 if (task.ClientHost != serverHost)
                 {
