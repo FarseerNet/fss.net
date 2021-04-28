@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using FS.DI;
 using FSS.Abstract.Entity.RegisterCenter;
 
@@ -21,8 +23,18 @@ namespace FSS.Abstract.Server.RegisterCenter
         ClientConnectVO ToInfo(string serverHost);
 
         /// <summary>
-        /// 客户端是否存在
+        /// 取出客户端列表
         /// </summary>
-        bool IsExists(string serverHost);
+        List<ClientConnectVO> ToList();
+
+        /// <summary>
+        /// 更新客户端调用的使用时间
+        /// </summary>
+        void UpdateUseAt(string serverHost, DateTime useAt);
+
+        /// <summary>
+        /// 更新客户端心跳时间
+        /// </summary>
+        void UpdateHeartbeatAt(string serverHost, DateTime heartbeatAt);
     }
 }

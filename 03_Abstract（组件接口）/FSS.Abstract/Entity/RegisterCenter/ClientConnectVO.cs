@@ -1,5 +1,7 @@
 using System;
+using System.Text.Json;
 using Grpc.Core;
+using Newtonsoft.Json;
 
 namespace FSS.Abstract.Entity.RegisterCenter
 {
@@ -39,8 +41,18 @@ namespace FSS.Abstract.Entity.RegisterCenter
         public DateTime RegisterAt { get; set; }
         
         /// <summary>
+        /// 客户端心跳时间
+        /// </summary>
+        public DateTime HeartbeatAt { get; set; }
+        
+        /// <summary>
         /// 服务端最后一次使用的时间（用来做负载）
         /// </summary>
         public DateTime UseAt { get; set; }
+
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
     }
 }

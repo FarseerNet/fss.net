@@ -7,9 +7,12 @@ using FSS.Abstract.Server.RegisterCenter;
 
 namespace FSS.Com.RegisterCenterServer.Client
 {
-    public class ServerRegister : IServerRegister
+    /// <summary>
+    /// 注册服务节点
+    /// </summary>
+    public class NodeRegister : INodeRegister
     {
-        public string             Key = "ServerList";
+        public string             Key = "NodeList";
         public IRedisCacheManager RedisCacheManager { get; set; }
 
         /// <summary>

@@ -30,7 +30,7 @@ namespace FSS.Com.RemoteCallServer.RemoteCommand
         private IServerStreamWriter<CommandResponse> _responseStream;
 
         /// <summary>
-        /// 处理
+        /// 注册
         /// </summary>
         /// <param name="context">上下文</param>
         /// <param name="requestStream">请求流</param>

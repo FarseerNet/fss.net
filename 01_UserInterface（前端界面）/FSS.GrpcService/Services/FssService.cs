@@ -62,7 +62,6 @@ namespace FSS.GrpcService.Services
         {
             var taskGroupId = context.RequestHeaders.GetValue("task_group_id").ConvertType(0);
             var taskId      = context.RequestHeaders.GetValue("task_id").ConvertType(0);
-            //var serverHost  = context.RequestHeaders.GetValue("server_host");
             var serverHost = $"{context.Host}_{context.Peer}";
             
             var task       = _ioc.Resolve<ITaskInfo>().ToGroupTask(taskGroupId);
@@ -73,7 +72,6 @@ namespace FSS.GrpcService.Services
 
             var taskUpdate      = _ioc.Resolve<ITaskUpdate>();
             var clientResponse  = _ioc.Resolve<ClientResponse>();
-            var taskAdd         = _ioc.Resolve<ITaskAdd>();
             var taskGroupUpdate = _ioc.Resolve<ITaskGroupUpdate>();
             var runLogAdd       = _ioc.Resolve<IRunLogAdd>();
             var clientRegister  = _ioc.Resolve<IClientRegister>();

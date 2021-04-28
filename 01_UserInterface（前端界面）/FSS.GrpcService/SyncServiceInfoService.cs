@@ -20,14 +20,12 @@ namespace FSS.GrpcService
     public class SyncServiceInfoService : BackgroundService
     {
         private readonly IIocManager     _ioc;
-        readonly         IServerRegister _serverRegister;
-        readonly         ILogger         _logger;
+        readonly         INodeRegister _serverRegister;
 
         public SyncServiceInfoService(IIocManager ioc)
         {
             _ioc            = ioc;
-            _serverRegister = _ioc.Resolve<IServerRegister>();
-            _logger         = _ioc.Logger<Startup>();
+            _serverRegister = _ioc.Resolve<INodeRegister>();
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
