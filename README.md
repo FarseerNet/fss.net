@@ -15,14 +15,14 @@
 ## 服务端依赖环境
     Docker （运行在docker或k8s下）
     Net 5.0 （提供docker.hub镜像服务)
-    Redis （用与客户端的实例注册）
+    Redis （用与多节点之间的数据同步）
     Sqlserver/MySql/Oracle（常用数据库任意选一个）
-    Grpc （通讯协议，后期考虑REST API)
+    Grpc Server（通讯协议)
 ## 客户端依赖环境
     netstandard2.0
     AppSettins.json （配置服务端通讯地址）
     Farseer.Net.Job 方便快速集成到业务系统（如不依赖，需自行对接）
-    Grpc（Farseer.Net.Job会实现服务的创建）
+    Grpc Client（Farseer.Net.Job会实现与服务端的通信）
 
 ## 痛点解决
 FSS的设计初衷是为了实现分布式的调度，并且运行Job的程序不应该依赖调度策略，而只专注于开发自己的业务逻辑。
@@ -49,22 +49,20 @@ FSS的设计初衷是为了实现分布式的调度，并且运行Job的程序�
 
 因此本项目采用的通讯方案：
 
-    1、当调度器开始工作时，会通过客户端列表（客户端启动后注册进来），以轮询的方式取出其中一个客户端，然后使用Grpc进行调度通知。
+    1、当调度器开始工作时，会通过客户端列表（客户端启动后注册进来），以轮询的方式取出其中一个客户端，进行调度通知。
     2、客户端在收到要执行的任务时，会实时通知服务端当前任务的状态、进度。
 
 ## 客户端使用
 通过Farseer.Net.Job组件，运行job的程序在启动之后会做：
 
-    1、向FSS调度平台注册（Grpc双流方式）客户端的信息。
-    2、会启动Grpc服务（端口可自定义），用于接收FSS调度平台的消息通知
+    1、向FSS调度平台注册客户端的信息打开Channel。
+    2、实时接收FSS调度平台的消息通知
 
 `appsettings.json配置`
 ```json
 {
   "FSS": {
-    "Server": "http://localhost", // FSS平台地址
-    "GrpcServicePort": 5672,      // 本地打开的端口（用于FSS平台有任务要执行时通知到我）
-    "ConnectFssServerTime": 1000  // 对FSS平台的心跳时间（毫秒）
+    "Server": "http://localhost,http://localhost" // FSS平台地址（多节点用,分隔）
   }
 }
 ```
@@ -89,9 +87,6 @@ public class Program
 [DependsOn(typeof(JobModule))] // 依赖Job模块
 public class StartupModule : FarseerModule
 {
-    public override void PreInitialize()
-    {
-    }
 }
 ```
 `HelloWorldJob.cs`
@@ -138,16 +133,20 @@ public class HelloWorldJob : IFssJob
 | 7  | 实现任务组功能 | 完成 |
 | 8  | 动态创建任务 |完成  |
 | 9  | 根据任务调度，并通知客户端 | 完成 |
-| 10  | 去中心化、分布式实现 |  |
+| 10  | 客户端断开连接时，要检查当前任务是否已处理完 |  |
+| 11  | 定时扫描任务当前的客户端是否断开连接 |  |
+| 12  | 定时同步当前节点的客户端列表到缓存 |  |
+| 13  | 去中心化、分布式实现 |  |
 
 ## .NET客户端(Farseer.Net.Job)开发进度
 |  序号   | 功能  | 状态  |
 |  ----  | ----  | ---- |
-| 1  | 向服务端注册、激活 | 完成 |
+| 1  | 向服务端注册并打开通讯通道 | 完成 |
 | 2  | 开启GRPC服务 | 完成 |
 | 3  | 实现服务端的任务执行通知服务 | 完成 |
 | 4  | 实现IJob Abs接口 | 完成 |
 | 5  | 向服务端实时推送JOB的进度、状态、日志 | 完成 |
+| 5  | 向服务端注册我能处理的任务列表 |  |
 
 ## 下一个版本要实现的功能
 |  序号   | 功能  |

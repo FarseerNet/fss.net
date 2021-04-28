@@ -11,18 +11,28 @@ namespace FSS.Abstract.Enum
         None = 0,
 
         /// <summary>
+        /// 已调度
+        /// </summary>
+        Scheduler = 1,
+
+        /// <summary>
         /// 执行中
         /// </summary>
-        Working = 1,
+        Working = 2,
 
         /// <summary>
         /// 失败
         /// </summary>
-        Fail = 2,
+        Fail = 3,
 
         /// <summary>
         /// 完成
         /// </summary>
-        Success = 3
+        Success = 4,
+
+        /// <summary>
+        /// 重新调度
+        /// </summary>
+        ReScheduler = 5,
     }
 }

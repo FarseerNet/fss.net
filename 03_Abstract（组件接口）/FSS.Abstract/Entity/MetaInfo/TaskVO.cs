@@ -31,12 +31,12 @@ namespace FSS.Abstract.Entity.MetaInfo
         /// <summary>
         /// 客户端
         /// </summary>
-        public string ClientId { get; set; }
+        public string ClientHost { get; set; }
         
         /// <summary>
         /// 客户端IP
         /// </summary>
-        public string ClientEndpoint { get; set; }
+        public string ClientIp { get; set; }
         
         /// <summary>
         /// 进度0-100
@@ -52,10 +52,5 @@ namespace FSS.Abstract.Entity.MetaInfo
         /// 任务创建时间
         /// </summary>
         public DateTime CreateAt { get; set; }
-        
-        /// <summary>
-        /// 调度器活动时间
-        /// </summary>
-        //public DateTime SchedulerActiveAt { get; set; }
     }
 }

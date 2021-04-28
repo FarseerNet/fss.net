@@ -28,7 +28,7 @@ namespace FSS.GrpcService
             var taskGroupVos = _ioc.Resolve<ITaskGroupList>().ToList();
             foreach (var taskGroupVo in taskGroupVos)
             {
-                _ioc.Resolve<ITaskGroupScheduler>().Scheduler(taskGroupVo.Id);
+                _ioc.Resolve<ITaskGroupScheduler>().SchedulerTaskGroup(taskGroupVo.Id);
             }
         }
     }

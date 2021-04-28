@@ -3,6 +3,8 @@ using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
 using FS.DI;
+using FSS.Abstract.Server.RemoteCall;
+using FSS.Com.RemoteCallServer.RemoteCommand;
 
 namespace FSS.Com.RemoteCallServer
 {
@@ -27,6 +29,8 @@ namespace FSS.Com.RemoteCallServer
         public void Install(IWindsorContainer container, IConfigurationStore store)
         {
             IocManager.Instance.RegisterAssemblyByConvention(Assembly.GetExecutingAssembly());
+            container.Register(Component.For<IRemoteCommand, RegisterCommand>().Named("fss_server_Register").LifestyleTransient());
+            container.Register(Component.For<IRemoteCommand, JobStatusCommand>().Named("fss_server_JobStatus").LifestyleTransient());
         }
     }
 }

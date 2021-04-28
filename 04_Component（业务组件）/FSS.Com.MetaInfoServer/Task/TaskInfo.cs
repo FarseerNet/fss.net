@@ -27,7 +27,7 @@ namespace FSS.Com.MetaInfoServer.Task
         {
             return CacheManager.ToEntity(TaskCache.Key,
                 taskGroupId.ToString(),
-                o => TaskAdd.Create(taskGroupId),
+                o => TaskAdd.GetOrCreate(taskGroupId),
                 o => o.TaskGroupId);
         }
     }

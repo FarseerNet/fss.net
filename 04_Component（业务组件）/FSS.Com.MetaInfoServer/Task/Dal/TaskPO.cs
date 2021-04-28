@@ -36,12 +36,12 @@ namespace FSS.Com.MetaInfoServer.Task.Dal
         /// <summary>
         /// 客户端
         /// </summary>
-        [Field(Name = "client_id")] public string ClientId { get; set; }
+        [Field(Name = "client_host")] public string ClientHost { get; set; }
 
         /// <summary>
         /// 客户端IP
         /// </summary>
-        [Field(Name = "client_endpoint")] public string ClientEndpoint { get; set; }
+        [Field(Name = "client_ip")] public string ClientIp { get; set; }
 
         /// <summary>
         /// 进度0-100

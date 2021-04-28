@@ -19,16 +19,16 @@ namespace FSS.Com.MetaInfoServer.Task
         /// <summary>
         /// 创建Task，并更新到缓存
         /// </summary>
-        public TaskVO Create(int taskGroupId)
+        public TaskVO GetOrCreate(int taskGroupId)
         {
             var taskGroupVO = TaskGroupInfo.ToInfo(taskGroupId);
-            return Create(taskGroupVO);
+            return GetOrCreate(taskGroupVO);
         }
 
         /// <summary>
         /// 创建Task，并更新到缓存
         /// </summary>
-        public TaskVO Create(TaskGroupVO taskGroup)
+        public TaskVO GetOrCreate(TaskGroupVO taskGroup)
         {
             var task = TaskAgent.ToUnExecutedTask(taskGroup.Id);
             if (task == null)
@@ -39,8 +39,8 @@ namespace FSS.Com.MetaInfoServer.Task
                     TaskGroupId    = taskGroup.Id,
                     StartAt        = taskGroup.NextAt,
                     RunSpeed       = 0,
-                    ClientId       = "",
-                    ClientEndpoint = "",
+                    ClientHost       = "",
+                    ClientIp = "",
                     Progress       = 0,
                     Status         = EumTaskType.None,
                     CreateAt       = DateTime.Now,

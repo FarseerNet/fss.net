@@ -32,6 +32,6 @@ namespace FSS.Com.MetaInfoServer.Task.Dal
         /// <summary>
         /// 获取未执行的任务信息
         /// </summary>
-        public TaskPO ToUnExecutedTask(int groupId) => MetaInfoContext.Data.Task.Where(o => o.TaskGroupId == groupId && o.Status == EumTaskType.None).ToEntity();
+        public TaskPO ToUnExecutedTask(int groupId) => MetaInfoContext.Data.Task.Where(o => o.TaskGroupId == groupId && (o.Status == EumTaskType.None || o.Status == EumTaskType.Scheduler)).ToEntity();
     }
 }

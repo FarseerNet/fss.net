@@ -1,7 +1,7 @@
 using System;
+using System.Collections.Generic;
 using FSS.Abstract.Entity.RegisterCenter;
 using FSS.Abstract.Server.RegisterCenter;
-using FSS.Com.RegisterCenterServer.Abstract;
 
 namespace FSS.Com.RegisterCenterServer.Client
 {
@@ -11,26 +11,40 @@ namespace FSS.Com.RegisterCenterServer.Client
     // ReSharper disable once UnusedType.Global
     public class ClientRegister : IClientRegister
     {
-        public IClientEndpoint ClientEndpoint { get; set; }
+        public static readonly Dictionary<string, ClientConnectVO> Clients = new();
 
         /// <summary>
         /// 注册
         /// </summary>
-        public bool Register(string clientId, string endpoint)
+        public void Register(ClientConnectVO client)
         {
-            // 找到已注册的客户端
-            var clientVO = ClientEndpoint.ToEntity(clientId) ?? new ClientVO
-            {
-                Id       = clientId,
-                Endpoint = endpoint,
-                UseAt    = DateTime.Now
-            };
+            client.UseAt               = DateTime.Now;
+            Clients[client.ServerHost] = client;
+        }
 
-            // 更新激活时间
-            clientVO.ActivityAt = DateTime.Now;
+        /// <summary>
+        /// 取出客户端
+        /// </summary>
+        public ClientConnectVO ToInfo(string serverHost)
+        {
+            Clients.TryGetValue(serverHost, out var client);
+            return client;
+        }
 
-            ClientEndpoint.Save(clientId, clientVO);
-            return true;
+        /// <summary>
+        /// 客户端是否存在
+        /// </summary>
+        public bool IsExists(string serverHost)
+        {
+            return Clients.ContainsKey(serverHost);
+        }
+
+        /// <summary>
+        /// 移除客户端
+        /// </summary>
+        public void Remove(string serverHost)
+        {
+            Clients.Remove(serverHost);
         }
     }
 }

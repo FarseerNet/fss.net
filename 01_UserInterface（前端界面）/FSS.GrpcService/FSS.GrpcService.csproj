@@ -6,11 +6,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-<!--        <Protobuf Include="Protos\Public\rpcResponse.proto" GrpcServices="Server" />-->
-        <Protobuf Include="Protos\registerCenter.proto" GrpcServices="Server" />
-    </ItemGroup>
-
-    <ItemGroup>
         <PackageReference Include="Grpc.AspNetCore" Version="2.37.0" />
         <PackageReference Include="MySql.Data" Version="8.0.24" />
     </ItemGroup>
