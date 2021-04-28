@@ -44,55 +44,35 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 // 默认500Ms执行一次
                 var tGroupId = (int) taskGroupIdState;
 
-                logger.LogInformation($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 任务组：ID={tGroupId} 开始运行");
+                logger.LogInformation($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 任务组：ID={tGroupId} 开始运行调度线程...");
                 while (true)
                 {
                     try
                     {
                         // 取出当前任务组的Task
                         dicTaskGroupIsRun[tGroupId] = TaskInfo.ToGroupTask(tGroupId);
-                        if (dicTaskGroupIsRun[tGroupId].Status is EumTaskType.Fail or EumTaskType.Success or EumTaskType.ReScheduler)
+                        switch (dicTaskGroupIsRun[tGroupId].Status)
                         {
-                            Console.WriteLine($"1、{tGroupId} {dicTaskGroupIsRun[tGroupId].Id} 新建任务1 {dicTaskGroupIsRun[tGroupId].Status}");
-                            dicTaskGroupIsRun[tGroupId] = TaskAdd.GetOrCreate(tGroupId);
+                            case EumTaskType.None: // 执行调度
+                                await SchedulerTask(tGroupId, dicTaskGroupIsRun[tGroupId]);
+                                break;
+                            case EumTaskType.Scheduler:
+                                CheckSchedulerStatus(tGroupId: tGroupId);
+                                break;
+                            case EumTaskType.Working:
+                                Thread.Sleep(30);
+                                break;
+                            case EumTaskType.Fail:
+                            case EumTaskType.Success:
+                            case EumTaskType.ReScheduler:
+                            {
+                                dicTaskGroupIsRun[tGroupId] = TaskAdd.GetOrCreate(tGroupId);
+                                logger.LogInformation($"新建任务: GroupId={tGroupId} TaskId={dicTaskGroupIsRun[tGroupId].Id}");
+                                break;
+                            }
                         }
 
                         Console.WriteLine($"1、{tGroupId} {dicTaskGroupIsRun[tGroupId].Id}  {dicTaskGroupIsRun[tGroupId].Status}");
-
-                        // 没有在跑，则开始一个Task线程
-                        if (dicTaskGroupIsRun[tGroupId].Status == EumTaskType.None)
-                        {
-                            // 执行调度
-                            await SchedulerTask(tGroupId, dicTaskGroupIsRun[tGroupId]);
-                        }
-
-                        // 一直处于调度状态时，要注意是否客户端断开链接、或同步JOB状态时有异常
-                        while (dicTaskGroupIsRun[tGroupId].Status is EumTaskType.Scheduler)
-                        {
-                            Console.WriteLine($"2、{tGroupId}、{dicTaskGroupIsRun[tGroupId].Id}、{dicTaskGroupIsRun[tGroupId].Status}");
-                            var newTask = TaskInfo.ToGroupTask(tGroupId);
-
-                            // 不相等，说明已经执行了新的Task
-                            if (dicTaskGroupIsRun[tGroupId].Id != newTask.Id) break;
-                            dicTaskGroupIsRun[tGroupId] = newTask;
-
-                            // 说明已调度成功
-                            if (dicTaskGroupIsRun[tGroupId].Status != EumTaskType.Scheduler) break;
-
-                            // 处于Scheduler状态，如果时间>2S，认为客户端无法处理当前JOB，重新调度
-                            var taskTimeSpan = DateTime.Now - dicTaskGroupIsRun[tGroupId].SchedulerAt;
-                            if (taskTimeSpan.TotalMilliseconds > 2000)
-                            {
-                                RunLogAdd.Add(tGroupId, newTask.Id, LogLevel.Warning, $"任务ID：{dicTaskGroupIsRun[tGroupId].Id}，已调度，{(int) taskTimeSpan.TotalMilliseconds} ms未执行，重新调度");
-                                
-                                // 标记为重新调度
-                                newTask.Status = EumTaskType.ReScheduler;
-                                TaskUpdate.Save(newTask);
-                                break;
-                            }
-
-                            Thread.Sleep(10);
-                        }
 
                         Thread.Sleep(10);
                     }
@@ -102,6 +82,38 @@ namespace FSS.Com.SchedulerServer.Scheduler
                     }
                 }
             }, taskGroupId);
+        }
+
+        /// <summary>
+        /// 一直处于调度状态时，要注意是否客户端断开链接、或同步JOB状态时有异常
+        /// </summary>
+        private void CheckSchedulerStatus(int tGroupId)
+        {
+            while (dicTaskGroupIsRun[tGroupId].Status is EumTaskType.Scheduler)
+            {
+                Thread.Sleep(50);
+                Console.WriteLine($"2、{tGroupId}、{dicTaskGroupIsRun[tGroupId].Id}、{dicTaskGroupIsRun[tGroupId].Status}");
+                var newTask = TaskInfo.ToGroupTask(tGroupId);
+
+                // 不相等，说明已经执行了新的Task
+                if (dicTaskGroupIsRun[tGroupId].Id != newTask.Id) break;
+                dicTaskGroupIsRun[tGroupId] = newTask;
+
+                // 说明已调度成功
+                if (dicTaskGroupIsRun[tGroupId].Status != EumTaskType.Scheduler) break;
+
+                // 处于Scheduler状态，如果时间>2S，认为客户端无法处理当前JOB，重新调度
+                var taskTimeSpan = DateTime.Now - dicTaskGroupIsRun[tGroupId].SchedulerAt;
+                if (taskTimeSpan.TotalMilliseconds > 2000)
+                {
+                    RunLogAdd.Add(tGroupId, newTask.Id, LogLevel.Warning, $"任务ID：{dicTaskGroupIsRun[tGroupId].Id}，已调度，{(int) taskTimeSpan.TotalMilliseconds} ms未执行，重新调度");
+
+                    // 标记为重新调度
+                    newTask.Status = EumTaskType.ReScheduler;
+                    TaskUpdate.Save(newTask);
+                    break;
+                }
+            }
         }
 
         /// <summary>

@@ -29,7 +29,8 @@ namespace FSS.GrpcService.Services
         /// </summary>
         public override async Task Channel(IAsyncStreamReader<ChannelRequest> requestStream, IServerStreamWriter<CommandResponse> responseStream, ServerCallContext context)
         {
-            var clientIp = context.RequestHeaders.GetValue("client_ip");
+            var serverHost = $"{context.Host}_{context.Peer}";
+            var clientIp   = context.RequestHeaders.GetValue("client_ip");
             try
             {
                 await foreach (var registerRequest in requestStream.ReadAllAsync())
@@ -48,7 +49,8 @@ namespace FSS.GrpcService.Services
             }
             finally
             {
-                _ioc.Resolve<IClientRegister>().Remove($"{context.Host}_{context.Peer}");
+                
+                _ioc.Resolve<IClientRegister>().Remove(serverHost);
                 _ioc.Logger<FssService>().LogWarning($"客户端{clientIp} 断开连接");
             }
         }
@@ -60,9 +62,10 @@ namespace FSS.GrpcService.Services
         {
             var taskGroupId = context.RequestHeaders.GetValue("task_group_id").ConvertType(0);
             var taskId      = context.RequestHeaders.GetValue("task_id").ConvertType(0);
-            var serverHost  = context.RequestHeaders.GetValue("server_host");
-
-            var task = _ioc.Resolve<ITaskInfo>().ToGroupTask(taskGroupId);
+            //var serverHost  = context.RequestHeaders.GetValue("server_host");
+            var serverHost = $"{context.Host}_{context.Peer}";
+            
+            var task       = _ioc.Resolve<ITaskInfo>().ToGroupTask(taskGroupId);
             if (task.Id != taskId) return (CommandResponse) _ioc.Resolve<IClientResponse>().Print($"指定的TaskId：{taskId} 与服务端正在处理的Task：{task.Id} 不一致");
 
             var taskGroup = _ioc.Resolve<ITaskGroupInfo>().ToInfo(taskGroupId);

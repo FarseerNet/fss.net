@@ -14,4 +14,8 @@
       <Folder Include="Abstract" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Farseer.Net.Utils" Version="2.5.0" />
+    </ItemGroup>
+
 </Project>

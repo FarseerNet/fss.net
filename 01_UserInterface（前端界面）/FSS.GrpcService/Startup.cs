@@ -41,7 +41,8 @@ namespace FSS.GrpcService
             services.AddSingleton<IIocManager>(FS.DI.IocManager.Instance.Resolve<IIocManager>());
             
             // 开启任务组调度
-            services.AddSingleton<IHostedService, StartTaskGroupScheduler>();
+            services.AddHostedService<TaskGroupSchedulerService>(); 
+            services.AddHostedService<SyncServiceInfoService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
