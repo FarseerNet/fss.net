@@ -22,12 +22,13 @@ namespace FSS.GrpcService
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await Task.Delay(2000);
-            _ioc.Logger<Startup>().LogInformation("遍历任务组、开启调度线程");
+            await Task.Delay(2000, stoppingToken);
+            
             // 遍历任务组、开启调度线程
             var taskGroupVos = _ioc.Resolve<ITaskGroupList>().ToList();
             foreach (var taskGroupVo in taskGroupVos)
             {
+                _ioc.Logger<Startup>().LogInformation($"任务组：{taskGroupVo.Id}、{taskGroupVo.Caption}、开启调度线程");
                 _ioc.Resolve<ITaskGroupScheduler>().SchedulerTaskGroup(taskGroupVo.Id);
             }
         }

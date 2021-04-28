@@ -30,7 +30,7 @@ namespace FSS.Com.RemoteCallServer
         {
             IocManager.Instance.RegisterAssemblyByConvention(Assembly.GetExecutingAssembly());
             container.Register(Component.For<IRemoteCommand, RegisterCommand>().Named("fss_server_Register").LifestyleTransient());
-            container.Register(Component.For<IRemoteCommand, JobStatusCommand>().Named("fss_server_JobStatus").LifestyleTransient());
+            //container.Register(Component.For<IRemoteCommand, JobStatusCommand>().Named("fss_server_JobStatus").LifestyleTransient());
         }
     }
 }

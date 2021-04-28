@@ -44,7 +44,7 @@ namespace FSS.Com.RemoteCallServer.RemoteCommand
             var clientConnectVO = new ClientConnectVO
             {
                 Context        = context,
-                ServerHost     = context.Host,
+                ServerHost     = $"{context.Host}_{context.Peer}",
                 ClientIp       = context.RequestHeaders.GetValue("client_ip"),
                 RequestStream  = requestStream,
                 ResponseStream = responseStream,

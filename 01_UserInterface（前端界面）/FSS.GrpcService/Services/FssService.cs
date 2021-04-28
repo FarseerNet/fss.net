@@ -44,9 +44,12 @@ namespace FSS.GrpcService.Services
             }
             catch (Exception e)
             {
-                _ioc.Resolve<IClientRegister>().Remove(context.Host);
-                _ioc.Logger<FssService>().LogWarning($"客户端{clientIp} 断开连接");
                 if (e.InnerException is not ConnectionAbortedException) _ioc.Logger<FssService>().LogError(e.Message);
+            }
+            finally
+            {
+                _ioc.Resolve<IClientRegister>().Remove($"{context.Host}_{context.Peer}");
+                _ioc.Logger<FssService>().LogWarning($"客户端{clientIp} 断开连接");
             }
         }
 
@@ -55,13 +58,14 @@ namespace FSS.GrpcService.Services
         /// </summary>
         public override async Task<CommandResponse> JobInvoke(IAsyncStreamReader<JobInvokeRequest> requestStream, ServerCallContext context)
         {
-            var taskId = context.RequestHeaders.GetValue("task_id").ConvertType(0);
-            var serverHost = context.RequestHeaders.GetValue("server_host");
-            
-            var task   = _ioc.Resolve<ITaskInfo>().ToInfo(taskId);
-            if (task == null) return (CommandResponse) _ioc.Resolve<IClientResponse>().Print($"指定的TaskId：{taskId} 不存在");
+            var taskGroupId = context.RequestHeaders.GetValue("task_group_id").ConvertType(0);
+            var taskId      = context.RequestHeaders.GetValue("task_id").ConvertType(0);
+            var serverHost  = context.RequestHeaders.GetValue("server_host");
 
-            var taskGroup = _ioc.Resolve<ITaskGroupInfo>().ToInfo(task.TaskGroupId);
+            var task = _ioc.Resolve<ITaskInfo>().ToGroupTask(taskGroupId);
+            if (task.Id != taskId) return (CommandResponse) _ioc.Resolve<IClientResponse>().Print($"指定的TaskId：{taskId} 与服务端正在处理的Task：{task.Id} 不一致");
+
+            var taskGroup = _ioc.Resolve<ITaskGroupInfo>().ToInfo(taskGroupId);
             if (taskGroup == null) return (CommandResponse) _ioc.Resolve<IClientResponse>().Print($"指定的TaskId：{taskId} 所属的任务组：{task.TaskGroupId} 不存在");
 
             var taskUpdate      = _ioc.Resolve<ITaskUpdate>();
@@ -78,14 +82,14 @@ namespace FSS.GrpcService.Services
                 // 取出注册到当前平台的客户端
                 var clientConnect = clientRegister.ToInfo(serverHost);
                 clientConnect.UseAt = DateTime.Now;
-                
-                
+
+
                 // 不相等，说明被覆盖了（JOB请求慢了。被调度重新执行了）
                 if (task.ClientHost != serverHost)
                 {
-                    return (CommandResponse)clientResponse.Ignore($"任务ID：{task.Id}，{task.ClientHost}与本次请求{serverHost} 不一致，忽略本次请求");
+                    return (CommandResponse) clientResponse.Ignore($"任务ID：{task.Id}，{task.ClientHost}与本次请求{serverHost} 不一致，忽略本次请求");
                 }
-                
+
                 // 更新Task元信息
                 task.Status = EumTaskType.Working;
                 taskUpdate.Update(task);

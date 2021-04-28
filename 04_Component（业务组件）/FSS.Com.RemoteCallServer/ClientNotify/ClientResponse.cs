@@ -61,6 +61,7 @@ namespace FSS.Com.RemoteCallServer.ClientNotify
                 Data = new JobSchedulerVO
                 {
                     TaskId      = task.Id,
+                    TaskGroupId = task.TaskGroupId,
                     Caption     = taskGroup.Caption,
                     JobTypeName = taskGroup.JobTypeName,
                     StartAt     = taskGroup.StartAt,

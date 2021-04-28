@@ -23,4 +23,8 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="RemoteCommand\JobStatusCommand.cs" />
+    </ItemGroup>
 </Project>

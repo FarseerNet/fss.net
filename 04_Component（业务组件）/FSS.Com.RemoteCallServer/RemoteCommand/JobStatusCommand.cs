@@ -41,8 +41,10 @@ namespace FSS.Com.RemoteCallServer.RemoteCommand
             _responseStream = (IServerStreamWriter<CommandResponse>) responseStream;
 
             var jobStatus = JsonConvert.DeserializeObject<JobStatusVO>(_requestStream.Current.Data);
+            
             // 取出当前Task
-            var task      = TaskInfo.ToInfo(jobStatus.TaskId);
+            var task      = TaskInfo.ToGroupTask(jobStatus.);
+            if (task.Id!=jobStatus.TaskId){}
             var taskGroup = TaskGroupInfo.ToInfo(task.TaskGroupId);
 
             // 更新Task

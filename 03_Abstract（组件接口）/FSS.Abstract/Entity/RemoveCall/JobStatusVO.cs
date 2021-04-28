@@ -15,6 +15,11 @@ namespace FSS.Abstract.Entity.RemoveCall
         public int TaskId { get; set; }
         
         /// <summary>
+        /// 任务组ID
+        /// </summary>
+        public int TaskGroupId { get; set; }
+        
+        /// <summary>
         /// 任务组标题
         /// </summary>
         public string Caption { get; set; }

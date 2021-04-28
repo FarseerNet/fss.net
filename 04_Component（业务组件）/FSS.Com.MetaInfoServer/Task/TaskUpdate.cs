@@ -17,7 +17,7 @@ namespace FSS.Com.MetaInfoServer.Task
         /// </summary>
         public void Update(TaskVO task)
         {
-            CacheManager.Save(TaskCache.Key, task, task.Id,new CacheOption());
+            CacheManager.Save(TaskCache.Key, task, task.TaskGroupId, new CacheOption());
         }
 
         /// <summary>
