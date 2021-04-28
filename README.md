@@ -20,9 +20,8 @@
     Grpc Server（通讯协议)
 ## 客户端依赖环境
     netstandard2.0
-    AppSettins.json （配置服务端通讯地址）
-    Farseer.Net.Job 方便快速集成到业务系统（如不依赖，需自行对接）
-    Grpc Client（Farseer.Net.Job会实现与服务端的通信）
+    Farseer.Net.Job 开源组件 方便快速集成到业务系统（如不依赖，需自行对接）
+    Grpc Client（服务端的通信）
 
 ## 痛点解决
 FSS的设计初衷是为了实现分布式的调度，并且运行Job的程序不应该依赖调度策略，而只专注于开发自己的业务逻辑。
@@ -91,22 +90,22 @@ public class StartupModule : FarseerModule
 ```
 `HelloWorldJob.cs`
 ```c#
-[FssJob(Name = "bbb")] // Name与FSS平台配置的JobTypeName保持一致
+[FssJob(Name = "testJob")] // Name与FSS平台配置的JobTypeName保持一致
 public class HelloWorldJob : IFssJob
 {
     /// <summary>
     /// 执行任务
     /// </summary>
-    public bool Execute(ReceiveContext context)
+    public async Task<bool> Execute(ReceiveContext context)
     {
         // 告诉FSS平台，当前进度执行了 20%
-        context.SetProgress(20);
+        await context.SetProgressAsync(20);
         
         // 让FSS平台，记录日志
-        context.Logger(LogLevel.Information, "你好，世界！");
+        await context.LoggerAsync(LogLevel.Information, "你好，世界！");
         
         // 下一次执行时间为10秒后（如果不设置，则使用任务组设置的时间）
-        context.SetNextAt(DateTime.Now.AddSeconds(10));
+        await context.SetNextAtAsync(DateTime.Now.AddSeconds(10));
         
         // 任务执行成功
         return true;
@@ -134,9 +133,10 @@ public class HelloWorldJob : IFssJob
 | 8  | 动态创建任务 |完成  |
 | 9  | 根据任务调度，并通知客户端 | 完成 |
 | 10  | 客户端断开连接时，要检查当前任务是否已处理完 |  |
-| 11  | 定时扫描任务当前的客户端是否断开连接 |  |
+| 11  | 定时扫描任务当前的客户端是否断开连接 | 完成 |
 | 12  | 定时同步当前节点的客户端列表到缓存 |  |
-| 13  | 去中心化、分布式实现 |  |
+| 13  | 统计任务的平均耗时 |  |
+| 14  | 去中心化、分布式实现 |  |
 
 ## .NET客户端(Farseer.Net.Job)开发进度
 |  序号   | 功能  | 状态  |
@@ -146,7 +146,7 @@ public class HelloWorldJob : IFssJob
 | 3  | 实现服务端的任务执行通知服务 | 完成 |
 | 4  | 实现IJob Abs接口 | 完成 |
 | 5  | 向服务端实时推送JOB的进度、状态、日志 | 完成 |
-| 5  | 向服务端注册我能处理的任务列表 |  |
+| 5  | 向服务端注册我能处理的任务列表 | 完成 |
 
 ## 下一个版本要实现的功能
 |  序号   | 功能  |
