@@ -26,6 +26,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
         public IRunLogAdd      RunLogAdd      { get; set; }
         public IClientResponse ClientResponse { get; set; }
         public INodeRegister   NodeRegister   { get; set; }
+        public ISchedulerLock  SchedulerLock  { get; set; }
 
         // 当前任务组是否有任务在运行
         private static readonly Dictionary<int, TaskVO> dicTaskGroupIsRun = new();
@@ -83,6 +84,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                                         TaskUpdate.Save(dicTaskGroupIsRun[tGroupId]);
                                     }
                                 }
+
                                 Thread.Sleep(50);
                                 break;
                             case EumTaskType.Fail:
@@ -157,10 +159,10 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 Thread.Sleep((int) timeSpan.TotalMilliseconds);
             }
 
-            // 取出空闲客户端、开始调度执行
-            var clientVO = ClientSlb.Slb();
             try
             {
+                // 取出空闲客户端、开始调度执行
+                var clientVO = ClientSlb.Slb();
                 // 当前没有客户端注册进来
                 if (clientVO == null)
                 {
@@ -171,20 +173,28 @@ namespace FSS.Com.SchedulerServer.Scheduler
 
                 IocManager.Logger<TaskGroupScheduler>().LogInformation($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 任务：{taskVO.TaskGroupId}-{taskVO.Id} 调度给{clientVO.ServerHost}-{clientVO.ClientIp} 执行");
 
-                // 通知客户端处理JOB
-                task.Status     = EumTaskType.Scheduler;
-                task.ClientHost = clientVO.ServerHost;
-                task.ClientIp   = clientVO.ClientIp;
-                task.ServerNode = NodeRegister.GetNodeIp();
-                TaskUpdate.Update(task);
+                if (SchedulerLock.TryLock(task.Id, clientVO.ServerHost))
+                {
+                    // 通知客户端处理JOB
+                    task.Status     = EumTaskType.Scheduler;
+                    task.ClientHost = clientVO.ServerHost;
+                    task.ClientIp   = clientVO.ClientIp;
+                    task.ServerNode = NodeRegister.GetNodeIp();
+                    TaskUpdate.Update(task);
 
-                // 通知客户端开始任务调度
-                var taskGroup = TaskGroupInfo.ToInfo(taskGroupId);
-                await ClientResponse.JobSchedulerAsync(clientVO, taskGroup, task);
+                    // 通知客户端开始任务调度
+                    var taskGroup = TaskGroupInfo.ToInfo(taskGroupId);
+                    await ClientResponse.JobSchedulerAsync(clientVO, taskGroup, task);
 
-                // 更新调度时间
-                task.SchedulerAt = DateTime.Now;
-                TaskUpdate.Update(task);
+                    // 更新调度时间
+                    task.SchedulerAt = DateTime.Now;
+                    TaskUpdate.Update(task);
+                }
+                else
+                {
+                    // 被其他节点锁定了
+                    Thread.Sleep(50);
+                }
             }
             catch (Exception e) // 通知失败
             {
