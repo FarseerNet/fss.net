@@ -44,10 +44,9 @@ namespace FSS.Com.SchedulerServer.Scheduler
             // 开启单个任务组线程，判断是否要创建任务
             ThreadPool.QueueUserWorkItem(async taskGroupIdState =>
             {
-                // 默认500Ms执行一次
                 var tGroupId = (int) taskGroupIdState;
-
                 logger.LogInformation($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 任务组：ID={tGroupId} 开始运行调度线程...");
+                
                 while (true)
                 {
                     try
