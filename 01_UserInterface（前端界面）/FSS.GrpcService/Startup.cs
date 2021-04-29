@@ -12,6 +12,7 @@ using FSS.Com.MetaInfoServer;
 using FSS.Com.RegisterCenterServer;
 using FSS.Com.RemoteCallServer;
 using FSS.Com.SchedulerServer;
+using FSS.GrpcService.Background;
 using FSS.GrpcService.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -41,7 +42,7 @@ namespace FSS.GrpcService
             services.AddSingleton<IIocManager>(FS.DI.IocManager.Instance.Resolve<IIocManager>());
             
             // 开启任务组调度
-            services.AddHostedService<TaskGroupSchedulerService>(); 
+            services.AddHostedService<RunTaskSchedulerService>(); 
             services.AddHostedService<SyncServiceInfoService>();
         }
 

@@ -1,18 +1,10 @@
-using System.Linq;
-using System.Net;
-using System.Net.NetworkInformation;
-using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using FS.DI;
-using FS.Utils.Common;
-using FSS.Abstract.Server.MetaInfo;
 using FSS.Abstract.Server.RegisterCenter;
-using FSS.Abstract.Server.Scheduler;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
-namespace FSS.GrpcService
+namespace FSS.GrpcService.Background
 {
     /// <summary>
     /// 同步当前信息到缓存
