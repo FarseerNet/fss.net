@@ -35,7 +35,7 @@ namespace FSS.GrpcService
 
             // 遍历任务组、开启调度线程
             _logger.LogInformation($"正在读取所有任务组信息");
-            var taskGroupVos = _taskGroupList.ToList();
+            var taskGroupVos = _taskGroupList.ToListAndSave();
             _logger.LogInformation($"共获取到：{taskGroupVos.Count} 条任务组信息");
             foreach (var taskGroupVo in taskGroupVos)
             {
