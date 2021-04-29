@@ -36,7 +36,7 @@ namespace FSS.Com.RegisterCenterServer.Client
         {
             var redisValue = RedisCacheManager.Db.HashGet(Key, ip);
             if (!redisValue.HasValue) return false;
-            var activeAt = redisValue.ToString().ConvertType(0l);
+            var activeAt = redisValue.ToString().ConvertType(0L);
             // 超过10S，没有活动，判定为挂了
             if (DateTime.Now.ToTimestamp() - activeAt > 10000)
             {
