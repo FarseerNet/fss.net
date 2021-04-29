@@ -6,7 +6,7 @@ metadata:
     app: fss-grpc
     k8s.kuboard.cn/layer: svc
 spec:
-  replicas: 1
+  replicas: 3
   revisionHistoryLimit: 1
   minReadySeconds: 10     # 这里需要估一个比较合理的值，从容器启动到应用正常提供服务
   strategy:               # k8s 默认的 strategy 就是 RollingUpdate， 这里写明出来可以调节细节参数
@@ -27,21 +27,32 @@ spec:
       dnsConfig:
         options:
           - name: single-request-reopen
-      nodeSelector:   #节点筛选器
-        rt: web
+#      nodeSelector:   #节点筛选器
+#        rt: web
       containers:
         - name: fss-grpc
-          image: fss-grpc:latest
+          image: 10.102.171.169:5000/fss-grpc-2021_04_29_17_34_54:latest
           imagePullPolicy: IfNotPresent
           imagePullSecrets:
             - name: regsecret
           ports:
             - containerPort: 80
+          envFrom:  #以密文的方式，把配置项写到env
+            - secretRef:
+                name: fss
           env:
             - name: TZ
               value: Asia/Shanghai
-#            - name: ASPNETCORE_ENVIRONMENT
-#              value: Test
+#          volumeMounts:
+#            - name: appsettings
+#              mountPath: /app/appsettings.json   #挂载点不存在,Pod会自动创建.
+#              readOnly: true                    #不能让容器修改配置的内容。
+#              subPath: appsettings.json
+#      volumes:
+#        -  name: appsettings
+#           configMap:
+#             defaultMode: 420
+#             name: fss
 ---
 apiVersion: v1
 kind: Service
