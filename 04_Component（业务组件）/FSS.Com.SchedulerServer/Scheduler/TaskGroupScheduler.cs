@@ -95,7 +95,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                             }
                         }
 
-                        Console.WriteLine($"1、{tGroupId} {dicTaskGroupIsRun[tGroupId].Id}  {dicTaskGroupIsRun[tGroupId].Status}");
+                        logger.LogDebug($"1、{tGroupId} {dicTaskGroupIsRun[tGroupId].Id}  {dicTaskGroupIsRun[tGroupId].Status}");
 
                         Thread.Sleep(10);
                     }
@@ -112,10 +112,11 @@ namespace FSS.Com.SchedulerServer.Scheduler
         /// </summary>
         private void CheckSchedulerStatus(int tGroupId)
         {
+            var logger = IocManager.Logger<TaskGroupScheduler>();
             while (dicTaskGroupIsRun[tGroupId].Status is EumTaskType.Scheduler)
             {
                 Thread.Sleep(50);
-                Console.WriteLine($"2、{tGroupId}、{dicTaskGroupIsRun[tGroupId].Id}、{dicTaskGroupIsRun[tGroupId].Status}");
+                logger.LogDebug($"2、{tGroupId}、{dicTaskGroupIsRun[tGroupId].Id}、{dicTaskGroupIsRun[tGroupId].Status}");
                 var newTask = TaskInfo.ToGroupTask(tGroupId);
 
                 // 不相等，说明已经执行了新的Task
