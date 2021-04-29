@@ -43,6 +43,7 @@ namespace FSS.GrpcService
             
             // 开启任务组调度
             services.AddHostedService<RunTaskSchedulerService>(); 
+            services.AddHostedService<SyncTaskGroupAvgSpeedService>(); 
             services.AddHostedService<SyncServiceInfoService>();
         }
 

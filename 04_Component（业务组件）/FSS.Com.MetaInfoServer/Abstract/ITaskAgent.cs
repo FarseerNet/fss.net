@@ -30,5 +30,10 @@ namespace FSS.Com.MetaInfoServer.Abstract
         /// 获取未执行的任务信息
         /// </summary>
         TaskPO ToUnExecutedTask(int groupId);
+
+        /// <summary>
+        /// 取前100条的运行速度
+        /// </summary>
+        List<int> ToSpeedList(int groundId);
     }
 }

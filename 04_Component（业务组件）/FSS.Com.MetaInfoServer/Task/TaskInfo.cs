@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using FS.Cache;
 using FS.Extends;
 using FSS.Abstract.Entity.MetaInfo;
@@ -29,6 +30,15 @@ namespace FSS.Com.MetaInfoServer.Task
                 taskGroupId.ToString(),
                 o => TaskAdd.GetOrCreate(taskGroupId),
                 o => o.TaskGroupId);
+        }
+
+        /// <summary>
+        /// 计算任务的平均运行速度
+        /// </summary>
+        public int StatAvgSpeed(int taskGroupId)
+        {
+            var speedList = TaskAgent.ToSpeedList(taskGroupId);
+            return speedList.Sum() / speedList.Count;
         }
     }
 }
