@@ -14,5 +14,10 @@ namespace FSS.Abstract.Server.MetaInfo
         /// 更新任务ID
         /// </summary>
         void UpdateTaskId(int taskGroupId, int taskId);
+
+        /// <summary>
+        /// 保存TaskGroup
+        /// </summary>
+        void Save(TaskGroupVO taskGroup);
     }
 }

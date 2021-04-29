@@ -49,7 +49,6 @@ namespace FSS.GrpcService.Services
             }
             finally
             {
-                
                 _ioc.Resolve<IClientRegister>().Remove(serverHost);
                 _ioc.Logger<FssService>().LogWarning($"客户端{clientIp} 断开连接");
             }
@@ -62,9 +61,9 @@ namespace FSS.GrpcService.Services
         {
             var taskGroupId = context.RequestHeaders.GetValue("task_group_id").ConvertType(0);
             var taskId      = context.RequestHeaders.GetValue("task_id").ConvertType(0);
-            var serverHost = $"{context.Host}_{context.Peer}";
-            
-            var task       = _ioc.Resolve<ITaskInfo>().ToGroupTask(taskGroupId);
+            var serverHost  = $"{context.Host}_{context.Peer}";
+
+            var task = _ioc.Resolve<ITaskInfo>().ToGroupTask(taskGroupId);
             if (task.Id != taskId) return (CommandResponse) _ioc.Resolve<IClientResponse>().Print($"指定的TaskId：{taskId} 与服务端正在处理的Task：{task.Id} 不一致");
 
             var taskGroup = _ioc.Resolve<ITaskGroupInfo>().ToInfo(taskGroupId);
@@ -93,6 +92,13 @@ namespace FSS.GrpcService.Services
                 // 更新Task元信息
                 task.Status = EumTaskType.Working;
                 taskUpdate.Update(task);
+
+                // 更新group元信息
+                taskGroup.RunCount++;
+                taskGroup.ActivateAt = DateTime.Now;
+                taskGroup.LastRunAt  = DateTime.Now;
+                taskGroupUpdate.Update(taskGroup);
+
                 runLogAdd.Add(task.TaskGroupId, task.Id, LogLevel.Information, $"任务ID：{task.Id}，开始工作");
 
                 // 实时同步JOB执行状态
@@ -102,20 +108,23 @@ namespace FSS.GrpcService.Services
                     task.Progress = registerRequest.Progress;
                     task.Status   = (EumTaskType) registerRequest.Status;
                     task.RunSpeed = registerRequest.RunSpeed;
-                    
+
                     // 如果是成功、错误状态，则要立即更新数据库
                     switch (task.Status)
                     {
                         case EumTaskType.Fail:
                         case EumTaskType.Success:
                         case EumTaskType.ReScheduler:
+                            taskGroup.LastRunAt  = DateTime.Now;
+                            taskGroup.ActivateAt = DateTime.Now;
                             taskUpdate.Save(task);
+                            taskGroupUpdate.Save(taskGroup);
                             break;
                         default:
                             taskUpdate.Update(task);
                             break;
                     }
-                    
+
 
                     // 设置下一次的执行时间，并更新
                     taskGroup.NextAt = registerRequest.NextAt.ToTimestamps();
