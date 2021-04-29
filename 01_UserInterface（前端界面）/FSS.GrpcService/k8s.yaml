@@ -31,7 +31,7 @@ spec:
 #        rt: web
       containers:
         - name: fss-grpc
-          image: 10.102.171.169:5000/fss-grpc-2021_04_29_17_34_54:latest
+          image: fss-grpc:latest
           imagePullPolicy: IfNotPresent
           imagePullSecrets:
             - name: regsecret
