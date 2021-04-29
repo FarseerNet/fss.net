@@ -63,6 +63,11 @@ namespace FSS.Com.RegisterCenterServer.Client
         }
 
         /// <summary>
+        /// 获取客户端数量
+        /// </summary>
+        public int Count() => Clients.Count(o => (DateTime.Now - o.Value.HeartbeatAt).TotalMilliseconds < 10000);
+
+        /// <summary>
         /// 取出客户端
         /// </summary>
         public ClientConnectVO ToInfo(string serverHost)

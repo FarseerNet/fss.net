@@ -41,5 +41,10 @@ namespace FSS.Abstract.Server.RegisterCenter
         /// 移除客户端
         /// </summary>
         void Remove(string serverHost);
+
+        /// <summary>
+        /// 获取客户端数量
+        /// </summary>
+        int Count();
     }
 }

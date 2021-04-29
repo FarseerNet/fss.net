@@ -52,6 +52,13 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 {
                     try
                     {
+                        // 当前没有客户端数量
+                        if (ClientRegister.Count() == 0)
+                        {
+                            logger.LogDebug($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 当前没有客户端连接，调度休眠...");
+                            Thread.Sleep(1000);
+                        }
+                        
                         // 取出当前任务组的Task
                         dicTaskGroupIsRun[tGroupId] = TaskInfo.ToGroupTask(tGroupId);
                         switch (dicTaskGroupIsRun[tGroupId].Status)
