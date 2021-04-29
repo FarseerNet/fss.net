@@ -18,7 +18,7 @@ namespace FSS.GrpcService.Background
         readonly         ITaskGroupInfo   _taskGroupInfo;
         readonly         ITaskGroupUpdate _taskGroupUpdate;
         readonly         ITaskInfo        _taskInfo;
-        readonly         ILogger        _logger;
+        readonly         ILogger          _logger;
 
         public SyncTaskGroupAvgSpeedService(IIocManager ioc)
         {
@@ -39,7 +39,9 @@ namespace FSS.GrpcService.Background
                 {
                     // 先计算在更新
                     var statAvgSpeed = _taskInfo.StatAvgSpeed(taskGroupVo.Id);
-                    var taskGroupVO  = _taskGroupInfo.ToInfo(taskGroupVo.Id);
+                    if (statAvgSpeed == 0) continue;
+                    
+                    var taskGroupVO = _taskGroupInfo.ToInfo(taskGroupVo.Id);
                     taskGroupVO.RunSpeedAvg = statAvgSpeed;
                     _taskGroupUpdate.Save(taskGroupVO);
                     _logger.LogDebug($"成功同步TaskGroupId={taskGroupVO.Id} 的平均耗时为：{statAvgSpeed} ms");

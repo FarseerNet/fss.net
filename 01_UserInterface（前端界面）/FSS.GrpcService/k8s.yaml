@@ -31,7 +31,7 @@ spec:
 #        rt: web
       containers:
         - name: fss-grpc
-          image: farseernet/fss:1.0.0-beta
+          image: farseernet/fss:1.0.0-beta.3
           imagePullPolicy: IfNotPresent
           imagePullSecrets:
             - name: regsecret

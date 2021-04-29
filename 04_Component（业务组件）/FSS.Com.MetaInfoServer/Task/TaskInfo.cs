@@ -38,6 +38,7 @@ namespace FSS.Com.MetaInfoServer.Task
         public int StatAvgSpeed(int taskGroupId)
         {
             var speedList = TaskAgent.ToSpeedList(taskGroupId);
+            if (speedList.Count == 0) return 0;
             return speedList.Sum() / speedList.Count;
         }
     }
