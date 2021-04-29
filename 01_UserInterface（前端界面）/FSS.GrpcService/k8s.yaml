@@ -74,7 +74,7 @@ metadata:
   name: fss-grpc
 spec:
   rules:
-    - host: your.domain # 内网则可以直接使用Service
+    - host: fss.188.dj # 内网则可以直接使用Service
       http:
         paths:
           - path: /
