@@ -9,7 +9,11 @@
 
 与.NET CORE高度契合，借助Farseer.Net.Job组件，可以实现简单接入（1分钟上手）
 
-使用后，客户端不再关注调度的实现或依赖。只负责编写一个个Job代码。
+客户端不再关注调度的实现或依赖。只负责编写一个个Job代码。
+
+GitHub：https://github.com/FarseerNet/FarseerSchedulerService
+
+dockerhub:https://hub.docker.com/r/farseernet/fss
 
 ## 服务端依赖环境
     Docker （运行在docker或k8s下）
