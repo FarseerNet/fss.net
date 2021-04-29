@@ -72,6 +72,7 @@ apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   name: fss-grpc
+  nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
 spec:
   rules:
     - host: your.domain # 内网则可以直接使用Service
