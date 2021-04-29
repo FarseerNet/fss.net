@@ -15,7 +15,7 @@ namespace FSS.Com.MetaInfoServer.RunLog.Dal
         /// 主键
         /// </summary>
         [Field(Name = "id",IsPrimaryKey = true)]
-        public long Id { get; set; }
+        public long? Id { get; set; }
 
         /// <summary>
         /// 任务组记录ID
