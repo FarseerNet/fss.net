@@ -21,9 +21,11 @@ namespace FSS.Com.SchedulerServer.Scheduler
         public ITaskGroupInfo  TaskGroupInfo  { get; set; }
         public ITaskUpdate     TaskUpdate     { get; set; }
         public IClientSlb      ClientSlb      { get; set; }
+        public IClientRegister ClientRegister { get; set; }
         public ITaskAdd        TaskAdd        { get; set; }
         public IRunLogAdd      RunLogAdd      { get; set; }
         public IClientResponse ClientResponse { get; set; }
+        public INodeRegister   NodeRegister   { get; set; }
 
         // 当前任务组是否有任务在运行
         private static readonly Dictionary<int, TaskVO> dicTaskGroupIsRun = new();
@@ -60,7 +62,28 @@ namespace FSS.Com.SchedulerServer.Scheduler
                                 CheckSchedulerStatus(tGroupId: tGroupId);
                                 break;
                             case EumTaskType.Working:
-                                Thread.Sleep(30);
+                                // 如果 任务的运行节点是当前节点时，判断客户端是否在线
+                                var nodeIp = NodeRegister.GetNodeIp();
+                                if (dicTaskGroupIsRun[tGroupId].ServerNode == nodeIp)
+                                {
+                                    var client = ClientRegister.ToInfo(dicTaskGroupIsRun[tGroupId].ClientHost);
+                                    if (client == null) // 客户端掉线了
+                                    {
+                                        RunLogAdd.Add(tGroupId, dicTaskGroupIsRun[tGroupId].Id, LogLevel.Warning, $"任务ID：{dicTaskGroupIsRun[tGroupId].Id}，客户端断开连接，强制设为失败状态");
+                                        dicTaskGroupIsRun[tGroupId].Status = EumTaskType.Fail;
+                                        TaskUpdate.Save(dicTaskGroupIsRun[tGroupId]);
+                                    }
+                                }
+                                else // 如果不是，则判断服务器节点是否掉线
+                                {
+                                    if (!NodeRegister.IsNodeExists(dicTaskGroupIsRun[tGroupId].ServerNode)) // 服务端掉线
+                                    {
+                                        RunLogAdd.Add(tGroupId, dicTaskGroupIsRun[tGroupId].Id, LogLevel.Warning, $"任务ID：{dicTaskGroupIsRun[tGroupId].Id}，服务端节点下线，强制设为失败状态");
+                                        dicTaskGroupIsRun[tGroupId].Status = EumTaskType.Fail;
+                                        TaskUpdate.Save(dicTaskGroupIsRun[tGroupId]);
+                                    }
+                                }
+                                Thread.Sleep(50);
                                 break;
                             case EumTaskType.Fail:
                             case EumTaskType.Success:
@@ -129,7 +152,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
             // 任务没开始，休眠
             if (timeSpan.TotalMilliseconds > 0)
             {
-                logger.LogInformation($"执行任务：id={task.Id}，还需要等待 {timeSpan.TotalMilliseconds} ms，休眠中...");
+                logger.LogDebug($"执行任务：id={task.Id}，还需要等待 {timeSpan.TotalMilliseconds} ms，休眠中...");
                 Thread.Sleep((int) timeSpan.TotalMilliseconds);
             }
 
@@ -151,6 +174,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 task.Status     = EumTaskType.Scheduler;
                 task.ClientHost = clientVO.ServerHost;
                 task.ClientIp   = clientVO.ClientIp;
+                task.ServerNode = NodeRegister.GetNodeIp();
                 TaskUpdate.Update(task);
 
                 // 通知客户端开始任务调度

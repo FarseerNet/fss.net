@@ -8,21 +8,6 @@ namespace FSS.Abstract.Server.RegisterCenter
     public interface IClientRegister: ITransientDependency
     {
         /// <summary>
-        /// 注册
-        /// </summary>
-        void Register(ClientConnectVO client);
-
-        /// <summary>
-        /// 移除客户端
-        /// </summary>
-        void Remove(string serverHost);
-
-        /// <summary>
-        /// 取出客户端
-        /// </summary>
-        ClientConnectVO ToInfo(string serverHost);
-
-        /// <summary>
         /// 取出客户端列表
         /// </summary>
         List<ClientConnectVO> ToList();
@@ -36,5 +21,25 @@ namespace FSS.Abstract.Server.RegisterCenter
         /// 更新客户端心跳时间
         /// </summary>
         void UpdateHeartbeatAt(string serverHost, DateTime heartbeatAt);
+
+        /// <summary>
+        /// 同步本地缓存到Redis
+        /// </summary>
+        void SyncCache();
+
+        /// <summary>
+        /// 注册
+        /// </summary>
+        void Register(ClientConnectVO client);
+
+        /// <summary>
+        /// 取出客户端
+        /// </summary>
+        ClientConnectVO ToInfo(string serverHost);
+
+        /// <summary>
+        /// 移除客户端
+        /// </summary>
+        void Remove(string serverHost);
     }
 }

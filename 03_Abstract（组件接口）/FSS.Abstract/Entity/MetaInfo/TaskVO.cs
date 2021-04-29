@@ -29,6 +29,11 @@ namespace FSS.Abstract.Entity.MetaInfo
         public int RunSpeed { get; set; }
         
         /// <summary>
+        /// 服务端节点
+        /// </summary>
+        public string ServerNode { get; set; }
+        
+        /// <summary>
         /// 客户端
         /// </summary>
         public string ClientHost { get; set; }

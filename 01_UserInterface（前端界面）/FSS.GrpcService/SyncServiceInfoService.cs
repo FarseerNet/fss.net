@@ -20,12 +20,14 @@ namespace FSS.GrpcService
     public class SyncServiceInfoService : BackgroundService
     {
         private readonly IIocManager     _ioc;
-        readonly         INodeRegister _serverRegister;
+        readonly         INodeRegister   _nodeRegister;
+        readonly         IClientRegister _clientRegister;
 
         public SyncServiceInfoService(IIocManager ioc)
         {
             _ioc            = ioc;
-            _serverRegister = _ioc.Resolve<INodeRegister>();
+            _nodeRegister = _ioc.Resolve<INodeRegister>();
+            _clientRegister = _ioc.Resolve<IClientRegister>();
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -33,7 +35,9 @@ namespace FSS.GrpcService
             while (true)
             {
                 // 每1S，更新当前IP到服务列表中
-                _serverRegister.Register();
+                _nodeRegister.Register();
+                _clientRegister.SyncCache();
+                
                 await Task.Delay(1000, stoppingToken);
             }
         }

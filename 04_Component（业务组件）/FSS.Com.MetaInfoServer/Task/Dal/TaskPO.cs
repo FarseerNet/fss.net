@@ -34,6 +34,11 @@ namespace FSS.Com.MetaInfoServer.Task.Dal
         [Field(Name = "run_speed")] public int? RunSpeed { get; set; }
 
         /// <summary>
+        /// 服务端节点
+        /// </summary>
+        [Field(Name = "server_node")] public string ServerNode { get; set; }
+
+        /// <summary>
         /// 客户端
         /// </summary>
         [Field(Name = "client_host")] public string ClientHost { get; set; }

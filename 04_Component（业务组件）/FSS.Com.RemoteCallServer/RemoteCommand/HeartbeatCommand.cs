@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using FS.DI;
 using FS.Extends;
+using FSS.Abstract.Entity.RegisterCenter;
 using FSS.Abstract.Server.RegisterCenter;
 using FSS.Abstract.Server.RemoteCall;
 using FSS.GrpcService;
@@ -40,9 +41,18 @@ namespace FSS.Com.RemoteCallServer.RemoteCommand
             _responseStream = (IServerStreamWriter<CommandResponse>) responseStream;
 
             // 心跳
-            var serverHost = $"{context.Host}_{context.Peer}";
-            ClientRegister.UpdateHeartbeatAt(serverHost, _requestStream.Current.RequestAt.ToTimestamps());
-            IocManager.Logger<HeartbeatCommand>().LogDebug($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 收到{serverHost}的心跳");
+            var clientConnectVO = new ClientConnectVO
+            {
+                ServerHost     = $"{context.Host}_{context.Peer}",
+                ClientIp       = context.RequestHeaders.GetValue("client_ip"),
+                RequestStream  = requestStream,
+                ResponseStream = responseStream,
+                RegisterAt     = _requestStream.Current.RequestAt.ToTimestamps(),
+                HeartbeatAt    = DateTime.Now
+            };
+            ClientRegister.Register(clientConnectVO);
+            
+            IocManager.Logger<HeartbeatCommand>().LogDebug($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 客户端===> 收到{clientConnectVO.ServerHost}的心跳");
             return Task.FromResult(0);
         }
     }

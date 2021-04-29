@@ -11,11 +11,11 @@ namespace FSS.Com.MetaInfoServer.Task
 {
     public class TaskAdd : ITaskAdd
     {
-        public ITaskAgent       TaskAgent        { get; set; }
-        public ICacheManager    CacheManager     { get; set; }
-        public ITaskGroupInfo   TaskGroupInfo    { get; set; }
+        public ITaskAgent       TaskAgent       { get; set; }
+        public ICacheManager    CacheManager    { get; set; }
+        public ITaskGroupInfo   TaskGroupInfo   { get; set; }
         public ITaskGroupUpdate TaskGroupUpdate { get; set; }
-        
+
         /// <summary>
         /// 创建Task，并更新到缓存
         /// </summary>
@@ -36,14 +36,15 @@ namespace FSS.Com.MetaInfoServer.Task
                 // 没查到时，自动创建一条对应的Task
                 task = new TaskPO
                 {
-                    TaskGroupId    = taskGroup.Id,
-                    StartAt        = taskGroup.NextAt,
-                    RunSpeed       = 0,
-                    ClientHost       = "",
-                    ClientIp = "",
-                    Progress       = 0,
-                    Status         = EumTaskType.None,
-                    CreateAt       = DateTime.Now,
+                    TaskGroupId = taskGroup.Id,
+                    StartAt     = taskGroup.NextAt,
+                    RunSpeed    = 0,
+                    ClientHost  = "",
+                    ClientIp    = "",
+                    Progress    = 0,
+                    Status      = EumTaskType.None,
+                    CreateAt    = DateTime.Now,
+                    ServerNode  = ""
                 };
                 TaskAgent.Add(task, out int id);
                 task.Id = id;

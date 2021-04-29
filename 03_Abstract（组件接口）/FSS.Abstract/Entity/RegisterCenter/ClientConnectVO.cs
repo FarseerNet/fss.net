@@ -1,6 +1,4 @@
 using System;
-using System.Text.Json;
-using Grpc.Core;
 using Newtonsoft.Json;
 
 namespace FSS.Abstract.Entity.RegisterCenter
@@ -11,11 +9,6 @@ namespace FSS.Abstract.Entity.RegisterCenter
     public class ClientConnectVO
     {
         /// <summary>
-        /// 上下文
-        /// </summary>
-        public ServerCallContext Context { get; set; }
-        
-        /// <summary>
         /// 服务端打开通道的端口
         /// </summary>
         public string ServerHost { get;  set; }
@@ -23,11 +16,13 @@ namespace FSS.Abstract.Entity.RegisterCenter
         /// <summary>
         /// 客户端请求流
         /// </summary>
+        [JsonIgnore]
         public object RequestStream  { get; set; }
         
         /// <summary>
         /// 客户端响应流
         /// </summary>
+        [JsonIgnore]
         public object ResponseStream { get; set; }
         
         /// <summary>
@@ -49,10 +44,5 @@ namespace FSS.Abstract.Entity.RegisterCenter
         /// 服务端最后一次使用的时间（用来做负载）
         /// </summary>
         public DateTime UseAt { get; set; }
-
-        public override string ToString()
-        {
-            return JsonConvert.SerializeObject(this);
-        }
     }
 }

@@ -7,15 +7,12 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.Cache.Redis\Farseer.Net.Cache.Redis.csproj" />
+        <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.Utils\Farseer.Net.Utils.csproj" />
         <ProjectReference Include="..\..\03_Abstract（组件接口）\FSS.Abstract\FSS.Abstract.csproj" />
     </ItemGroup>
 
     <ItemGroup>
       <Folder Include="Abstract" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Include="Farseer.Net.Utils" Version="2.5.0" />
     </ItemGroup>
 
 </Project>
