@@ -13,6 +13,11 @@ namespace FSS.Abstract.Entity.MetaInfo
         public int Id { get; set; }
         
         /// <summary>
+        /// 任务ID
+        /// </summary>
+        public int TaskId { get; set; }
+        
+        /// <summary>
         /// 任务组标题
         /// </summary>
         public string Caption { get; set; }
@@ -33,9 +38,14 @@ namespace FSS.Abstract.Entity.MetaInfo
         public DateTime NextAt { get; set; }
         
         /// <summary>
-        /// 任务ID
+        /// 时间间隔
         /// </summary>
-        public int TaskId { get; set; }
+        public long IntervalMs { get; set; }
+        
+        /// <summary>
+        /// 时间定时器表达式
+        /// </summary>
+        public string Cron { get; set; }
         
         /// <summary>
         /// 活动时间

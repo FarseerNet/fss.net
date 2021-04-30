@@ -8,11 +8,6 @@ namespace FSS.Abstract.Server.MetaInfo
         /// <summary>
         /// 创建Task，并更新到缓存
         /// </summary>
-        TaskVO GetOrCreate(TaskGroupVO taskGroup);
-
-        /// <summary>
-        /// 创建Task，并更新到缓存
-        /// </summary>
         TaskVO GetOrCreate(int taskGroupId);
     }
 }

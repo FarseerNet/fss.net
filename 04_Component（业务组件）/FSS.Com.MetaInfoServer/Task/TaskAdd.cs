@@ -21,16 +21,8 @@ namespace FSS.Com.MetaInfoServer.Task
         /// </summary>
         public TaskVO GetOrCreate(int taskGroupId)
         {
-            var taskGroupVO = TaskGroupInfo.ToInfo(taskGroupId);
-            return GetOrCreate(taskGroupVO);
-        }
-
-        /// <summary>
-        /// 创建Task，并更新到缓存
-        /// </summary>
-        public TaskVO GetOrCreate(TaskGroupVO taskGroup)
-        {
-            var task = TaskAgent.ToUnExecutedTask(taskGroup.Id);
+            var taskGroup = TaskGroupInfo.ToInfo(taskGroupId);
+            var task      = TaskAgent.ToUnExecutedTask(taskGroup.Id);
             if (task == null)
             {
                 // 没查到时，自动创建一条对应的Task

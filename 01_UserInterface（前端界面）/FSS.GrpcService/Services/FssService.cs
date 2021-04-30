@@ -66,7 +66,7 @@ namespace FSS.GrpcService.Services
 
             var runLogAdd = _ioc.Resolve<IRunLogAdd>();
             var task      = _ioc.Resolve<ITaskInfo>().ToGroupTask(taskGroupId);
-            
+
             if (task.Id != taskId)
             {
                 runLogAdd.Add(task.TaskGroupId, taskId, LogLevel.Warning, $"与服务端正在处理的Task：{task.Id} 不一致");
@@ -128,18 +128,16 @@ namespace FSS.GrpcService.Services
                         case EumTaskType.ReScheduler:
                             taskGroup.LastRunAt  = DateTime.Now;
                             taskGroup.ActivateAt = DateTime.Now;
+                            
+                            // 客户端设置了动态时间
+                            if (registerRequest.NextTimespan > 0) taskGroup.NextAt = DateTime.Now.AddMilliseconds(registerRequest.NextTimespan);
+                            taskGroupUpdate.Save(taskGroup); // 要比Task提前保存，后面需要判断下次执行时间
                             taskUpdate.Save(task);
-                            taskGroupUpdate.Save(taskGroup);
                             break;
                         default:
                             taskUpdate.Update(task);
                             break;
                     }
-
-
-                    // 设置下一次的执行时间，并更新
-                    taskGroup.NextAt = registerRequest.NextAt.ToTimestamps();
-                    taskGroupUpdate.Update(taskGroup);
 
                     // 如果有日志
                     if (registerRequest.Log != null && !string.IsNullOrWhiteSpace(registerRequest.Log.Log))

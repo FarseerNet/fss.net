@@ -18,6 +18,12 @@ namespace FSS.Com.MetaInfoServer.TaskGroup.Dal
         public int? Id { get; set; }
         
         /// <summary>
+        /// 任务ID
+        /// </summary>
+        [Field(Name = "task_id")]
+        public int TaskId { get; set; }
+        
+        /// <summary>
         /// 任务组标题
         /// </summary>
         [Field(Name = "caption")]
@@ -42,10 +48,16 @@ namespace FSS.Com.MetaInfoServer.TaskGroup.Dal
         public DateTime? NextAt { get; set; }
         
         /// <summary>
-        /// 任务ID
+        /// 时间间隔
         /// </summary>
-        [Field(Name = "task_id")]
-        public int TaskId { get; set; }
+        [Field(Name = "interval_ms")]
+        public long? IntervalMs { get; set; }
+        
+        /// <summary>
+        /// 时间定时器表达式
+        /// </summary>
+        [Field(Name = "cron")]
+        public string Cron { get; set; }
         
         /// <summary>
         /// 活动时间

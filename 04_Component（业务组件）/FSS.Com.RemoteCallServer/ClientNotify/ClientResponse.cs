@@ -65,7 +65,6 @@ namespace FSS.Com.RemoteCallServer.ClientNotify
                     Caption     = taskGroup.Caption,
                     JobTypeName = taskGroup.JobTypeName,
                     StartAt     = taskGroup.StartAt,
-                    NextAt      = taskGroup.NextAt,
                     ClientIp    = task.ClientIp,
                     ClientHost  = task.ClientHost
                 }.ToString()
