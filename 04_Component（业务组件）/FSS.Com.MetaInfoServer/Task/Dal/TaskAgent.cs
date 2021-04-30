@@ -37,6 +37,6 @@ namespace FSS.Com.MetaInfoServer.Task.Dal
         /// <summary>
         /// 取前100条的运行速度
         /// </summary>
-        public List<int> ToSpeedList(int groundId) => MetaInfoContext.Data.Task.Where(o => o.Status == EumTaskType.Success).Desc(o => o.Id).ToSelectList(100, o => o.RunSpeed.GetValueOrDefault());
+        public List<int> ToSpeedList(int groupId) => MetaInfoContext.Data.Task.Where(o => o.TaskGroupId == groupId &&o.Status == EumTaskType.Success).Desc(o => o.Id).ToSelectList(100, o => o.RunSpeed.GetValueOrDefault());
     }
 }
