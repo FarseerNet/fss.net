@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using FSS.Com.MetaInfoServer.Abstract;
 
@@ -31,5 +32,10 @@ namespace FSS.Com.MetaInfoServer.TaskGroup.Dal
         /// 更新任务ID
         /// </summary>
         public void UpdateTaskId(int taskGroupId, int taskId) => MetaInfoContext.Data.TaskGroup.Where(o => o.Id == taskGroupId).Update(new TaskGroupPO {TaskId = taskId});
+        
+        /// <summary>
+        /// 更新任务时间
+        /// </summary>
+        public void UpdateNextAt(int taskGroupId, DateTime nextAt) => MetaInfoContext.Data.TaskGroup.Where(o => o.Id == taskGroupId).Update(new TaskGroupPO {NextAt = nextAt});
     }
 }

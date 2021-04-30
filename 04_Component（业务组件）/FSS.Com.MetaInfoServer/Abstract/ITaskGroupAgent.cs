@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using FS.DI;
 using FSS.Com.MetaInfoServer.Task.Dal;
@@ -26,5 +27,10 @@ namespace FSS.Com.MetaInfoServer.Abstract
         /// 更新任务ID
         /// </summary>
         void UpdateTaskId(int taskGroupId, int taskId);
+
+        /// <summary>
+        /// 更新任务时间
+        /// </summary>
+        void UpdateNextAt(int taskGroupId, DateTime nextAt);
     }
 }

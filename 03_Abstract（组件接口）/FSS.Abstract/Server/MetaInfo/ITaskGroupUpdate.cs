@@ -19,5 +19,10 @@ namespace FSS.Abstract.Server.MetaInfo
         /// 保存TaskGroup
         /// </summary>
         void Save(TaskGroupVO taskGroup);
+
+        /// <summary>
+        /// 统计失败次数，按次数递增时间
+        /// </summary>
+        void StatFail(TaskVO task);
     }
 }
