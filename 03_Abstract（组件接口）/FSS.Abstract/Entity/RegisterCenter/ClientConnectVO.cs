@@ -44,5 +44,10 @@ namespace FSS.Abstract.Entity.RegisterCenter
         /// 服务端最后一次使用的时间（用来做负载）
         /// </summary>
         public DateTime UseAt { get; set; }
+
+        /// <summary>
+        /// 当前客户端能处理的JOB
+        /// </summary>
+        public string[] Jobs { get; set; }
     }
 }

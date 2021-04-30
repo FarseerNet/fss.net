@@ -9,6 +9,6 @@ namespace FSS.Abstract.Server.RegisterCenter
         /// <summary>
         /// 通过轮询的方式，取出客户端
         /// </summary>
-        ClientConnectVO Slb();
+        ClientConnectVO Slb(string jobName);
     }
 }

@@ -48,7 +48,8 @@ namespace FSS.Com.RemoteCallServer.RemoteCommand
                 RequestStream  = requestStream,
                 ResponseStream = responseStream,
                 RegisterAt     = _requestStream.Current.RequestAt.ToTimestamps(),
-                HeartbeatAt    = DateTime.Now
+                HeartbeatAt    = DateTime.Now,
+                Jobs           = _requestStream.Current.Data.Split(',')
             };
             ClientRegister.Register(clientConnectVO);
 

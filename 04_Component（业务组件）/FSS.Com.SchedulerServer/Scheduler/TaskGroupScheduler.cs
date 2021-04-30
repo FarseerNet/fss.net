@@ -108,7 +108,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                             case EumTaskType.ReScheduler:
                             {
                                 dicTaskGroupIsRun[tGroupId] = TaskAdd.GetOrCreate(tGroupId);
-                                logger.LogInformation($"新建任务: GroupId={taskGroup.Id} {taskGroup.Caption} TaskId={dicTaskGroupIsRun[tGroupId].Id}");
+                                logger.LogDebug($"新建任务: GroupId={taskGroup.Id} {taskGroup.Caption} TaskId={dicTaskGroupIsRun[tGroupId].Id}");
                                 break;
                             }
                         }
@@ -133,7 +133,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
             var logger = IocManager.Logger<TaskGroupScheduler>();
             while (dicTaskGroupIsRun[taskGroup.Id].Status is EumTaskType.Scheduler)
             {
-                Thread.Sleep(50);
+                Thread.Sleep(200);
                 logger.LogDebug($"2、GroupId={taskGroup.Id} {taskGroup.Caption}、{dicTaskGroupIsRun[taskGroup.Id].Id}、{dicTaskGroupIsRun[taskGroup.Id].Status}");
                 var newTask = TaskInfo.ToGroupTask(taskGroup.Id);
 
@@ -178,7 +178,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
             try
             {
                 // 取出空闲客户端、开始调度执行
-                var clientVO = ClientSlb.Slb();
+                var clientVO = ClientSlb.Slb(taskGroup.JobTypeName);
                 // 当前没有客户端注册进来
                 if (clientVO == null)
                 {
