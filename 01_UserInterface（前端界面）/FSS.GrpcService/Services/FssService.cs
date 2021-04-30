@@ -69,17 +69,15 @@ namespace FSS.GrpcService.Services
             
             if (task.Id != taskId)
             {
-                var message = $"指定的TaskId：{taskId} 与服务端正在处理的Task：{task.Id} 不一致";
-                runLogAdd.Add(task.TaskGroupId, taskId, LogLevel.Warning, message);
-                return (CommandResponse) _ioc.Resolve<IClientResponse>().Print(message);
+                runLogAdd.Add(task.TaskGroupId, taskId, LogLevel.Warning, $"与服务端正在处理的Task：{task.Id} 不一致");
+                return (CommandResponse) _ioc.Resolve<IClientResponse>().Print($"指定的TaskId：{taskId} 与服务端正在处理的Task：{task.Id} 不一致");
             }
 
             var taskGroup = _ioc.Resolve<ITaskGroupInfo>().ToInfo(taskGroupId);
             if (taskGroup == null)
             {
-                var message = $"指定的TaskId：{taskId} 所属的任务组：{task.TaskGroupId} 不存在";
-                runLogAdd.Add(task.TaskGroupId, taskId, LogLevel.Warning, message);
-                return (CommandResponse) _ioc.Resolve<IClientResponse>().Print(message);
+                runLogAdd.Add(task.TaskGroupId, taskId, LogLevel.Warning, $"所属的任务组：{task.TaskGroupId} 不存在");
+                return (CommandResponse) _ioc.Resolve<IClientResponse>().Print($"指定的TaskId：{taskId} 所属的任务组：{task.TaskGroupId} 不存在");
             }
 
             var taskUpdate      = _ioc.Resolve<ITaskUpdate>();
@@ -98,9 +96,8 @@ namespace FSS.GrpcService.Services
                 // 不相等，说明被覆盖了（JOB请求慢了。被调度重新执行了）
                 if (task.ClientHost != serverHost)
                 {
-                    var message = $"任务ID：{task.Id}，{task.ClientHost}与本次请求{serverHost} 不一致，忽略本次请求";
-                    runLogAdd.Add(task.TaskGroupId, taskId, LogLevel.Warning, message);
-                    return (CommandResponse) clientResponse.Ignore(message);
+                    runLogAdd.Add(task.TaskGroupId, taskId, LogLevel.Warning, $"{task.ClientHost}与本次请求{serverHost} 不一致，忽略本次请求");
+                    return (CommandResponse) clientResponse.Ignore($"任务ID：{task.Id}，{task.ClientHost}与本次请求{serverHost} 不一致，忽略本次请求");
                 }
 
                 // 更新Task元信息
@@ -155,15 +152,15 @@ namespace FSS.GrpcService.Services
                 if (task.Status != EumTaskType.Success)
                 {
                     var message = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 任务：{task.TaskGroupId}-{task.Id} 执行失败";
+                    runLogAdd.Add(task.TaskGroupId, taskId, LogLevel.Warning, $"执行失败");
                     logger.LogWarning(message);
-                    runLogAdd.Add(task.TaskGroupId, taskId, LogLevel.Warning, message);
                     return (CommandResponse) _ioc.Resolve<IClientResponse>().Print(message);
                 }
                 else
                 {
                     var message = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 任务：{task.TaskGroupId}-{task.Id} 执行成功，耗时：{task.RunSpeed} ms";
+                    runLogAdd.Add(task.TaskGroupId, taskId, LogLevel.Information, $"执行成功，耗时：{task.RunSpeed} ms");
                     logger.LogInformation(message);
-                    runLogAdd.Add(task.TaskGroupId, taskId, LogLevel.Information, message);
                     return (CommandResponse) _ioc.Resolve<IClientResponse>().Print(message);
                 }
             }
