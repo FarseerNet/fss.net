@@ -23,7 +23,7 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
         {
             var taskGroupVos = TaskGroupAgent.ToList().Map<TaskGroupVO>();
             CacheManager.Save(TaskGroupCache.Key, taskGroupVos, o => o.Id);
-            return taskGroupVos.FindAll(o => o.IsEnable);
+            return taskGroupVos;
         }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
         {
             return CacheManager.GetList(TaskGroupCache.Key,
                 opt => TaskGroupAgent.ToList().Map<TaskGroupVO>()
-                , o => o.Id).FindAll(o => o.IsEnable);
+                , o => o.Id);
         }
 
         /// <summary>
