@@ -22,7 +22,7 @@ namespace FSS.Com.RegisterCenterServer.Client
         /// </summary>
         public void Register(ClientConnectVO client)
         {
-            client.UseAt               = DateTime.Now;
+            //client.UseAt               = DateTime.Now;
             Clients[client.ServerHost] = client;
         }
 

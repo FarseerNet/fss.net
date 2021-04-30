@@ -41,18 +41,19 @@ namespace FSS.Com.RemoteCallServer.RemoteCommand
             _responseStream = (IServerStreamWriter<CommandResponse>) responseStream;
 
             // 心跳
-            var clientConnectVO = new ClientConnectVO
-            {
-                ServerHost     = $"{context.Host}_{context.Peer}",
-                ClientIp       = context.RequestHeaders.GetValue("client_ip"),
-                RequestStream  = requestStream,
-                ResponseStream = responseStream,
-                RegisterAt     = _requestStream.Current.RequestAt.ToTimestamps(),
-                HeartbeatAt    = DateTime.Now
-            };
-            ClientRegister.Register(clientConnectVO);
+            var serverHost = $"{context.Host}_{context.Peer}";
+            //var clientConnectVO = new ClientConnectVO
+            //{
+            //    ServerHost     = serverHost,
+            //    ClientIp       = context.RequestHeaders.GetValue("client_ip"),
+            //    RequestStream  = requestStream,
+            //    ResponseStream = responseStream,
+            //    RegisterAt     = _requestStream.Current.RequestAt.ToTimestamps(),
+            //    HeartbeatAt    = DateTime.Now
+            //};
+            ClientRegister.UpdateHeartbeatAt(serverHost, DateTime.Now);
             
-            IocManager.Logger<HeartbeatCommand>().LogDebug($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 客户端===> 收到{clientConnectVO.ServerHost}的心跳");
+            IocManager.Logger<HeartbeatCommand>().LogDebug($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 收到客户端===> 收到{serverHost}的心跳");
             return Task.FromResult(0);
         }
     }
