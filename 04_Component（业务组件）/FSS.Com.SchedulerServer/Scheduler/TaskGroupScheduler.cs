@@ -187,7 +187,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                     return;
                 }
 
-                IocManager.Logger<TaskGroupScheduler>().LogInformation($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 任务：GroupId={taskGroup.Id} {taskGroup.Caption}-TaskId={taskVO.Id} 调度给客户端IP={clientVO.ClientIp},ServerHost={clientVO.ServerHost} 执行");
+                IocManager.Logger<TaskGroupScheduler>().LogInformation($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 任务：GroupId={taskGroup.Id} {taskGroup.Caption}-TaskId={taskVO.Id} 调度给====>{clientVO.ServerHost}");
 
                 if (SchedulerLock.TryLock(task.Id, clientVO.ServerHost))
                 {
