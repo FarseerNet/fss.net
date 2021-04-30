@@ -110,7 +110,7 @@ namespace FSS.GrpcService.Services
                 taskGroup.LastRunAt  = DateTime.Now;
                 taskGroupUpdate.Update(taskGroup);
 
-                runLogAdd.Add(task.TaskGroupId, task.Id, LogLevel.Information, $"任务ID：{task.Id}，开始工作");
+                //runLogAdd.Add(task.TaskGroupId, task.Id, LogLevel.Information, $"任务ID：{task.Id}，开始工作");
 
                 // 实时同步JOB执行状态
                 await foreach (var registerRequest in requestStream.ReadAllAsync())

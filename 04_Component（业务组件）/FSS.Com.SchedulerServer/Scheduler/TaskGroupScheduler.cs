@@ -58,7 +58,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                     try
                     {
                         // 当前没有客户端数量
-                        if (ClientRegister.Count() == 0)
+                        if (ClientRegister.Count(taskGroup.JobTypeName) == 0)
                         {
                             logger.LogDebug($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 任务组：GroupId={taskGroup.Id} {taskGroup.Caption} 当前没有客户端连接，调度休眠...");
                             Thread.Sleep(30 * 1000);

@@ -22,7 +22,6 @@ namespace FSS.Com.RegisterCenterServer.Client
         /// </summary>
         public void Register(ClientConnectVO client)
         {
-            //client.UseAt               = DateTime.Now;
             Clients[client.ServerHost] = client;
         }
 
@@ -53,11 +52,11 @@ namespace FSS.Com.RegisterCenterServer.Client
         /// </summary>
         public List<ClientConnectVO> ToList()
         {
-            var lstTimeoutClient = Clients.Where(o => (DateTime.Now - o.Value.HeartbeatAt).TotalMilliseconds > 10000);
-            foreach (var client in lstTimeoutClient)
-            {
-                Clients.Remove(client.Key);
-            }
+            //var lstTimeoutClient = Clients.Where(o => (DateTime.Now - o.Value.HeartbeatAt).TotalMilliseconds > 10000);
+            //foreach (var client in lstTimeoutClient)
+            //{
+            //    Clients.Remove(client.Key);
+            //}
 
             return Clients.Select(o => o.Value).ToList();
         }
@@ -65,7 +64,7 @@ namespace FSS.Com.RegisterCenterServer.Client
         /// <summary>
         /// 获取客户端数量
         /// </summary>
-        public int Count() => Clients.Count(o => (DateTime.Now - o.Value.HeartbeatAt).TotalMilliseconds < 10000);
+        public int Count(string jobName) => Clients.Count(o => o.Value.Jobs.Contains(jobName)); //o => (DateTime.Now - o.Value.HeartbeatAt).TotalMilliseconds < 10000
 
         /// <summary>
         /// 取出客户端
@@ -74,11 +73,11 @@ namespace FSS.Com.RegisterCenterServer.Client
         {
             if (Clients.TryGetValue(serverHost, out var client))
             {
-                if ((DateTime.Now - client.HeartbeatAt).TotalMilliseconds > 10000)
-                {
-                    Clients.Remove(serverHost);
-                    return null;
-                }
+                //if ((DateTime.Now - client.HeartbeatAt).TotalMilliseconds > 10000)
+                //{
+                //    Clients.Remove(serverHost);
+                //    return null;
+                //}
             }
             return client;
         }

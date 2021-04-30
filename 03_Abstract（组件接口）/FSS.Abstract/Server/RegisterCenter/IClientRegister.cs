@@ -45,6 +45,6 @@ namespace FSS.Abstract.Server.RegisterCenter
         /// <summary>
         /// 获取客户端数量
         /// </summary>
-        int Count();
+        int Count(string jobName);
     }
 }
