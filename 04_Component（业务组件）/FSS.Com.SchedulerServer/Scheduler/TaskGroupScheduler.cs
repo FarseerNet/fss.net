@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using FS.DI;
+using FS.Extends;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
@@ -47,9 +48,11 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 var tGroupId = (int) taskGroupIdState;
                 // 取出任务组
                 var taskGroup = TaskGroupInfo.ToInfo(tGroupId);
-                
-                logger.LogInformation($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 任务组：GroupId={taskGroup.Id} {taskGroup.Caption} 开始运行调度线程...");
-                
+
+                var nextSeconds = (taskGroup.NextAt - DateTime.Now).TotalSeconds.ConvertType(0);
+                var nextTimeDesc           = nextSeconds > 0 ? nextSeconds.ToString() + " 秒":$"立即";
+                logger.LogInformation($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 开始运行调度线程：任务组：GroupId={taskGroup.Id} Caption={taskGroup.Caption} 下次执行时间：{nextTimeDesc}");
+
                 while (true)
                 {
                     try
@@ -61,13 +64,13 @@ namespace FSS.Com.SchedulerServer.Scheduler
                             Thread.Sleep(30 * 1000);
                             continue;
                         }
-                        
+
                         if (taskGroup.IsEnable is false)
                         {
                             logger.LogDebug($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 任务组：GroupId={taskGroup.Id} {taskGroup.Caption} 没有启用，调度休眠...");
                             await Task.Delay(30 * 1000);
                         }
-                            
+
                         // 取出当前任务组的Task
                         dicTaskGroupIsRun[tGroupId] = TaskInfo.ToGroupTask(tGroupId);
                         switch (dicTaskGroupIsRun[tGroupId].Status)
