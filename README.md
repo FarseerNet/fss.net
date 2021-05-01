@@ -39,7 +39,7 @@ dockerhub:https://hub.docker.com/r/farseernet/fss
 
 ## 痛点解决
 
-FSS的设计初衷是为了实现分布式的调度，并且运行Job的程序不应该依赖调度策略，而只专注于开发自己的业务逻辑。
+FSS的设计初衷是为了实现分布式的调度，运行Job的程序不应该依赖调度策略，而只专注于开发自己的业务逻辑。
 
 我希望实现Job的程序应该是高可用的，比如我利用k8s或Docker，跑3个实例（进程）。并保证任务能被负载到做任意一个客户端执行
 
@@ -81,51 +81,53 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------
 DROP TABLE IF EXISTS `run_log`;
 CREATE TABLE `run_log` (
- `Id` int NOT NULL AUTO_INCREMENT,
- `task_id` bigint NOT NULL DEFAULT '0' COMMENT '任务记录ID',
- `log_level` tinyint NOT NULL DEFAULT '0' COMMENT '日志级别',
- `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '日志内容',
- `create_at` datetime(6) NOT NULL COMMENT '日志时间',
- `task_group_id` int NOT NULL DEFAULT '0' COMMENT '任务组',
- PRIMARY KEY (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=15297 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+`Id` int NOT NULL AUTO_INCREMENT,
+`task_id` bigint NOT NULL DEFAULT '0' COMMENT '任务记录ID',
+`log_level` tinyint NOT NULL DEFAULT '0' COMMENT '日志级别',
+`content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '日志内容',
+`create_at` datetime(6) NOT NULL COMMENT '日志时间',
+`task_group_id` int NOT NULL DEFAULT '0' COMMENT '任务组',
+PRIMARY KEY (`Id`)
+) ENGINE=InnoDB AUTO_INCREMENT=17101 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- ----------------------------
 -- Table structure for task
 -- ----------------------------
 DROP TABLE IF EXISTS `task`;
 CREATE TABLE `task` (
- `Id` int NOT NULL AUTO_INCREMENT,
- `task_group_id` int NOT NULL DEFAULT '0' COMMENT '任务组ID',
- `start_at` datetime(6) NOT NULL COMMENT '开始时间',
- `run_speed` int NOT NULL COMMENT '运行耗时',
- `client_host` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '客户端',
- `server_node` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '服务端节点',
- `client_ip` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '客户端IP',
- `progress` int NOT NULL COMMENT '进度0-100',
- `status` tinyint NOT NULL COMMENT '状态',
- `create_at` datetime(6) NOT NULL COMMENT '任务创建时间',
- PRIMARY KEY (`Id`) USING BTREE,
- KEY `group_id_status` (`task_group_id`,`status`)
-) ENGINE=InnoDB AUTO_INCREMENT=12289 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+`Id` int NOT NULL AUTO_INCREMENT,
+`task_group_id` int NOT NULL DEFAULT '0' COMMENT '任务组ID',
+`start_at` datetime(6) NOT NULL COMMENT '开始时间',
+`run_speed` int NOT NULL COMMENT '运行耗时',
+`client_host` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '客户端',
+`server_node` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '服务端节点',
+`client_ip` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '客户端IP',
+`progress` int NOT NULL COMMENT '进度0-100',
+`status` tinyint NOT NULL COMMENT '状态',
+`create_at` datetime(6) NOT NULL COMMENT '任务创建时间',
+PRIMARY KEY (`Id`) USING BTREE,
+KEY `group_id_status` (`task_group_id`,`status`)
+) ENGINE=InnoDB AUTO_INCREMENT=12794 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- ----------------------------
 -- Table structure for task_group
 -- ----------------------------
 DROP TABLE IF EXISTS `task_group`;
 CREATE TABLE `task_group` (
- `Id` int NOT NULL AUTO_INCREMENT,
- `caption` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '任务组标题',
- `job_type_name` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '实现Job的特性名称（客户端识别哪个实现类）',
- `start_at` datetime(6) NOT NULL COMMENT '开始时间',
- `next_at` datetime(6) NOT NULL COMMENT '下次执行时间',
- `task_id` int NOT NULL COMMENT '任务ID',
- `activate_at` datetime(6) NOT NULL COMMENT '活动时间',
- `last_run_at` datetime(6) NOT NULL COMMENT '最后一次完成时间',
- `run_speed_avg` int NOT NULL COMMENT '运行平均耗时',
- `run_count` int NOT NULL COMMENT '运行次数',
- `is_enable` bit(2) NOT NULL COMMENT '是否开启',
- PRIMARY KEY (`Id`)
+`Id` int NOT NULL AUTO_INCREMENT,
+`caption` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '任务组标题',
+`job_type_name` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '实现Job的特性名称（客户端识别哪个实现类）',
+`start_at` datetime(6) NOT NULL COMMENT '开始时间',
+`next_at` datetime(6) NOT NULL COMMENT '下次执行时间',
+`task_id` bigint NOT NULL COMMENT '任务ID',
+`activate_at` datetime(6) NOT NULL COMMENT '活动时间',
+`last_run_at` datetime(6) NOT NULL COMMENT '最后一次完成时间',
+`run_speed_avg` int NOT NULL COMMENT '运行平均耗时',
+`run_count` int NOT NULL COMMENT '运行次数',
+`is_enable` bit(2) NOT NULL COMMENT '是否开启',
+`interval_ms` bigint NOT NULL DEFAULT '0' COMMENT '时间间隔',
+`cron` varchar(32) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '时间定时器表达式',
+PRIMARY KEY (`Id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 SET FOREIGN_KEY_CHECKS = 1;
@@ -164,7 +166,7 @@ farseernet/fss:1.0.0-beta --restart=always
 ```
 docker run -d --name fss \
 -v /home/appsettings.json:app/appsettings.json \
-farseernet/fss:1.0.0-beta --restart=always
+farseernet/fss:1.0.0-beta.4 --restart=always
 ```
 
 `3、查看打印日志`
@@ -266,19 +268,19 @@ public class HelloWorldJob : IFssJob
     /// <summary>
     /// 执行任务
     /// </summary>
-    public async Task<bool> Execute(ReceiveContext context)
+    public Task<bool> Execute(ReceiveContext context)
     {
         // 告诉FSS平台，当前进度执行了 20%
-        await context.SetProgressAsync(20);
-        
+        context.SetProgress(20);
+
         // 让FSS平台，记录日志
-        await context.LoggerAsync(LogLevel.Information, "你好，世界！");
-        
+        context.Logger(LogLevel.Information, "你好，世界！");
+
         // 下一次执行时间为10秒后（如果不设置，则使用任务组设置的时间）
-        await context.SetNextAtAsync(DateTime.Now.AddSeconds(10));
-        
+        context.SetNextAt(TimeSpan.FromSeconds(1));
+
         // 任务执行成功
-        return true;
+        return Task.FromResult(true);
     }
 }
 ```
@@ -303,13 +305,15 @@ public class HelloWorldJob : IFssJob
 | 5  | 接收客户端当前执行任务的进度、状态更新 | 完成 |
 | 6  | 记录客户端的运行日志、异常日志 | 完成 |
 | 7  | 实现任务组功能 | 完成 |
-| 8  | 动态创建任务 |完成  |
+| 8  | 动态创建任务 | 完成 |
 | 9  | 根据任务调度，并通知客户端 | 完成 |
 | 10  | 定时同步当前服务节点的信息到缓存 | 完成 |
 | 11  | 客户端断开连接时，要检查当前任务是否已处理完 | 完成 |
 | 12  | 定时扫描任务当前的客户端是否断开连接 | 完成 |
 | 13  | 定时同步当前节点的客户端列表到缓存 | 完成 |
-| 15  | 去中心化、分布式实现 | 完成 |
+| 14  | 去中心化、分布式实现 | 完成 |
+| 15  | 统计任务的平均耗时 | 完成 |
+| 16  | 实现三种定时功能：时间间隔、Cron表达式、客户端返回 | 完成 |
 
 ## .NET客户端(Farseer.Net.Job)开发进度
 
@@ -328,4 +332,3 @@ public class HelloWorldJob : IFssJob
 |  ----  | ----  |
 | 1  | 踢除客户端 |
 | 2  | 日志改用Redis作消费写入 |
-| 3  | 统计任务的平均耗时 | 
