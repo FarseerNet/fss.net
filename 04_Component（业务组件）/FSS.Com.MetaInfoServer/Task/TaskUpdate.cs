@@ -1,6 +1,5 @@
 using System;
 using FS.Cache;
-using FS.Cache.Redis;
 using FS.Extends;
 using FS.Utils.Component;
 using FSS.Abstract.Entity.MetaInfo;
@@ -8,8 +7,6 @@ using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
 using FSS.Com.MetaInfoServer.Abstract;
 using FSS.Com.MetaInfoServer.Task.Dal;
-using Microsoft.Win32.SafeHandles;
-using Newtonsoft.Json;
 
 namespace FSS.Com.MetaInfoServer.Task
 {

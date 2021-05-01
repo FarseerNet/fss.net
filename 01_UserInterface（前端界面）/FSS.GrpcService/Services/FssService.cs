@@ -89,9 +89,8 @@ namespace FSS.GrpcService.Services
 
             try
             {
-                // 取出注册到当前平台的客户端
-                var clientConnect = clientRegister.ToInfo(serverHost);
-                clientConnect.UseAt = DateTime.Now;
+                // 更新客户端的使用时间
+                clientRegister.UpdateUseAt(serverHost, DateTime.Now);
 
                 // 不相等，说明被覆盖了（JOB请求慢了。被调度重新执行了）
                 if (task.ClientHost != serverHost)
@@ -110,8 +109,6 @@ namespace FSS.GrpcService.Services
                 taskGroup.LastRunAt  = DateTime.Now;
                 taskGroupUpdate.Update(taskGroup);
 
-                //runLogAdd.Add(task.TaskGroupId, task.Id, LogLevel.Information, $"任务ID：{task.Id}，开始工作");
-
                 // 实时同步JOB执行状态
                 await foreach (var registerRequest in requestStream.ReadAllAsync())
                 {
@@ -128,7 +125,7 @@ namespace FSS.GrpcService.Services
                         case EumTaskType.ReScheduler:
                             taskGroup.LastRunAt  = DateTime.Now;
                             taskGroup.ActivateAt = DateTime.Now;
-                            
+
                             // 客户端设置了动态时间
                             if (registerRequest.NextTimespan > 0) taskGroup.NextAt = DateTime.Now.AddMilliseconds(registerRequest.NextTimespan);
                             taskGroupUpdate.Save(taskGroup); // 要比Task提前保存，后面需要判断下次执行时间

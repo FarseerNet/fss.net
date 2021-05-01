@@ -6,7 +6,7 @@ namespace FSS.Abstract.Server.MetaInfo
     public interface ITaskUpdate: ITransientDependency
     {
         /// <summary>
-        /// 更新Task
+        /// 更新Task（如果状态是成功、失败、重新调度，则应该调Save）
         /// </summary>
         void Update(TaskVO task);
         

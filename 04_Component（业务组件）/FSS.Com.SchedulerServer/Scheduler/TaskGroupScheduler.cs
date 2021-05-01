@@ -57,7 +57,10 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 {
                     try
                     {
-                        // 当前没有客户端数量
+                        // 取最新的任务组信息
+                        taskGroup = TaskGroupInfo.ToInfo(tGroupId);
+
+                        // 当前没有客户端连接时，休眠
                         if (ClientRegister.Count(taskGroup.JobTypeName) == 0)
                         {
                             logger.LogDebug($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 任务组：GroupId={taskGroup.Id} {taskGroup.Caption} 当前没有客户端连接，调度休眠...");
@@ -65,6 +68,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                             continue;
                         }
 
+                        // 任务组没有开启时，休眠
                         if (taskGroup.IsEnable is false)
                         {
                             logger.LogDebug($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 任务组：GroupId={taskGroup.Id} {taskGroup.Caption} 没有启用，调度休眠...");
@@ -76,7 +80,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
 
                         logger.LogDebug($"1、GroupId={taskGroup.Id} {taskGroup.Caption} TaskId={dicTaskGroupIsRun[tGroupId].Id}  Status={dicTaskGroupIsRun[tGroupId].Status}");
 
-                        // 执行调度
+                        // 任务组状态=未执行
                         if (dicTaskGroupIsRun[tGroupId].Status is EumTaskType.None)
                         {
                             await SchedulerTask(taskGroup, dicTaskGroupIsRun[tGroupId]);
@@ -151,7 +155,12 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 var newTask = TaskInfo.ToGroupTask(taskGroup.Id);
 
                 // 不相等，说明已经执行了新的Task
-                if (dicTaskGroupIsRun[taskGroup.Id].Id != newTask.Id) break;
+                if (dicTaskGroupIsRun[taskGroup.Id].Id != newTask.Id)
+                {
+                    dicTaskGroupIsRun[taskGroup.Id] = newTask;
+                    break;
+                }
+
                 dicTaskGroupIsRun[taskGroup.Id] = newTask;
 
                 // 说明已调度成功
@@ -194,6 +203,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
             {
                 // 取出空闲客户端、开始调度执行
                 var clientVO = ClientSlb.Slb(taskGroup.JobTypeName);
+
                 // 当前没有客户端注册进来
                 if (clientVO == null)
                 {
@@ -202,28 +212,28 @@ namespace FSS.Com.SchedulerServer.Scheduler
                     return;
                 }
 
-                IocManager.Logger<TaskGroupScheduler>().LogInformation($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 任务：GroupId={taskGroup.Id} {taskGroup.Caption}-TaskId={taskVO.Id} 调度给====>{clientVO.ServerHost}");
-
+                // 同一个任务，多个服务端，只能由一个节点执行调度
                 if (SchedulerLock.TryLock(task.Id, clientVO.ServerHost))
                 {
+                    IocManager.Logger<TaskGroupScheduler>().LogInformation($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 任务：GroupId={taskGroup.Id} {taskGroup.Caption}-TaskId={taskVO.Id} 调度给====>{clientVO.ClientIp}");
+                    
                     // 通知客户端处理JOB
-                    task.Status     = EumTaskType.Scheduler;
-                    task.ClientHost = clientVO.ServerHost;
-                    task.ClientIp   = clientVO.ClientIp;
-                    task.ServerNode = NodeRegister.GetNodeIp();
-                    TaskUpdate.Update(task);
-
-                    // 通知客户端开始任务调度
-                    await ClientResponse.JobSchedulerAsync(clientVO, taskGroup, task);
-
-                    // 更新调度时间
+                    task.Status      = EumTaskType.Scheduler;
+                    task.ClientHost  = clientVO.ServerHost;
+                    task.ClientIp    = clientVO.ClientIp;
+                    task.ServerNode  = NodeRegister.GetNodeIp();
                     task.SchedulerAt = DateTime.Now;
                     TaskUpdate.Update(task);
+                    
+                    // 通知客户端开始任务调度
+                    await ClientResponse.JobSchedulerAsync(clientVO, taskGroup, task);
+                    
+                    Thread.Sleep(10);
                 }
                 else
                 {
                     // 被其他节点锁定了
-                    Thread.Sleep(50);
+                    Thread.Sleep(500);
                 }
             }
             catch (Exception e) // 通知失败
@@ -238,7 +248,10 @@ namespace FSS.Com.SchedulerServer.Scheduler
                     statusCode = rpcException1.Status.StatusCode;
                 }
 
-                IocManager.Logger<TaskGroupScheduler>().LogError(msg);
+                // 通知失败，则把当前任务设为失败
+                task.Status = EumTaskType.Fail;
+                TaskUpdate.Save(task);
+                RunLogAdd.Add(task.TaskGroupId, task.Id, LogLevel.Error, msg);
                 Thread.Sleep(3000);
             }
         }
