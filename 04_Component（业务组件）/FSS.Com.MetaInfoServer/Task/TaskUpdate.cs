@@ -57,6 +57,8 @@ namespace FSS.Com.MetaInfoServer.Task
                         {
                             taskGroup.NextAt = DateTime.Now.AddSeconds(30);
                         }
+
+                        TaskGroupUpdate.Save(taskGroup);
                     }
 
                     break;
