@@ -2,11 +2,13 @@ using System;
 using FS.Cache;
 using FS.Cache.Redis;
 using FS.Extends;
+using FS.Utils.Component;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
 using FSS.Com.MetaInfoServer.Abstract;
 using FSS.Com.MetaInfoServer.Task.Dal;
+using Microsoft.Win32.SafeHandles;
 using Newtonsoft.Json;
 
 namespace FSS.Com.MetaInfoServer.Task
@@ -38,24 +40,25 @@ namespace FSS.Com.MetaInfoServer.Task
                 case EumTaskType.Fail:
                 case EumTaskType.Success:
                 case EumTaskType.ReScheduler:
-                    
+
                     var taskGroup = TaskGroupInfo.ToInfo(task.TaskGroupId);
                     // 说明上一次任务，没有设置下一次的时间（动态设置）
                     // 本次的时间策略晚，则通过时间策略计算出来
                     if (DateTime.Now > taskGroup.NextAt)
                     {
+                        var cron = new Cron();
                         // 时间间隔器
                         if (taskGroup.IntervalMs > 0) taskGroup.NextAt = DateTime.Now.AddMilliseconds(taskGroup.IntervalMs);
-                        else if (string.IsNullOrWhiteSpace(taskGroup.Cron) is false)
+                        else if (string.IsNullOrWhiteSpace(taskGroup.Cron) is false && cron.Parse(taskGroup.Cron))
                         {
-                            taskGroup.NextAt = DateTime.Now.AddSeconds(30); // 未实现
+                            taskGroup.NextAt = cron.GetNext(DateTime.Now); // 未实现
                         }
                         else // 没有找到设置下一次时间的设置，则默认30S执行一次
                         {
                             taskGroup.NextAt = DateTime.Now.AddSeconds(30);
                         }
                     }
-                    
+
                     break;
             }
 
