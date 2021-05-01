@@ -49,8 +49,8 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 // 取出任务组
                 var taskGroup = TaskGroupInfo.ToInfo(tGroupId);
 
-                var nextSeconds = (taskGroup.NextAt - DateTime.Now).TotalSeconds.ConvertType(0);
-                var nextTimeDesc           = nextSeconds > 0 ? nextSeconds.ToString() + " 秒":$"立即";
+                var nextSeconds  = (taskGroup.NextAt - DateTime.Now).TotalSeconds.ConvertType(0);
+                var nextTimeDesc = nextSeconds > 0 ? nextSeconds.ToString() + " 秒" : $"立即";
                 logger.LogInformation($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 开始运行调度线程：任务组：GroupId={taskGroup.Id} Caption={taskGroup.Caption} 下次执行时间：{nextTimeDesc}");
 
                 while (true)
@@ -73,50 +73,61 @@ namespace FSS.Com.SchedulerServer.Scheduler
 
                         // 取出当前任务组的Task
                         dicTaskGroupIsRun[tGroupId] = TaskInfo.ToGroupTask(tGroupId);
+
+                        logger.LogDebug($"1、GroupId={taskGroup.Id} {taskGroup.Caption} TaskId={dicTaskGroupIsRun[tGroupId].Id}  Status={dicTaskGroupIsRun[tGroupId].Status}");
+
+                        // 执行调度
+                        if (dicTaskGroupIsRun[tGroupId].Status is EumTaskType.None)
+                        {
+                            await SchedulerTask(taskGroup, dicTaskGroupIsRun[tGroupId]);
+                            Thread.Sleep(100);
+                        }
+
+                        // 处于调度状态
+                        if (dicTaskGroupIsRun[tGroupId].Status is EumTaskType.Scheduler)
+                        {
+                            CheckSchedulerStatus(taskGroup);
+                        }
+
+                        // 工作状态
+                        if (dicTaskGroupIsRun[tGroupId].Status is EumTaskType.Working)
+                        {
+                            // 如果 任务的运行节点是当前节点时，判断客户端是否在线
+                            var nodeIp = NodeRegister.GetNodeIp();
+                            if (dicTaskGroupIsRun[tGroupId].ServerNode == nodeIp)
+                            {
+                                var client = ClientRegister.ToInfo(dicTaskGroupIsRun[tGroupId].ClientHost);
+                                if (client == null) // 客户端掉线了
+                                {
+                                    RunLogAdd.Add(tGroupId, dicTaskGroupIsRun[tGroupId].Id, LogLevel.Warning, $"任务ID：{dicTaskGroupIsRun[tGroupId].Id}，客户端断开连接，强制设为失败状态");
+                                    dicTaskGroupIsRun[tGroupId].Status = EumTaskType.Fail;
+                                    TaskUpdate.Save(dicTaskGroupIsRun[tGroupId]);
+                                }
+                            }
+                            else // 如果不是，则判断服务器节点是否掉线
+                            {
+                                if (!NodeRegister.IsNodeExists(dicTaskGroupIsRun[tGroupId].ServerNode)) // 服务端掉线
+                                {
+                                    RunLogAdd.Add(tGroupId, dicTaskGroupIsRun[tGroupId].Id, LogLevel.Warning, $"任务ID：{dicTaskGroupIsRun[tGroupId].Id}，服务端节点下线，强制设为失败状态");
+                                    dicTaskGroupIsRun[tGroupId].Status = EumTaskType.Fail;
+                                    TaskUpdate.Save(dicTaskGroupIsRun[tGroupId]);
+                                }
+                            }
+
+                            Thread.Sleep(50);
+                        }
+
                         switch (dicTaskGroupIsRun[tGroupId].Status)
                         {
-                            case EumTaskType.None: // 执行调度
-                                await SchedulerTask(taskGroup, dicTaskGroupIsRun[tGroupId]);
-                                break;
-                            case EumTaskType.Scheduler:
-                                CheckSchedulerStatus(taskGroup);
-                                break;
-                            case EumTaskType.Working:
-                                // 如果 任务的运行节点是当前节点时，判断客户端是否在线
-                                var nodeIp = NodeRegister.GetNodeIp();
-                                if (dicTaskGroupIsRun[tGroupId].ServerNode == nodeIp)
-                                {
-                                    var client = ClientRegister.ToInfo(dicTaskGroupIsRun[tGroupId].ClientHost);
-                                    if (client == null) // 客户端掉线了
-                                    {
-                                        RunLogAdd.Add(tGroupId, dicTaskGroupIsRun[tGroupId].Id, LogLevel.Warning, $"任务ID：{dicTaskGroupIsRun[tGroupId].Id}，客户端断开连接，强制设为失败状态");
-                                        dicTaskGroupIsRun[tGroupId].Status = EumTaskType.Fail;
-                                        TaskUpdate.Save(dicTaskGroupIsRun[tGroupId]);
-                                    }
-                                }
-                                else // 如果不是，则判断服务器节点是否掉线
-                                {
-                                    if (!NodeRegister.IsNodeExists(dicTaskGroupIsRun[tGroupId].ServerNode)) // 服务端掉线
-                                    {
-                                        RunLogAdd.Add(tGroupId, dicTaskGroupIsRun[tGroupId].Id, LogLevel.Warning, $"任务ID：{dicTaskGroupIsRun[tGroupId].Id}，服务端节点下线，强制设为失败状态");
-                                        dicTaskGroupIsRun[tGroupId].Status = EumTaskType.Fail;
-                                        TaskUpdate.Save(dicTaskGroupIsRun[tGroupId]);
-                                    }
-                                }
-
-                                Thread.Sleep(50);
-                                break;
                             case EumTaskType.Fail:
                             case EumTaskType.Success:
                             case EumTaskType.ReScheduler:
                             {
                                 dicTaskGroupIsRun[tGroupId] = TaskAdd.GetOrCreate(tGroupId);
-                                logger.LogDebug($"新建任务: GroupId={taskGroup.Id} {taskGroup.Caption} TaskId={dicTaskGroupIsRun[tGroupId].Id}");
+                                logger.LogDebug($"\t1、新建任务: GroupId={taskGroup.Id} {taskGroup.Caption} TaskId={dicTaskGroupIsRun[tGroupId].Id}");
                                 break;
                             }
                         }
-
-                        logger.LogDebug($"1、GroupId={taskGroup.Id} {taskGroup.Caption} TaskId={dicTaskGroupIsRun[tGroupId].Id}  Status={dicTaskGroupIsRun[tGroupId].Status}");
 
                         Thread.Sleep(10);
                     }
@@ -136,7 +147,6 @@ namespace FSS.Com.SchedulerServer.Scheduler
             var logger = IocManager.Logger<TaskGroupScheduler>();
             while (dicTaskGroupIsRun[taskGroup.Id].Status is EumTaskType.Scheduler)
             {
-                Thread.Sleep(200);
                 logger.LogDebug($"2、GroupId={taskGroup.Id} {taskGroup.Caption}、{dicTaskGroupIsRun[taskGroup.Id].Id}、{dicTaskGroupIsRun[taskGroup.Id].Status}");
                 var newTask = TaskInfo.ToGroupTask(taskGroup.Id);
 
@@ -158,6 +168,8 @@ namespace FSS.Com.SchedulerServer.Scheduler
                     TaskUpdate.Save(newTask);
                     break;
                 }
+
+                Thread.Sleep(200);
             }
         }
 
