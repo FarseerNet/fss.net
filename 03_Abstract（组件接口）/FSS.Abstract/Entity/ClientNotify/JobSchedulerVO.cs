@@ -27,7 +27,7 @@ namespace FSS.Abstract.Entity.ClientNotify
         public string JobTypeName { get; set; }
         
         /// <summary>
-        /// 传给客户端的参数，按逗号分隔
+        /// 传给客户端的参数，Json
         /// </summary>
         public Dictionary<string,string> Data { get; set; }
 
