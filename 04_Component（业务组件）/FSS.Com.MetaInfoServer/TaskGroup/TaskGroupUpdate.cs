@@ -32,7 +32,11 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
         public void Save(TaskGroupVO taskGroup)
         {
             Update(taskGroup);
-            TaskGroupAgent.Update(taskGroup.Id, taskGroup.Map<TaskGroupPO>());
+            var taskGroupPO = taskGroup.Map<TaskGroupPO>();
+            taskGroupPO.Cron = null;
+            taskGroupPO.IntervalMs = null;
+            taskGroupPO.IsEnable = null;
+            TaskGroupAgent.Update(taskGroup.Id, taskGroupPO);
         }
 
         /// <summary>
