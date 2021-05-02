@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace FSS.Abstract.Entity.ClientNotify
@@ -24,6 +25,11 @@ namespace FSS.Abstract.Entity.ClientNotify
         /// 实现Job的特性名称（客户端识别哪个实现类）
         /// </summary>
         public string JobTypeName { get; set; }
+        
+        /// <summary>
+        /// 传给客户端的参数，按逗号分隔
+        /// </summary>
+        public Dictionary<string,string> Data { get; set; }
 
         /// <summary>
         /// 开始时间

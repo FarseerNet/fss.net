@@ -36,6 +36,12 @@ namespace FSS.Com.MetaInfoServer.TaskGroup.Dal
         public string JobTypeName { get; set; }
         
         /// <summary>
+        /// 传给客户端的参数，按逗号分隔
+        /// </summary>
+        [Field(Name = "data")]
+        public string Data { get; set; }
+        
+        /// <summary>
         /// 开始时间
         /// </summary>
         [Field(Name = "start_at")]

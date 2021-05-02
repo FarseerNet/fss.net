@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using FS.Extends;
 using FSS.Abstract.Entity.ClientNotify;
@@ -54,6 +55,26 @@ namespace FSS.Com.RemoteCallServer.ClientNotify
         public async Task JobSchedulerAsync(ClientConnectVO client, TaskGroupVO taskGroup, TaskVO task)
         {
             var rspStream = (IServerStreamWriter<CommandResponse>) client.ResponseStream;
+            // 转换任务组的参数为字典
+            var dicData   = new Dictionary<string, string>();
+            if (!string.IsNullOrWhiteSpace(taskGroup.Data))
+            {
+                foreach (var data in taskGroup.Data.Split(','))
+                {
+                    if (data == "=") continue;
+                    // 取出=号的位置
+                    var indexOf = data.IndexOf('=');
+                    // 没取到，那么整个数据都为key
+                    if (indexOf == -1) dicData[data] = "";
+                    else
+                    {
+                        var key   = data.Substring(0, indexOf);
+                        var value = indexOf + 1 > data.Length ? "" : data.Substring(indexOf + 1);
+                        dicData[key] = value;
+                    }
+                }
+            }
+
             await rspStream.WriteAsync(new CommandResponse
             {
                 Command    = "JobScheduler",
@@ -66,7 +87,8 @@ namespace FSS.Com.RemoteCallServer.ClientNotify
                     JobTypeName = taskGroup.JobTypeName,
                     StartAt     = taskGroup.StartAt,
                     ClientIp    = task.ClientIp,
-                    ClientHost  = task.ClientHost
+                    ClientHost  = task.ClientHost,
+                    Data        = dicData
                 }.ToString()
             });
         }
