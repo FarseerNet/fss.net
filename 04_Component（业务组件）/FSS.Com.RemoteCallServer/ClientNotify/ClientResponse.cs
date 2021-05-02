@@ -85,7 +85,7 @@ namespace FSS.Com.RemoteCallServer.ClientNotify
                     TaskGroupId = task.TaskGroupId,
                     Caption     = taskGroup.Caption,
                     JobTypeName = taskGroup.JobTypeName,
-                    StartAt     = taskGroup.StartAt,
+                    StartAt     = task.StartAt,
                     ClientIp    = task.ClientIp,
                     ClientHost  = task.ClientHost,
                     Data        = dicData
