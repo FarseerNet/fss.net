@@ -110,12 +110,12 @@ namespace FSS.GrpcService.Services
                 taskGroupUpdate.Update(taskGroup);
 
                 // 实时同步JOB执行状态
-                await foreach (var registerRequest in requestStream.ReadAllAsync())
+                await foreach (var jobRequest in requestStream.ReadAllAsync())
                 {
                     // 更新Task
-                    task.Progress = registerRequest.Progress;
-                    task.Status   = (EumTaskType) registerRequest.Status;
-                    task.RunSpeed = registerRequest.RunSpeed;
+                    task.Progress = jobRequest.Progress;
+                    task.Status   = (EumTaskType) jobRequest.Status;
+                    task.RunSpeed = jobRequest.RunSpeed;
 
                     // 如果是成功、错误状态，则要立即更新数据库
                     switch (task.Status)
@@ -125,9 +125,9 @@ namespace FSS.GrpcService.Services
                         case EumTaskType.ReScheduler:
                             taskGroup.LastRunAt  = DateTime.Now;
                             taskGroup.ActivateAt = DateTime.Now;
-
+                            taskGroup.Data       = jobRequest.Data;
                             // 客户端设置了动态时间
-                            if (registerRequest.NextTimespan > 0) taskGroup.NextAt = DateTime.Now.AddMilliseconds(registerRequest.NextTimespan);
+                            if (jobRequest.NextTimespan > 0) taskGroup.NextAt = DateTime.Now.AddMilliseconds(jobRequest.NextTimespan);
                             taskGroupUpdate.Save(taskGroup); // 要比Task提前保存，后面需要判断下次执行时间
                             taskUpdate.Save(task);
                             break;
@@ -137,9 +137,9 @@ namespace FSS.GrpcService.Services
                     }
 
                     // 如果有日志
-                    if (registerRequest.Log != null && !string.IsNullOrWhiteSpace(registerRequest.Log.Log))
+                    if (jobRequest.Log != null && !string.IsNullOrWhiteSpace(jobRequest.Log.Log))
                     {
-                        runLogAdd.Add(task.TaskGroupId, task.Id, (LogLevel) registerRequest.Log.LogLevel, registerRequest.Log.Log);
+                        runLogAdd.Add(task.TaskGroupId, task.Id, (LogLevel) jobRequest.Log.LogLevel, jobRequest.Log.Log);
                     }
                 }
 
