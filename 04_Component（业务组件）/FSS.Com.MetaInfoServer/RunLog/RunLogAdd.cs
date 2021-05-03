@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using FS.DI;
 using FSS.Abstract.Server.MetaInfo;
 using FSS.Com.MetaInfoServer.Abstract;
@@ -18,10 +19,10 @@ namespace FSS.Com.MetaInfoServer.RunLog
         /// <summary>
         /// 添加日志记录
         /// </summary>
-        public void Add(int taskGroupId, int taskId, LogLevel logLevel, string content)
+        public Task AddAsync(int taskGroupId, int taskId, LogLevel logLevel, string content)
         {
             if (logLevel is LogLevel.Error or LogLevel.Warning) IocManager.Logger<RunLogAdd>().Log(logLevel, content);
-            RunLogAgent.Add(new RunLogPO
+            return RunLogAgent.AddAsync(new RunLogPO
             {
                 TaskGroupId = taskGroupId,
                 TaskId      = taskId,

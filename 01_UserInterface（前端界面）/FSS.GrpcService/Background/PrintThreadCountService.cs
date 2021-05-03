@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,16 +12,16 @@ using Microsoft.Extensions.Logging;
 namespace FSS.GrpcService.Background
 {
     /// <summary>
-    /// 开启任务组调度
+    /// 打印当前线程数量
     /// </summary>
-    public class RunTaskSchedulerService : BackgroundService
+    public class PrintThreadCountService : BackgroundService
     {
         private readonly IIocManager         _ioc;
         readonly         ITaskGroupList      _taskGroupList;
         readonly         ITaskGroupScheduler _taskGroupScheduler;
         readonly         ILogger             _logger;
 
-        public RunTaskSchedulerService(IIocManager ioc)
+        public PrintThreadCountService(IIocManager ioc)
         {
             _ioc                = ioc;
             _taskGroupList      = _ioc.Resolve<ITaskGroupList>();
@@ -30,17 +31,11 @@ namespace FSS.GrpcService.Background
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var ip = IpHelper.GetIps()[0].Address.MapToIPv4().ToString();
-            _logger.LogInformation($"服务({ip})启动完成，监听 http://{IPAddress.Any}:80 ");
-
-            // 遍历任务组、开启调度线程
-            _logger.LogInformation($"正在读取所有任务组信息");
-            var taskGroupVos = await _taskGroupList.ToListAndSaveAsync();
-            
-            _logger.LogInformation($"共获取到：{taskGroupVos.Count} 条任务组信息");
-            foreach (var taskGroupVo in taskGroupVos)
+            while (true)
             {
-                _taskGroupScheduler.SchedulerTaskGroup(taskGroupVo.Id);
+                var threadsCount = Process.GetCurrentProcess().Threads.Count;
+                _logger.LogInformation($"当前线程数量：{threadsCount}");
+                await Task.Delay(1000);
             }
         }
     }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using FSS.Com.MetaInfoServer.Abstract;
 
 namespace FSS.Com.MetaInfoServer.TaskGroup.Dal
@@ -12,30 +13,26 @@ namespace FSS.Com.MetaInfoServer.TaskGroup.Dal
         /// <summary>
         /// 获取所有任务组列表
         /// </summary>
-        public List<TaskGroupPO> ToList()
-        {
-            var lst = MetaInfoContext.Data.TaskGroup.ToList();
-            return lst;
-        }
+        public Task<List<TaskGroupPO>> ToListAsync() => MetaInfoContext.Data.TaskGroup.ToListAsync();
 
         /// <summary>
         /// 获取任务组信息
         /// </summary>
-        public TaskGroupPO ToEntity(int id) => MetaInfoContext.Data.TaskGroup.Where(o => o.Id == id).ToEntity();
+        public Task<TaskGroupPO> ToEntityAsync(int id) => MetaInfoContext.Data.TaskGroup.Where(o => o.Id == id).ToEntityAsync();
 
         /// <summary>
         /// 更新任务组信息
         /// </summary>
-        public void Update(int id, TaskGroupPO taskGroup) => MetaInfoContext.Data.TaskGroup.Where(o => o.Id == id).Update(taskGroup);
+        public Task UpdateAsync(int id, TaskGroupPO taskGroup) => MetaInfoContext.Data.TaskGroup.Where(o => o.Id == id).UpdateAsync(taskGroup);
 
         /// <summary>
         /// 更新任务ID
         /// </summary>
-        public void UpdateTaskId(int taskGroupId, int taskId) => MetaInfoContext.Data.TaskGroup.Where(o => o.Id == taskGroupId).Update(new TaskGroupPO {TaskId = taskId});
-        
+        public Task UpdateTaskIdAsync(int taskGroupId, int taskId) => MetaInfoContext.Data.TaskGroup.Where(o => o.Id == taskGroupId).UpdateAsync(new TaskGroupPO {TaskId = taskId});
+
         /// <summary>
         /// 更新任务时间
         /// </summary>
-        public void UpdateNextAt(int taskGroupId, DateTime nextAt) => MetaInfoContext.Data.TaskGroup.Where(o => o.Id == taskGroupId).Update(new TaskGroupPO {NextAt = nextAt});
+        public Task UpdateNextAtAsync(int taskGroupId, DateTime nextAt) => MetaInfoContext.Data.TaskGroup.Where(o => o.Id == taskGroupId).UpdateAsync(new TaskGroupPO {NextAt = nextAt});
     }
 }

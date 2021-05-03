@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using FS.DI;
 using FSS.Abstract.Entity.MetaInfo;
 
@@ -8,6 +9,6 @@ namespace FSS.Abstract.Server.MetaInfo
         /// <summary>
         /// 创建Task，并更新到缓存
         /// </summary>
-        TaskVO GetOrCreate(int taskGroupId);
+        Task<TaskVO> GetOrCreateAsync(int taskGroupId);
     }
 }

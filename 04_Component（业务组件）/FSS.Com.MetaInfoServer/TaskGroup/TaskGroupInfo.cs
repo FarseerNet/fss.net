@@ -1,4 +1,4 @@
-using FS.Cache;
+using System.Threading.Tasks;
 using FS.Cache.Redis;
 using FS.Extends;
 using FSS.Abstract.Entity.MetaInfo;
@@ -16,12 +16,12 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
         /// <summary>
         /// 获取任务信息
         /// </summary>
-        public TaskGroupVO ToInfo(int id)
+        public Task<TaskGroupVO> ToInfoAsync(int id)
         {
-            return RedisCacheManager.CacheManager.ToEntity(TaskGroupCache.Key, 
-                id.ToString(), 
-                o=>TaskGroupAgent.ToEntity(id).Map<TaskGroupVO>(),
-                o=>o.Id);
+            return RedisCacheManager.CacheManager.ToEntityAsync<TaskGroupVO>(TaskGroupCache.Key,
+                id.ToString(),
+                _ => TaskGroupAgent.ToEntityAsync(id).MapAsync<TaskGroupVO,TaskGroupPO>(),
+                o => o.Id);
         }
     }
 }

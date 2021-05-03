@@ -65,18 +65,18 @@ namespace FSS.GrpcService.Services
             var serverHost  = $"{context.Host}_{context.Peer}";
 
             var runLogAdd = _ioc.Resolve<IRunLogAdd>();
-            var task      = _ioc.Resolve<ITaskInfo>().ToGroupTask(taskGroupId);
+            var task      = await _ioc.Resolve<ITaskInfo>().ToGroupTaskAsync(taskGroupId);
 
             if (task.Id != taskId)
             {
-                runLogAdd.Add(task.TaskGroupId, taskId, LogLevel.Warning, $"与服务端正在处理的Task：{task.Id} 不一致");
+                await runLogAdd.AddAsync(task.TaskGroupId, taskId, LogLevel.Warning, $"与服务端正在处理的Task：{task.Id} 不一致");
                 return (CommandResponse) _ioc.Resolve<IClientResponse>().Print($"指定的TaskId：{taskId} 与服务端正在处理的Task：{task.Id} 不一致");
             }
 
-            var taskGroup = _ioc.Resolve<ITaskGroupInfo>().ToInfo(taskGroupId);
+            var taskGroup = await _ioc.Resolve<ITaskGroupInfo>().ToInfoAsync(taskGroupId);
             if (taskGroup == null)
             {
-                runLogAdd.Add(task.TaskGroupId, taskId, LogLevel.Warning, $"所属的任务组：{task.TaskGroupId} 不存在");
+                await runLogAdd.AddAsync(task.TaskGroupId, taskId, LogLevel.Warning, $"所属的任务组：{task.TaskGroupId} 不存在");
                 return (CommandResponse) _ioc.Resolve<IClientResponse>().Print($"指定的TaskId：{taskId} 所属的任务组：{task.TaskGroupId} 不存在");
             }
 
@@ -95,19 +95,19 @@ namespace FSS.GrpcService.Services
                 // 不相等，说明被覆盖了（JOB请求慢了。被调度重新执行了）
                 if (task.ClientHost != serverHost)
                 {
-                    runLogAdd.Add(task.TaskGroupId, taskId, LogLevel.Warning, $"{task.ClientHost}与本次请求{serverHost} 不一致，忽略本次请求");
+                    await runLogAdd.AddAsync(task.TaskGroupId, taskId, LogLevel.Warning, $"{task.ClientHost}与本次请求{serverHost} 不一致，忽略本次请求");
                     return (CommandResponse) clientResponse.Ignore($"任务ID：{task.Id}，{task.ClientHost}与本次请求{serverHost} 不一致，忽略本次请求");
                 }
 
                 // 更新Task元信息
                 task.Status = EumTaskType.Working;
-                taskUpdate.Update(task);
+                await taskUpdate.UpdateAsync(task);
 
                 // 更新group元信息
                 taskGroup.RunCount++;
                 taskGroup.ActivateAt = DateTime.Now;
                 taskGroup.LastRunAt  = DateTime.Now;
-                taskGroupUpdate.Update(taskGroup);
+                await taskGroupUpdate.UpdateAsync(taskGroup);
 
                 // 实时同步JOB执行状态
                 await foreach (var jobRequest in requestStream.ReadAllAsync())
@@ -128,18 +128,18 @@ namespace FSS.GrpcService.Services
                             taskGroup.Data       = jobRequest.Data;
                             // 客户端设置了动态时间
                             if (jobRequest.NextTimespan > 0) taskGroup.NextAt = DateTime.Now.AddMilliseconds(jobRequest.NextTimespan);
-                            taskGroupUpdate.Save(taskGroup); // 要比Task提前保存，后面需要判断下次执行时间
-                            taskUpdate.Save(task);
+                            await taskGroupUpdate.SaveAsync(taskGroup); // 要比Task提前保存，后面需要判断下次执行时间
+                            await taskUpdate.SaveAsync(task);
                             break;
                         default:
-                            taskUpdate.Update(task);
+                            await taskUpdate.UpdateAsync(task);
                             break;
                     }
 
                     // 如果有日志
                     if (jobRequest.Log != null && !string.IsNullOrWhiteSpace(jobRequest.Log.Log))
                     {
-                        runLogAdd.Add(task.TaskGroupId, task.Id, (LogLevel) jobRequest.Log.LogLevel, jobRequest.Log.Log);
+                        await runLogAdd.AddAsync(task.TaskGroupId, task.Id, (LogLevel) jobRequest.Log.LogLevel, jobRequest.Log.Log);
                     }
                 }
 
@@ -147,14 +147,14 @@ namespace FSS.GrpcService.Services
                 if (task.Status != EumTaskType.Success)
                 {
                     var message = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 任务：{task.TaskGroupId}-{task.Id} 执行失败";
-                    runLogAdd.Add(task.TaskGroupId, taskId, LogLevel.Warning, $"执行失败");
+                    await runLogAdd.AddAsync(task.TaskGroupId, taskId, LogLevel.Warning, $"执行失败");
                     logger.LogWarning(message);
                     return (CommandResponse) _ioc.Resolve<IClientResponse>().Print(message);
                 }
                 else
                 {
                     var message = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 任务组：TaskGroupId={task.TaskGroupId}，Caption={taskGroup.Caption}，JobName={taskGroup.JobTypeName}，TaskId={task.Id}-- 执行成功，耗时：{task.RunSpeed} ms";
-                    runLogAdd.Add(task.TaskGroupId, taskId, LogLevel.Information, $"执行成功，耗时：{task.RunSpeed} ms");
+                    await runLogAdd.AddAsync(task.TaskGroupId, taskId, LogLevel.Information, $"执行成功，耗时：{task.RunSpeed} ms");
                     logger.LogInformation(message);
                     return (CommandResponse) _ioc.Resolve<IClientResponse>().Print(message);
                 }

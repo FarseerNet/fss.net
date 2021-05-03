@@ -1,12 +1,12 @@
 using System.Collections.Generic;
-using FS.DI;
+using System.Threading.Tasks;
 using FS.Extends;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Server.MetaInfo;
 using FSS.Com.MetaInfoServer.Abstract;
-using FSS.Com.MetaInfoServer.Task.Dal;
+using FSS.Com.MetaInfoServer.Tasks.Dal;
 
-namespace FSS.Com.MetaInfoServer.Task
+namespace FSS.Com.MetaInfoServer.Tasks
 {
     /// <summary>
     /// 任务列表
@@ -18,6 +18,6 @@ namespace FSS.Com.MetaInfoServer.Task
         /// <summary>
         /// 获取全部任务列表
         /// </summary>
-        public List<TaskVO> ToList() => TaskAgent.ToList().Map<TaskVO>();
+        public Task<List<TaskVO>> ToListAsync() => TaskAgent.ToListAsync().MapAsync<TaskVO,TaskPO>();
     }
 }

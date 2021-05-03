@@ -1,15 +1,13 @@
-using System;
 using System.Linq;
-using FS.Cache;
+using System.Threading.Tasks;
 using FS.Cache.Redis;
 using FS.Extends;
 using FSS.Abstract.Entity.MetaInfo;
-using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
 using FSS.Com.MetaInfoServer.Abstract;
-using FSS.Com.MetaInfoServer.Task.Dal;
+using FSS.Com.MetaInfoServer.Tasks.Dal;
 
-namespace FSS.Com.MetaInfoServer.Task
+namespace FSS.Com.MetaInfoServer.Tasks
 {
     public class TaskInfo : ITaskInfo
     {
@@ -20,26 +18,25 @@ namespace FSS.Com.MetaInfoServer.Task
         /// <summary>
         /// 获取任务信息
         /// </summary>
-        public TaskVO ToInfo(int id) => TaskAgent.ToEntity(id).Map<TaskVO>();
+        public Task<TaskVO> ToInfoAsync(int id) => TaskAgent.ToEntityAsync(id).MapAsync<TaskVO,TaskPO>();
 
         /// <summary>
         /// 获取当前任务组的任务
         /// </summary>
-        public TaskVO ToGroupTask(int taskGroupId)
+        public Task<TaskVO> ToGroupTaskAsync(int taskGroupId)
         {
-            var val= RedisCacheManager.CacheManager.ToEntity(TaskCache.Key,
+            return RedisCacheManager.CacheManager.ToEntityAsync(TaskCache.Key,
                 taskGroupId.ToString(),
-                o => TaskAdd.GetOrCreate(taskGroupId),
+                o => TaskAdd.GetOrCreateAsync(taskGroupId),
                 o => o.TaskGroupId);
-            return val;
         }
 
         /// <summary>
         /// 计算任务的平均运行速度
         /// </summary>
-        public int StatAvgSpeed(int taskGroupId)
+        public async Task<int> StatAvgSpeedAsync(int taskGroupId)
         {
-            var speedList = TaskAgent.ToSpeedList(taskGroupId);
+            var speedList = await TaskAgent.ToSpeedListAsync(taskGroupId);
             if (speedList.Count == 0) return 0;
             return speedList.Sum() / speedList.Count;
         }

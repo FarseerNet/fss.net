@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using FS.Cache.Redis;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Server.MetaInfo;
@@ -20,25 +21,26 @@ namespace FSS.Com.MetaInfoServer.TaskGroup.Dal
         /// <summary>
         /// 保存任务组信息
         /// </summary>
-        public void Save(int taskGroupId, TaskGroupVO taskGroup)
+        public Task SaveAsync(int taskGroupId, TaskGroupVO taskGroup)
         {
-            RedisCacheManager.Db.HashSet(Key, taskGroupId, JsonConvert.SerializeObject(taskGroup));
+            return RedisCacheManager.Db.HashSetAsync(Key, taskGroupId, JsonConvert.SerializeObject(taskGroup));
         }
 
         /// <summary>
         /// 当前任务组的列表
         /// </summary>
-        public List<TaskGroupVO> ToList()
+        public async Task<List<TaskGroupVO>> ToListAsync()
         {
-            return RedisCacheManager.Db.HashGetAll(Key).Select(o => JsonConvert.DeserializeObject<TaskGroupVO>(o.Value)).ToList();
+            var hashGetAllAsync = await RedisCacheManager.Db.HashGetAllAsync(Key);
+            return hashGetAllAsync.Select(o => JsonConvert.DeserializeObject<TaskGroupVO>(o.Value)).ToList();
         }
 
         /// <summary>
         /// 获取任务组
         /// </summary>
-        public TaskGroupVO ToEntity(int taskGroupId)
+        public async Task<TaskGroupVO> ToEntityAsync(int taskGroupId)
         {
-            var redisValue = RedisCacheManager.Db.HashGet(Key, taskGroupId);
+            var redisValue = await RedisCacheManager.Db.HashGetAsync(Key, taskGroupId);
             return !redisValue.HasValue ? null : JsonConvert.DeserializeObject<TaskGroupVO>(redisValue.ToString());
         }
     }

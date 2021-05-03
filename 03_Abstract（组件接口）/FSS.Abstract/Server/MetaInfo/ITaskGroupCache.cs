@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using FS.DI;
 using FSS.Abstract.Entity.MetaInfo;
 
@@ -9,16 +10,16 @@ namespace FSS.Abstract.Server.MetaInfo
         /// <summary>
         /// 保存任务组信息
         /// </summary>
-        void Save(int taskGroupId, TaskGroupVO taskGroup);
+        Task SaveAsync(int taskGroupId, TaskGroupVO taskGroup);
 
         /// <summary>
         /// 当前任务组的列表
         /// </summary>
-        List<TaskGroupVO> ToList();
+        Task<List<TaskGroupVO>> ToListAsync();
 
         /// <summary>
         /// 获取任务组
         /// </summary>
-        TaskGroupVO ToEntity(int taskGroupId);
+        Task<TaskGroupVO> ToEntityAsync(int taskGroupId);
     }
 }

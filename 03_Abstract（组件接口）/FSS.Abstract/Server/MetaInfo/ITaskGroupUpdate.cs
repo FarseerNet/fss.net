@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using FS.DI;
 using FSS.Abstract.Entity.MetaInfo;
 
@@ -8,21 +9,21 @@ namespace FSS.Abstract.Server.MetaInfo
         /// <summary>
         /// 更新TaskGroup
         /// </summary>
-        void Update(TaskGroupVO taskGroup);
+        Task UpdateAsync(TaskGroupVO taskGroup);
 
         /// <summary>
         /// 更新任务ID
         /// </summary>
-        void UpdateTaskId(int taskGroupId, int taskId);
+        Task UpdateTaskIdAsync(int taskGroupId, int taskId);
 
         /// <summary>
         /// 保存TaskGroup
         /// </summary>
-        void Save(TaskGroupVO taskGroup);
+        Task SaveAsync(TaskGroupVO taskGroup);
 
         /// <summary>
         /// 统计失败次数，按次数递增时间
         /// </summary>
-        void StatFail(TaskVO task);
+        Task StatFailAsync(TaskVO task);
     }
 }

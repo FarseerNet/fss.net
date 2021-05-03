@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using FS.DI;
-using FSS.Com.MetaInfoServer.Task.Dal;
 using FSS.Com.MetaInfoServer.TaskGroup.Dal;
 
 namespace FSS.Com.MetaInfoServer.Abstract
@@ -11,26 +11,26 @@ namespace FSS.Com.MetaInfoServer.Abstract
         /// <summary>
         /// 获取所有任务列表
         /// </summary>
-        List<TaskGroupPO> ToList();
+        Task<List<TaskGroupPO>> ToListAsync();
         
         /// <summary>
         /// 获取任务信息
         /// </summary>
-        TaskGroupPO ToEntity(int id);
+        Task<TaskGroupPO> ToEntityAsync(int id);
 
         /// <summary>
         /// 更新任务组信息
         /// </summary>
-        void Update(int id, TaskGroupPO taskGroup);
+        Task UpdateAsync(int id, TaskGroupPO taskGroup);
 
         /// <summary>
         /// 更新任务ID
         /// </summary>
-        void UpdateTaskId(int taskGroupId, int taskId);
+        Task UpdateTaskIdAsync(int taskGroupId, int taskId);
 
         /// <summary>
         /// 更新任务时间
         /// </summary>
-        void UpdateNextAt(int taskGroupId, DateTime nextAt);
+        Task UpdateNextAtAsync(int taskGroupId, DateTime nextAt);
     }
 }

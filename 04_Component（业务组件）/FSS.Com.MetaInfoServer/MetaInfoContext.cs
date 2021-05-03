@@ -2,8 +2,8 @@
 using FS.Data;
 using FS.Data.Map;
 using FSS.Com.MetaInfoServer.RunLog.Dal;
-using FSS.Com.MetaInfoServer.Task.Dal;
 using FSS.Com.MetaInfoServer.TaskGroup.Dal;
+using FSS.Com.MetaInfoServer.Tasks.Dal;
 
 namespace FSS.Com.MetaInfoServer
 {

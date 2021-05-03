@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using FSS.Com.MetaInfoServer.Abstract;
 
 namespace FSS.Com.MetaInfoServer.RunLog.Dal
@@ -10,6 +11,6 @@ namespace FSS.Com.MetaInfoServer.RunLog.Dal
         /// <summary>
         /// 添加日志记录
         /// </summary>
-        public void Add(RunLogPO po) => MetaInfoContext.Data.RunLog.Insert(po);
+        public Task AddAsync(RunLogPO po) => MetaInfoContext.Data.RunLog.InsertAsync(po);
     }
 }

@@ -48,8 +48,8 @@ namespace FSS.Com.SchedulerServer.Scheduler
             {
                 var tGroupId = (int) taskGroupIdState;
                 // 取出任务组
-                var taskGroup    = TaskGroupInfo.ToInfo(tGroupId);
-                var jobName      = taskGroup.JobTypeName;   // 先取JobName，后面判断的时候，可以优化检查客户端是否存在
+                var taskGroup    = await TaskGroupInfo.ToInfoAsync(tGroupId);
+                var jobName      = taskGroup.JobTypeName; // 先取JobName，后面判断的时候，可以优化检查客户端是否存在
                 var nextSeconds  = (taskGroup.NextAt - DateTime.Now).TotalSeconds.ConvertType(0);
                 var nextTimeDesc = nextSeconds > 0 ? nextSeconds.ToString() + " 秒" : $"立即";
                 logger.LogInformation($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 开始运行调度线程：任务组：GroupId={taskGroup.Id} Caption={taskGroup.Caption} 下次执行时间：{nextTimeDesc}");
@@ -67,7 +67,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                         }
 
                         // 取最新的任务组信息
-                        taskGroup = TaskGroupInfo.ToInfo(tGroupId);
+                        taskGroup = await TaskGroupInfo.ToInfoAsync(tGroupId);
                         jobName   = taskGroup.JobTypeName;
                         
                         // 任务组没有开启时，休眠
@@ -78,20 +78,20 @@ namespace FSS.Com.SchedulerServer.Scheduler
                         }
 
                         // 取出当前任务组的Task
-                        dicTaskGroupIsRun[tGroupId] = TaskInfo.ToGroupTask(tGroupId);
+                        dicTaskGroupIsRun[tGroupId] = await TaskInfo.ToGroupTaskAsync(tGroupId);
                         logger.LogDebug($"1、GroupId={taskGroup.Id} {taskGroup.Caption} TaskId={dicTaskGroupIsRun[tGroupId].Id}  Status={dicTaskGroupIsRun[tGroupId].Status}");
 
                         // 任务组状态=未执行
                         if (dicTaskGroupIsRun[tGroupId].Status is EumTaskType.None)
                         {
-                            await SchedulerTask(taskGroup, dicTaskGroupIsRun[tGroupId]);
+                            await SchedulerTaskAsync(taskGroup, dicTaskGroupIsRun[tGroupId]);
                             Thread.Sleep(100);
                         }
 
                         // 处于调度状态
                         if (dicTaskGroupIsRun[tGroupId].Status is EumTaskType.Scheduler)
                         {
-                            CheckSchedulerStatus(taskGroup);
+                            await CheckSchedulerStatusAsync(taskGroup);
                         }
 
                         // 工作状态
@@ -104,18 +104,18 @@ namespace FSS.Com.SchedulerServer.Scheduler
                                 var client = ClientRegister.ToInfo(dicTaskGroupIsRun[tGroupId].ClientHost);
                                 if (client == null) // 客户端掉线了
                                 {
-                                    RunLogAdd.Add(tGroupId, dicTaskGroupIsRun[tGroupId].Id, LogLevel.Warning, $"任务ID：{dicTaskGroupIsRun[tGroupId].Id}，客户端断开连接，强制设为失败状态");
+                                    await RunLogAdd.AddAsync(tGroupId, dicTaskGroupIsRun[tGroupId].Id, LogLevel.Warning, $"任务ID：{dicTaskGroupIsRun[tGroupId].Id}，客户端断开连接，强制设为失败状态");
                                     dicTaskGroupIsRun[tGroupId].Status = EumTaskType.Fail;
-                                    TaskUpdate.Save(dicTaskGroupIsRun[tGroupId]);
+                                    await TaskUpdate.SaveAsync(dicTaskGroupIsRun[tGroupId]);
                                 }
                             }
                             else // 如果不是，则判断服务器节点是否掉线
                             {
                                 if (!NodeRegister.IsNodeExists(dicTaskGroupIsRun[tGroupId].ServerNode)) // 服务端掉线
                                 {
-                                    RunLogAdd.Add(tGroupId, dicTaskGroupIsRun[tGroupId].Id, LogLevel.Warning, $"任务ID：{dicTaskGroupIsRun[tGroupId].Id}，服务端节点下线，强制设为失败状态");
+                                    await RunLogAdd.AddAsync(tGroupId, dicTaskGroupIsRun[tGroupId].Id, LogLevel.Warning, $"任务ID：{dicTaskGroupIsRun[tGroupId].Id}，服务端节点下线，强制设为失败状态");
                                     dicTaskGroupIsRun[tGroupId].Status = EumTaskType.Fail;
-                                    TaskUpdate.Save(dicTaskGroupIsRun[tGroupId]);
+                                    await TaskUpdate.SaveAsync(dicTaskGroupIsRun[tGroupId]);
                                 }
                             }
 
@@ -128,7 +128,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                             case EumTaskType.Success:
                             case EumTaskType.ReScheduler:
                             {
-                                dicTaskGroupIsRun[tGroupId] = TaskAdd.GetOrCreate(tGroupId);
+                                dicTaskGroupIsRun[tGroupId] = await TaskAdd.GetOrCreateAsync(tGroupId);
                                 logger.LogDebug($"\t1、新建任务: GroupId={taskGroup.Id} {taskGroup.Caption} TaskId={dicTaskGroupIsRun[tGroupId].Id}");
                                 break;
                             }
@@ -147,13 +147,13 @@ namespace FSS.Com.SchedulerServer.Scheduler
         /// <summary>
         /// 一直处于调度状态时，要注意是否客户端断开链接、或同步JOB状态时有异常
         /// </summary>
-        private void CheckSchedulerStatus(TaskGroupVO taskGroup)
+        private async Task CheckSchedulerStatusAsync(TaskGroupVO taskGroup)
         {
             var logger = IocManager.Logger<TaskGroupScheduler>();
             while (dicTaskGroupIsRun[taskGroup.Id].Status is EumTaskType.Scheduler)
             {
                 logger.LogDebug($"2、GroupId={taskGroup.Id} {taskGroup.Caption}、{dicTaskGroupIsRun[taskGroup.Id].Id}、{dicTaskGroupIsRun[taskGroup.Id].Status}");
-                var newTask = TaskInfo.ToGroupTask(taskGroup.Id);
+                var newTask = await TaskInfo.ToGroupTaskAsync(taskGroup.Id);
 
                 // 不相等，说明已经执行了新的Task
                 if (dicTaskGroupIsRun[taskGroup.Id].Id != newTask.Id)
@@ -171,11 +171,11 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 var taskTimeSpan = DateTime.Now - dicTaskGroupIsRun[taskGroup.Id].SchedulerAt;
                 if (taskTimeSpan.TotalMilliseconds > 2000)
                 {
-                    RunLogAdd.Add(taskGroup.Id, newTask.Id, LogLevel.Warning, $"任务ID：{dicTaskGroupIsRun[taskGroup.Id].Id}，已调度，{(int) taskTimeSpan.TotalMilliseconds} ms未执行，重新调度");
+                    await RunLogAdd.AddAsync(taskGroup.Id, newTask.Id, LogLevel.Warning, $"任务ID：{dicTaskGroupIsRun[taskGroup.Id].Id}，已调度，{(int) taskTimeSpan.TotalMilliseconds} ms未执行，重新调度");
 
                     // 标记为重新调度
                     newTask.Status = EumTaskType.ReScheduler;
-                    TaskUpdate.Save(newTask);
+                    await TaskUpdate.SaveAsync(newTask);
                     break;
                 }
 
@@ -186,7 +186,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
         /// <summary>
         /// 执行调度
         /// </summary>
-        private async Task SchedulerTask(TaskGroupVO taskGroup, TaskVO task)
+        private async Task SchedulerTaskAsync(TaskGroupVO taskGroup, TaskVO task)
         {
             var logger = IocManager.Logger<TaskGroupScheduler>();
             var taskVO = task;
@@ -224,7 +224,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                     task.ClientIp    = clientVO.ClientIp;
                     task.ServerNode  = NodeRegister.GetNodeIp();
                     task.SchedulerAt = DateTime.Now;
-                    TaskUpdate.Update(task);
+                    await TaskUpdate.UpdateAsync(task);
 
                     // 通知客户端开始任务调度
                     await ClientResponse.JobSchedulerAsync(clientVO, taskGroup, task);
@@ -251,8 +251,8 @@ namespace FSS.Com.SchedulerServer.Scheduler
 
                 // 通知失败，则把当前任务设为失败
                 task.Status = EumTaskType.Fail;
-                TaskUpdate.Save(task);
-                RunLogAdd.Add(task.TaskGroupId, task.Id, LogLevel.Error, msg);
+                await TaskUpdate.SaveAsync(task);
+                await RunLogAdd.AddAsync(task.TaskGroupId, task.Id, LogLevel.Error, msg);
                 Thread.Sleep(3000);
             }
         }

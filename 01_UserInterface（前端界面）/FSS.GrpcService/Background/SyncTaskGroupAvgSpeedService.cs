@@ -34,16 +34,16 @@ namespace FSS.GrpcService.Background
         {
             while (true)
             {
-                var taskGroupVos = _taskGroupList.ToList();
+                var taskGroupVos = await _taskGroupList.ToListAsync();
                 foreach (var taskGroupVo in taskGroupVos)
                 {
                     // 先计算在更新
-                    var statAvgSpeed = _taskInfo.StatAvgSpeed(taskGroupVo.Id);
+                    var statAvgSpeed = await _taskInfo.StatAvgSpeedAsync(taskGroupVo.Id);
                     if (statAvgSpeed == 0) continue;
                     
-                    var taskGroupVO = _taskGroupInfo.ToInfo(taskGroupVo.Id);
+                    var taskGroupVO = await _taskGroupInfo.ToInfoAsync(taskGroupVo.Id);
                     taskGroupVO.RunSpeedAvg = statAvgSpeed;
-                    _taskGroupUpdate.Save(taskGroupVO);
+                    await _taskGroupUpdate.SaveAsync(taskGroupVO);
                     _logger.LogDebug($"成功同步TaskGroupId={taskGroupVO.Id} 的平均耗时为：{statAvgSpeed} ms");
                 }
 

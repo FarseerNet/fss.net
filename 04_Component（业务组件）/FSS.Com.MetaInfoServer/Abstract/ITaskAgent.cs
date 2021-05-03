@@ -1,6 +1,7 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using FS.DI;
-using FSS.Com.MetaInfoServer.Task.Dal;
+using FSS.Com.MetaInfoServer.Tasks.Dal;
 
 namespace FSS.Com.MetaInfoServer.Abstract
 {
@@ -9,31 +10,31 @@ namespace FSS.Com.MetaInfoServer.Abstract
         /// <summary>
         /// 获取所有任务列表
         /// </summary>
-        List<TaskPO> ToList();
+        Task<List<TaskPO>> ToListAsync();
         
         /// <summary>
         /// 获取任务信息
         /// </summary>
-        TaskPO ToEntity(int id);
+        Task<TaskPO> ToEntityAsync(int id);
 
         /// <summary>
         /// 更新任务信息
         /// </summary>
-        void Update(int id, TaskPO task);
+        Task UpdateAsync(int id, TaskPO task);
 
         /// <summary>
         /// 添加任务信息
         /// </summary>
-        void Add(TaskPO task, out int id);
+        Task AddAsync(TaskPO task);
 
         /// <summary>
         /// 获取未执行的任务信息
         /// </summary>
-        TaskPO ToUnExecutedTask(int groupId);
+        Task<TaskPO> ToUnExecutedTaskAsync(int groupId);
 
         /// <summary>
         /// 取前100条的运行速度
         /// </summary>
-        List<int> ToSpeedList(int groundId);
+        Task<List<int>> ToSpeedListAsync(int groundId);
     }
 }

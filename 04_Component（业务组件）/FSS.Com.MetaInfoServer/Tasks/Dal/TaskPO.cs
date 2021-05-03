@@ -4,7 +4,7 @@ using FS.Mapper;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Enum;
 
-namespace FSS.Com.MetaInfoServer.Task.Dal
+namespace FSS.Com.MetaInfoServer.Tasks.Dal
 {
     /// <summary>
     /// 任务记录

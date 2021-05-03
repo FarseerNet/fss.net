@@ -1,14 +1,14 @@
 using System;
-using FS.Cache;
+using System.Threading.Tasks;
 using FS.Cache.Redis;
 using FS.Extends;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
 using FSS.Com.MetaInfoServer.Abstract;
-using FSS.Com.MetaInfoServer.Task.Dal;
+using FSS.Com.MetaInfoServer.Tasks.Dal;
 
-namespace FSS.Com.MetaInfoServer.Task
+namespace FSS.Com.MetaInfoServer.Tasks
 {
     public class TaskAdd : ITaskAdd
     {
@@ -20,10 +20,10 @@ namespace FSS.Com.MetaInfoServer.Task
         /// <summary>
         /// 创建Task，并更新到缓存
         /// </summary>
-        public TaskVO GetOrCreate(int taskGroupId)
+        public async Task<TaskVO> GetOrCreateAsync(int taskGroupId)
         {
-            var taskGroup = TaskGroupInfo.ToInfo(taskGroupId);
-            var task      = TaskAgent.ToUnExecutedTask(taskGroup.Id);
+            var taskGroup = await TaskGroupInfo.ToInfoAsync(taskGroupId);
+            var task      = await TaskAgent.ToUnExecutedTaskAsync(taskGroup.Id);
             if (task == null)
             {
                 // 没查到时，自动创建一条对应的Task
@@ -39,13 +39,12 @@ namespace FSS.Com.MetaInfoServer.Task
                     CreateAt    = DateTime.Now,
                     ServerNode  = ""
                 };
-                TaskAgent.Add(task, out int id);
-                task.Id = id;
-                TaskGroupUpdate.UpdateTaskId(taskGroup.Id, id);
+                await TaskAgent.AddAsync(task);
+                await TaskGroupUpdate.UpdateTaskIdAsync(taskGroup.Id, task.Id.GetValueOrDefault());
             }
 
             var taskVo = task.Map<TaskVO>();
-            RedisCacheManager.CacheManager.Save(TaskCache.Key, taskVo, taskVo.TaskGroupId);
+            await RedisCacheManager.CacheManager.SaveAsync(TaskCache.Key, taskVo, taskVo.TaskGroupId);
 
             return taskVo;
         }

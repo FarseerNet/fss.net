@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using FS.Cache;
 using FS.Cache.Redis;
 using FS.Extends;
@@ -20,29 +21,26 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
         /// <summary>
         /// 获取全部任务列表
         /// </summary>
-        public List<TaskGroupVO> ToListAndSave()
+        public async Task<List<TaskGroupVO>> ToListAndSaveAsync()
         {
-            var taskGroupVos = TaskGroupAgent.ToList().Map<TaskGroupVO>();
-            RedisCacheManager.CacheManager.Save(TaskGroupCache.Key, taskGroupVos, o => o.Id);
+            var taskGroupVos = await TaskGroupAgent.ToListAsync().MapAsync<TaskGroupVO, TaskGroupPO>();
+            await RedisCacheManager.CacheManager.SaveAsync(TaskGroupCache.Key, taskGroupVos, o => o.Id);
             return taskGroupVos;
         }
 
         /// <summary>
         /// 获取全部任务列表
         /// </summary>
-        public List<TaskGroupVO> ToList()
+        public Task<List<TaskGroupVO>> ToListAsync()
         {
-            return RedisCacheManager.CacheManager.GetList(TaskGroupCache.Key,
-                opt => TaskGroupAgent.ToList().Map<TaskGroupVO>()
+            return RedisCacheManager.CacheManager.GetListAsync(TaskGroupCache.Key,
+                _ => TaskGroupAgent.ToListAsync().MapAsync<TaskGroupVO, TaskGroupPO>()
                 , o => o.Id);
         }
 
         /// <summary>
         /// 删除整个缓存
         /// </summary>
-        public void Clear()
-        {
-            RedisCacheManager.CacheManager.Remove(TaskGroupCache.Key);
-        }
+        public Task ClearAsync() => RedisCacheManager.CacheManager.RemoveAsync(TaskGroupCache.Key);
     }
 }
