@@ -1,4 +1,5 @@
 using FS.Cache;
+using FS.Cache.Redis;
 using FS.Extends;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Server.MetaInfo;
@@ -9,15 +10,15 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
 {
     public class TaskGroupInfo : ITaskGroupInfo
     {
-        public ITaskGroupAgent TaskGroupAgent { get; set; }
-        public ICacheManager   CacheManager   { get; set; }
+        public ITaskGroupAgent    TaskGroupAgent    { get; set; }
+        public IRedisCacheManager RedisCacheManager { get; set; }
 
         /// <summary>
         /// 获取任务信息
         /// </summary>
         public TaskGroupVO ToInfo(int id)
         {
-            return CacheManager.ToEntity(TaskGroupCache.Key, 
+            return RedisCacheManager.CacheManager.ToEntity(TaskGroupCache.Key, 
                 id.ToString(), 
                 o=>TaskGroupAgent.ToEntity(id).Map<TaskGroupVO>(),
                 o=>o.Id);

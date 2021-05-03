@@ -7,7 +7,6 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
 {
     public class TaskGroupAdd
     {
-        public ICacheManager  CacheManager  { get; set; }
         public ITaskGroupInfo TaskGroupInfo { get; set; }
 
         public void CreateTask(int groupId)

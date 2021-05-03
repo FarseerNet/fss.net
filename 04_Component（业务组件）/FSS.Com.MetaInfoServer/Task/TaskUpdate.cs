@@ -1,5 +1,6 @@
 using System;
 using FS.Cache;
+using FS.Cache.Redis;
 using FS.Extends;
 using FS.Utils.Component;
 using FSS.Abstract.Entity.MetaInfo;
@@ -12,10 +13,10 @@ namespace FSS.Com.MetaInfoServer.Task
 {
     public class TaskUpdate : ITaskUpdate
     {
-        public ICacheManager    CacheManager    { get; set; }
-        public ITaskAgent       TaskAgent       { get; set; }
-        public ITaskGroupUpdate TaskGroupUpdate { get; set; }
-        public ITaskGroupInfo   TaskGroupInfo   { get; set; }
+        public IRedisCacheManager RedisCacheManager { get; set; }
+        public ITaskAgent         TaskAgent         { get; set; }
+        public ITaskGroupUpdate   TaskGroupUpdate   { get; set; }
+        public ITaskGroupInfo     TaskGroupInfo     { get; set; }
 
         /// <summary>
         /// 更新Task（如果状态是成功、失败、重新调度，则应该调Save）
@@ -24,7 +25,7 @@ namespace FSS.Com.MetaInfoServer.Task
         {
             // 统计失败次数，按次数递增时间
             TaskGroupUpdate.StatFail(task);
-            CacheManager.Save(TaskCache.Key, task, task.TaskGroupId, new CacheOption());
+            RedisCacheManager.CacheManager.Save(TaskCache.Key, task, task.TaskGroupId, new CacheOption());
         }
 
         /// <summary>

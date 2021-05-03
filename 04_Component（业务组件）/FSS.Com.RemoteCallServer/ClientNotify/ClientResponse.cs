@@ -70,7 +70,7 @@ namespace FSS.Com.RemoteCallServer.ClientNotify
                     StartAt     = task.StartAt,
                     ClientIp    = task.ClientIp,
                     ClientHost  = task.ClientHost,
-                    Data        = JsonConvert.DeserializeObject<Dictionary<string, string>>(taskGroup.Data)
+                    Data        = !string.IsNullOrWhiteSpace(taskGroup.Data) ? JsonConvert.DeserializeObject<Dictionary<string, string>>(taskGroup.Data):new Dictionary<string, string>()
                 }.ToString()
             });
         }

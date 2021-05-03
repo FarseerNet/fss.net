@@ -1,5 +1,6 @@
 using System;
 using FS.Cache;
+using FS.Cache.Redis;
 using FS.Extends;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Enum;
@@ -11,10 +12,10 @@ namespace FSS.Com.MetaInfoServer.Task
 {
     public class TaskAdd : ITaskAdd
     {
-        public ITaskAgent       TaskAgent       { get; set; }
-        public ICacheManager    CacheManager    { get; set; }
-        public ITaskGroupInfo   TaskGroupInfo   { get; set; }
-        public ITaskGroupUpdate TaskGroupUpdate { get; set; }
+        public ITaskAgent         TaskAgent         { get; set; }
+        public IRedisCacheManager RedisCacheManager { get; set; }
+        public ITaskGroupInfo     TaskGroupInfo     { get; set; }
+        public ITaskGroupUpdate   TaskGroupUpdate   { get; set; }
 
         /// <summary>
         /// 创建Task，并更新到缓存
@@ -44,7 +45,7 @@ namespace FSS.Com.MetaInfoServer.Task
             }
 
             var taskVo = task.Map<TaskVO>();
-            CacheManager.Save(TaskCache.Key, taskVo, taskVo.TaskGroupId);
+            RedisCacheManager.CacheManager.Save(TaskCache.Key, taskVo, taskVo.TaskGroupId);
 
             return taskVo;
         }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using FS.Cache;
+using FS.Cache.Redis;
 using FS.Extends;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Server.MetaInfo;
@@ -13,8 +14,8 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
     /// </summary>
     public class TaskGroupList : ITaskGroupList
     {
-        public ITaskGroupAgent TaskGroupAgent { get; set; }
-        public ICacheManager   CacheManager   { get; set; }
+        public ITaskGroupAgent    TaskGroupAgent    { get; set; }
+        public IRedisCacheManager RedisCacheManager { get; set; }
 
         /// <summary>
         /// 获取全部任务列表
@@ -22,7 +23,7 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
         public List<TaskGroupVO> ToListAndSave()
         {
             var taskGroupVos = TaskGroupAgent.ToList().Map<TaskGroupVO>();
-            CacheManager.Save(TaskGroupCache.Key, taskGroupVos, o => o.Id);
+            RedisCacheManager.CacheManager.Save(TaskGroupCache.Key, taskGroupVos, o => o.Id);
             return taskGroupVos;
         }
 
@@ -31,7 +32,7 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
         /// </summary>
         public List<TaskGroupVO> ToList()
         {
-            return CacheManager.GetList(TaskGroupCache.Key,
+            return RedisCacheManager.CacheManager.GetList(TaskGroupCache.Key,
                 opt => TaskGroupAgent.ToList().Map<TaskGroupVO>()
                 , o => o.Id);
         }
@@ -41,7 +42,7 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
         /// </summary>
         public void Clear()
         {
-            CacheManager.Remove(TaskGroupCache.Key);
+            RedisCacheManager.CacheManager.Remove(TaskGroupCache.Key);
         }
     }
 }
