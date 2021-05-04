@@ -49,45 +49,53 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 while (ClientRegister.Count() > 0)
                 {
                     IsRun = true;
-                    var dicTaskGroup = (await TaskGroupList.ToListAndSaveAsync()).ToDictionary(o => o.Id, o => o);
-                    var lstTask      = await TaskInfo.ToGroupListAsync();
-
-                    // 注册进来的客户端，必须是能处理的，否则退出线程
-                    var lstStatusScheduler = lstTask.FindAll(o => ClientRegister.Count(dicTaskGroup[o.TaskGroupId].JobTypeName) > 0);
-                    if (lstStatusScheduler.Count == 0) return;
-
-                    // 取出状态为Scheduler的，且调度时间超过2S的
-                    lstStatusScheduler = lstStatusScheduler.FindAll(o =>
-                            o.Status == EumTaskType.Scheduler &&                      // 状态必须是 EumTaskType.None
-                            (DateTime.Now - o.SchedulerAt).TotalMilliseconds >= 2000) // 执行时间在50ms内
-                        .OrderBy(o => o.SchedulerAt).ToList();
-
-                    // 没有任务符合条件
-                    if (lstStatusScheduler.Count == 0)
+                    try
                     {
-                        await Task.Delay(2000);
-                        continue;
-                    }
+                        var dicTaskGroup = (await TaskGroupList.ToListAndSaveAsync()).ToDictionary(o => o.Id, o => o);
+                        var lstTask      = await TaskInfo.ToGroupListAsync();
 
-                    foreach (var taskId in lstStatusScheduler.Select(o => o.Id))
-                    {
-                        // 重新取一遍，担心正好数据被正确处理好了
-                        var task = await TaskInfo.ToInfoAsync(taskId);
+                        // 注册进来的客户端，必须是能处理的，否则退出线程
+                        var lstStatusScheduler = lstTask.FindAll(o => ClientRegister.Count(dicTaskGroup[o.TaskGroupId].JobTypeName) > 0);
+                        if (lstStatusScheduler.Count == 0) return;
 
-                        // 说明已调度成功
-                        if (task.Status != EumTaskType.Scheduler) break;
+                        // 取出状态为Scheduler的，且调度时间超过2S的
+                        lstStatusScheduler = lstStatusScheduler.FindAll(o =>
+                                o.Status == EumTaskType.Scheduler &&                      // 状态必须是 EumTaskType.None
+                                (DateTime.Now - o.SchedulerAt).TotalMilliseconds >= 2000) // 执行时间在50ms内
+                            .OrderBy(o => o.SchedulerAt).ToList();
 
-                        // 处于Scheduler状态，如果时间>2S，认为客户端无法处理当前JOB，重新调度
-                        var taskTimeSpan = DateTime.Now - task.SchedulerAt;
-                        await RunLogAdd.AddAsync(task.TaskGroupId, task.Id, LogLevel.Warning, $"任务ID：{task.Id}，已调度，{(int) taskTimeSpan.TotalMilliseconds} ms未执行，重新调度");
+                        // 没有任务符合条件
+                        if (lstStatusScheduler.Count == 0)
+                        {
+                            await Task.Delay(2000);
+                            continue;
+                        }
 
-                        // 标记为重新调度
-                        task.Status = EumTaskType.ReScheduler;
-                        await TaskUpdate.SaveAsync(task);
+                        foreach (var taskId in lstStatusScheduler.Select(o => o.Id))
+                        {
+                            // 重新取一遍，担心正好数据被正确处理好了
+                            var task = await TaskInfo.ToInfoAsync(taskId);
+
+                            // 说明已调度成功
+                            if (task.Status != EumTaskType.Scheduler) break;
+
+                            // 处于Scheduler状态，如果时间>2S，认为客户端无法处理当前JOB，重新调度
+                            var taskTimeSpan = DateTime.Now - task.SchedulerAt;
+                            await RunLogAdd.AddAsync(task.TaskGroupId, task.Id, LogLevel.Warning, $"任务ID：{task.Id}，已调度，{(int) taskTimeSpan.TotalMilliseconds} ms未执行，重新调度");
+
+                            // 标记为重新调度
+                            task.Status = EumTaskType.ReScheduler;
+                            await TaskUpdate.SaveAsync(task);
                         
-                        // 休眠下，防止CPU过高
-                        await Task.Delay(10);
+                            // 休眠下，防止CPU过高
+                            await Task.Delay(10);
+                        }
                     }
+                    catch (Exception e)
+                    {
+                        Logger.LogError(e, e.Message);
+                    }
+                    
                     // 休眠下，防止CPU过高
                     await Task.Delay(100);
                 }

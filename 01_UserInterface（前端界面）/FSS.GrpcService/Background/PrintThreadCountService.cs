@@ -31,7 +31,7 @@ namespace FSS.GrpcService.Background
             {
                 var threadsCount = Process.GetCurrentProcess().Threads.Count;
                 _logger.LogInformation($"当前线程数量：{threadsCount}");
-                await Task.Delay(5000);
+                await Task.Delay(5000, stoppingToken);
             }
         }
     }

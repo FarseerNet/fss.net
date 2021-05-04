@@ -18,7 +18,7 @@ namespace FSS.GrpcService.Background
         public SyncServiceInfoService(IIocManager ioc)
         {
             _ioc            = ioc;
-            _nodeRegister = _ioc.Resolve<INodeRegister>();
+            _nodeRegister   = _ioc.Resolve<INodeRegister>();
             _clientRegister = _ioc.Resolve<IClientRegister>();
         }
 
@@ -26,11 +26,11 @@ namespace FSS.GrpcService.Background
         {
             while (true)
             {
+                await Task.Delay(3000, stoppingToken);
+
                 // 每1S，更新当前IP到服务列表中
                 _nodeRegister.Register();
                 _clientRegister.SyncCache();
-                
-                await Task.Delay(3000, stoppingToken);
             }
         }
     }

@@ -8,7 +8,7 @@ namespace FSS.Com.MetaInfoServer.Tasks.Dal
     // ReSharper disable once UnusedType.Global
     public class TaskCache : ITaskCache
     {
-        public const string Key = "Task_All";
-        public static string FailKey(int groupId) => $"Task_Fail:{groupId}";
+        public const string Key = "FSS_Task_All";
+        public static string FailKey(int groupId) => $"FSS_Task_Fail:{groupId}";
     }
 }

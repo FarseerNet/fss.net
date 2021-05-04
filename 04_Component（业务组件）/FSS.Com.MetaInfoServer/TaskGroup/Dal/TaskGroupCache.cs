@@ -16,7 +16,7 @@ namespace FSS.Com.MetaInfoServer.TaskGroup.Dal
     {
         public IRedisCacheManager RedisCacheManager { get; set; }
 
-        public const string Key = "TaskGroup";
+        public const string Key = "FSS_TaskGroup";
 
         /// <summary>
         /// 保存任务组信息

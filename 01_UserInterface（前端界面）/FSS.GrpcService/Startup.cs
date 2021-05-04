@@ -47,7 +47,6 @@ namespace FSS.GrpcService
             services.AddHostedService<SyncServiceInfoService>();
             services.AddHostedService<PrintThreadCountService>();
             //services.AddHostedService<RunThreadSchedulerService>(); 
-            services.AddHostedService<RunTaskSchedulerService>(); 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
