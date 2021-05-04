@@ -78,8 +78,11 @@ namespace FSS.Com.SchedulerServer.Scheduler
                         continue;
                     }
 
-                    foreach (var task in lstStatusNone)
+                    foreach (var taskId in lstStatusNone.Select(o => o.Id))
                     {
+                        // 重新取一遍，担心正好数据被正确处理好了
+                        var task      = await TaskInfo.ToInfoAsync(taskId);
+                        
                         var taskGroup = dicTaskGroup[task.TaskGroupId];
                         var timeSpan  = task.StartAt - DateTime.Now;
                         // 任务没开始，休眠

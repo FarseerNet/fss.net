@@ -1,12 +1,14 @@
 using System;
 using System.Threading.Tasks;
 using FS.Cache.Redis;
+using FS.DI;
 using FS.Extends;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
 using FSS.Com.MetaInfoServer.Abstract;
 using FSS.Com.MetaInfoServer.Tasks.Dal;
+using Microsoft.Extensions.Logging;
 
 namespace FSS.Com.MetaInfoServer.Tasks
 {
@@ -23,7 +25,12 @@ namespace FSS.Com.MetaInfoServer.Tasks
         public async Task<TaskVO> GetOrCreateAsync(int taskGroupId)
         {
             var taskGroup = await TaskGroupInfo.ToInfoAsync(taskGroupId);
-            var task      = await TaskAgent.ToUnExecutedTaskAsync(taskGroup.Id);
+            if (taskGroup == null)
+            {
+                IocManager.Instance.Logger<TaskAdd>().LogWarning($"taskGroupId={taskGroupId}，这里查不到taskGroup");
+            }
+
+            var task = await TaskAgent.ToUnExecutedTaskAsync(taskGroup.Id);
             if (task == null)
             {
                 // 没查到时，自动创建一条对应的Task

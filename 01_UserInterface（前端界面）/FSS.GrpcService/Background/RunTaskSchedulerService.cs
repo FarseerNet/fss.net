@@ -38,7 +38,7 @@ namespace FSS.GrpcService.Background
             _logger.LogInformation($"共获取到：{taskGroupVos.Count} 条任务组信息");
 
             // 运行状态=Node的任务
-            await _whenTaskStatusNone.Run();
+            //await _whenTaskStatusNone.Run();
         }
     }
 }

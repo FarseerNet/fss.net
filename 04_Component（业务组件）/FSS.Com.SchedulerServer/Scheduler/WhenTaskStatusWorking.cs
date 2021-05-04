@@ -75,7 +75,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                     foreach (var taskId in lstStatusWorking.Select(o => o.Id))
                     {
                         // 重新取一遍，担心正好数据被正确处理好了
-                        var task = await TaskInfo.ToGroupAsync(taskId);
+                        var task = await TaskInfo.ToInfoAsync(taskId);
 
                         // 如果 任务的运行节点是当前节点时，判断客户端是否在线
                         var nodeIp = NodeRegister.GetNodeIp();

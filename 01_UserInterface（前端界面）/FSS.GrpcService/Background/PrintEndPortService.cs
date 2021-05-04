@@ -15,19 +15,20 @@ namespace FSS.GrpcService.Background
     /// </summary>
     public class PrintEndPortService : BackgroundService
     {
-        private readonly IIocManager         _ioc;
-        readonly         ILogger             _logger;
+        private readonly IIocManager _ioc;
+        readonly         ILogger     _logger;
 
         public PrintEndPortService(IIocManager ioc)
         {
-            _ioc                = ioc;
-            _logger             = _ioc.Logger<Startup>();
+            _ioc    = ioc;
+            _logger = _ioc.Logger<Startup>();
         }
 
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             var ip = IpHelper.GetIps()[0].Address.MapToIPv4().ToString();
             _logger.LogInformation($"服务({ip})启动完成，监听 http://{IPAddress.Any}:80 ");
+            return Task.FromResult(0);
         }
     }
 }
