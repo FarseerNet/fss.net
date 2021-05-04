@@ -80,10 +80,10 @@ namespace FSS.Com.SchedulerServer.Scheduler
                             continue;
                         }
 
-                        foreach (var taskId in lstStatusNone.Select(o => o.Id))
+                        foreach (var taskGroupId in lstStatusNone.Select(o => o.TaskGroupId))
                         {
                             // 重新取一遍，担心正好数据被正确处理好了
-                            var task = await TaskInfo.ToInfoAsync(taskId);
+                            var task = await TaskInfo.ToGroupAsync(taskGroupId);
                         
                             var taskGroup = dicTaskGroup[task.TaskGroupId];
                             var timeSpan  = task.StartAt - DateTime.Now;

@@ -20,8 +20,8 @@ namespace FSS.Com.MetaInfoServer.Tasks
         /// <summary>
         /// 获取任务信息
         /// </summary>
-        public Task<TaskVO> ToInfoAsync(int id) => TaskAgent.ToEntityAsync(id).MapAsync<TaskVO, TaskPO>();
-
+        public Task<TaskVO> ToInfoByDbAsync(int id) => TaskAgent.ToEntityAsync(id).MapAsync<TaskVO, TaskPO>();
+        
         /// <summary>
         /// 获取当前任务组的任务
         /// </summary>
@@ -32,7 +32,6 @@ namespace FSS.Com.MetaInfoServer.Tasks
                 o => TaskAdd.GetOrCreateAsync(taskGroupId),
                 o => o.TaskGroupId);
         }
-
 
         /// <summary>
         /// 获取所有任务组

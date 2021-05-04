@@ -71,10 +71,10 @@ namespace FSS.Com.SchedulerServer.Scheduler
                             continue;
                         }
 
-                        foreach (var taskId in lstStatusScheduler.Select(o => o.Id))
+                        foreach (var taskGroupId in lstStatusScheduler.Select(o => o.TaskGroupId))
                         {
                             // 重新取一遍，担心正好数据被正确处理好了
-                            var task = await TaskInfo.ToInfoAsync(taskId);
+                            var task = await TaskInfo.ToInfoByDbAsync(taskGroupId);
 
                             // 说明已调度成功
                             if (task.Status != EumTaskType.Scheduler) break;

@@ -10,7 +10,7 @@ namespace FSS.Abstract.Server.MetaInfo
         /// <summary>
         /// 获取任务信息
         /// </summary>
-        Task<TaskVO> ToInfoAsync(int id);
+        Task<TaskVO> ToInfoByDbAsync(int id);
 
         /// <summary>
         /// 获取当前任务组的任务
