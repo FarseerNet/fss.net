@@ -6,7 +6,6 @@ using FS.DI;
 using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
 using FSS.Abstract.Server.RegisterCenter;
-using FSS.Abstract.Server.RemoteCall;
 using FSS.Abstract.Server.Scheduler;
 using Microsoft.Extensions.Logging;
 
@@ -58,7 +57,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
 
                         // 注册进来的客户端，必须是能处理的，否则退出线程
                         var lstStatusWorking = lstTask.FindAll(o => ClientRegister.Count(dicTaskGroup[o.TaskGroupId].JobTypeName) > 0);
-                        if (lstStatusWorking.Count == 0) return;
+                        if (lstStatusWorking == null || lstStatusWorking.Count == 0) return;
 
                         // 取出状态为None的，且马上到时间要处理的
                         lstStatusWorking = lstStatusWorking.FindAll(o =>
@@ -68,7 +67,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                             .OrderBy(o => o.StartAt).ToList();
 
                         // 没有任务需要调度
-                        if (lstStatusWorking.Count == 0)
+                        if (lstStatusWorking == null || lstStatusWorking.Count == 0)
                         {
                             await Task.Delay(5000);
                             continue;

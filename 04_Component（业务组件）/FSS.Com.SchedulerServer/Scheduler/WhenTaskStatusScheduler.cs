@@ -6,7 +6,6 @@ using FS.DI;
 using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
 using FSS.Abstract.Server.RegisterCenter;
-using FSS.Abstract.Server.RemoteCall;
 using FSS.Abstract.Server.Scheduler;
 using Microsoft.Extensions.Logging;
 
@@ -23,7 +22,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
         public                  ITaskUpdate     TaskUpdate     { get; set; }
         public                  IRunLogAdd      RunLogAdd      { get; set; }
         private static readonly object          ObjLock = new();
-        
+
         /// <summary>
         /// 运行当状态为Node的任务
         /// </summary>
@@ -44,6 +43,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 if (IsRun) return Task.FromResult(0);
                 IsRun = true;
             }
+
             ThreadPool.QueueUserWorkItem(async _ =>
             {
                 while (ClientRegister.Count() > 0)
@@ -56,7 +56,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
 
                         // 注册进来的客户端，必须是能处理的，否则退出线程
                         var lstStatusScheduler = lstTask.FindAll(o => ClientRegister.Count(dicTaskGroup[o.TaskGroupId].JobTypeName) > 0);
-                        if (lstStatusScheduler.Count == 0) return;
+                        if (lstStatusScheduler == null || lstStatusScheduler.Count == 0) return;
 
                         // 取出状态为Scheduler的，且调度时间超过2S的
                         lstStatusScheduler = lstStatusScheduler.FindAll(o =>
@@ -65,7 +65,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                             .OrderBy(o => o.SchedulerAt).ToList();
 
                         // 没有任务符合条件
-                        if (lstStatusScheduler.Count == 0)
+                        if (lstStatusScheduler == null || lstStatusScheduler.Count == 0)
                         {
                             await Task.Delay(2000);
                             continue;
@@ -86,7 +86,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                             // 标记为重新调度
                             task.Status = EumTaskType.ReScheduler;
                             await TaskUpdate.SaveAsync(task);
-                        
+
                             // 休眠下，防止CPU过高
                             await Task.Delay(10);
                         }
@@ -95,7 +95,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                     {
                         Logger.LogError(e, e.Message);
                     }
-                    
+
                     // 休眠下，防止CPU过高
                     await Task.Delay(100);
                 }
