@@ -153,7 +153,7 @@ namespace FSS.GrpcService.Services
                 }
                 else
                 {
-                    var message = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 任务组：TaskGroupId={task.TaskGroupId}，Caption={taskGroup.Caption}，JobName={taskGroup.JobTypeName}，TaskId={task.Id}-- 执行成功，耗时：{task.RunSpeed} ms";
+                    var message = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 任务组：TaskGroupId={task.TaskGroupId}，Caption={taskGroup.Caption}，JobName={taskGroup.JobTypeName}，TaskId={task.Id} 执行成功，耗时：{task.RunSpeed} ms";
                     await runLogAdd.AddAsync(task.TaskGroupId, taskId, LogLevel.Information, $"执行成功，耗时：{task.RunSpeed} ms");
                     logger.LogInformation(message);
                     return (CommandResponse) _ioc.Resolve<IClientResponse>().Print(message);
