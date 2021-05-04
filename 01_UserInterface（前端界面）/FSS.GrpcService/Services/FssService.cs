@@ -67,7 +67,7 @@ namespace FSS.GrpcService.Services
             var runLogAdd = _ioc.Resolve<IRunLogAdd>();
             var task      = await _ioc.Resolve<ITaskInfo>().ToGroupAsync(taskGroupId);
 
-            if (task.Id != taskId)
+            if (task.Id > taskId)
             {
                 await runLogAdd.AddAsync(task.TaskGroupId, taskId, LogLevel.Warning, $"与服务端正在处理的Task：{task.Id} 不一致");
                 return (CommandResponse) _ioc.Resolve<IClientResponse>().Print($"指定的TaskId：{taskId} 与服务端正在处理的Task：{task.Id} 不一致");

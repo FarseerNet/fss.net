@@ -61,7 +61,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                         // 取出状态为Scheduler的，且调度时间超过2S的
                         lstStatusScheduler = lstStatusScheduler.FindAll(o =>
                                 o.Status == EumTaskType.Scheduler &&                      // 状态必须是 EumTaskType.None
-                                (DateTime.Now - o.SchedulerAt).TotalMilliseconds >= 2000) // 执行时间在50ms内
+                                (DateTime.Now - o.SchedulerAt).TotalMilliseconds >= 3000) // 执行时间在50ms内
                             .OrderBy(o => o.SchedulerAt).ToList();
 
                         // 没有任务符合条件
