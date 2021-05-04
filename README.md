@@ -147,7 +147,7 @@ docker run -d --name fss \
 -e Database__Items__0__PassWord=123456 \
 -e Database__Items__0__Catalog=fss \
 -e Database__Items__0__DataType=MySql \
-farseernet/fss:1.0.0-beta --restart=always
+farseernet/fss:latest --restart=always
 ```
 
 环境变量解释：
@@ -167,7 +167,7 @@ farseernet/fss:1.0.0-beta --restart=always
 ```
 docker run -d --name fss \
 -v /home/appsettings.json:app/appsettings.json \
-farseernet/fss:1.0.0-beta.4 --restart=always
+farseernet/fss:latest --restart=always
 ```
 
 `3、查看打印日志`
