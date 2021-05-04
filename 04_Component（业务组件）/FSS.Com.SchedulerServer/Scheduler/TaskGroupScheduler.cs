@@ -15,6 +15,7 @@ using Microsoft.Extensions.Logging;
 
 namespace FSS.Com.SchedulerServer.Scheduler
 {
+    [Obsolete]
     public class TaskGroupScheduler : ITaskGroupScheduler
     {
         public IIocManager     IocManager     { get; set; }

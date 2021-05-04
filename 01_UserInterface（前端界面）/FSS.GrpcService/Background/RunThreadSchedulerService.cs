@@ -1,3 +1,4 @@
+using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ namespace FSS.GrpcService.Background
     /// <summary>
     /// 开启任务组调度
     /// </summary>
+    [Obsolete]
     public class RunThreadSchedulerService : BackgroundService
     {
         private readonly IIocManager         _ioc;

@@ -43,9 +43,9 @@ namespace FSS.GrpcService
             
             // 开启任务组调度
             services.AddHostedService<PrintEndPortService>(); 
+            services.AddHostedService<PrintThreadCountService>();
             services.AddHostedService<SyncTaskGroupAvgSpeedService>(); 
             services.AddHostedService<SyncServiceInfoService>();
-            services.AddHostedService<PrintThreadCountService>();
             //services.AddHostedService<RunThreadSchedulerService>(); 
         }
 
