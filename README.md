@@ -88,7 +88,7 @@ CREATE TABLE `run_log` (
 `create_at` datetime(6) NOT NULL COMMENT '日志时间',
 `task_group_id` int NOT NULL DEFAULT '0' COMMENT '任务组',
 PRIMARY KEY (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17101 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=204448 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- ----------------------------
 -- Table structure for task
@@ -107,7 +107,7 @@ CREATE TABLE `task` (
 `create_at` datetime(6) NOT NULL COMMENT '任务创建时间',
 PRIMARY KEY (`Id`) USING BTREE,
 KEY `group_id_status` (`task_group_id`,`status`)
-) ENGINE=InnoDB AUTO_INCREMENT=12794 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=77731 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- ----------------------------
 -- Table structure for task_group
@@ -117,18 +117,19 @@ CREATE TABLE `task_group` (
 `Id` int NOT NULL AUTO_INCREMENT,
 `caption` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '任务组标题',
 `job_type_name` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '实现Job的特性名称（客户端识别哪个实现类）',
-`start_at` datetime(6) NOT NULL COMMENT '开始时间',
-`next_at` datetime(6) NOT NULL COMMENT '下次执行时间',
-`task_id` bigint NOT NULL COMMENT '任务ID',
-`activate_at` datetime(6) NOT NULL COMMENT '活动时间',
-`last_run_at` datetime(6) NOT NULL COMMENT '最后一次完成时间',
-`run_speed_avg` int NOT NULL COMMENT '运行平均耗时',
-`run_count` int NOT NULL COMMENT '运行次数',
-`is_enable` bit(2) NOT NULL COMMENT '是否开启',
-`interval_ms` bigint NOT NULL DEFAULT '0' COMMENT '时间间隔',
+`start_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '开始时间',
+`next_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '下次执行时间',
+`task_id` bigint NOT NULL DEFAULT '0' COMMENT '任务ID',
+`activate_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '活动时间',
+`last_run_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '最后一次完成时间',
+`run_speed_avg` int NOT NULL DEFAULT '0' COMMENT '运行平均耗时',
+`run_count` int NOT NULL DEFAULT '0' COMMENT '运行次数',
+`is_enable` bit(1) NOT NULL DEFAULT b'1' COMMENT '是否开启',
+`interval_ms` bigint NOT NULL DEFAULT '1000' COMMENT '时间间隔',
 `cron` varchar(32) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '时间定时器表达式',
+`Data` varchar(2048) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '动态参数',
 PRIMARY KEY (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=201 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 SET FOREIGN_KEY_CHECKS = 1;
 
