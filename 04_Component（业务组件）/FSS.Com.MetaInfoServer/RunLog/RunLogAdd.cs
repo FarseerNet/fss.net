@@ -21,6 +21,8 @@ namespace FSS.Com.MetaInfoServer.RunLog
         /// </summary>
         public Task AddAsync(int taskGroupId, int taskId, LogLevel logLevel, string content)
         {
+            if (logLevel is LogLevel.Error)
+                throw new Exception("");
             if (logLevel is LogLevel.Error or LogLevel.Warning) IocManager.Logger<RunLogAdd>().Log(logLevel, content);
             return RunLogAgent.AddAsync(new RunLogPO
             {

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,11 +17,11 @@ namespace FSS.Com.RegisterCenterServer.Client
     // ReSharper disable once UnusedType.Global
     public class ClientRegister : IClientRegister
     {
-        private                 string                              Key = "FSS_ClientList";
-        public                  IRedisCacheManager                  RedisCacheManager { get; set; }
-        public                  ITaskInfo                           TaskInfo          { get; set; }
-        public                  ITaskUpdate                         TaskUpdate        { get; set; }
-        private static readonly Dictionary<string, ClientConnectVO> Clients = new();
+        private                 string                                        Key = "FSS_ClientList";
+        public                  IRedisCacheManager                            RedisCacheManager { get; set; }
+        public                  ITaskInfo                                     TaskInfo          { get; set; }
+        public                  ITaskUpdate                                   TaskUpdate        { get; set; }
+        private static readonly ConcurrentDictionary<string, ClientConnectVO> Clients = new();
 
         /// <summary>
         /// 注册
@@ -71,7 +72,6 @@ namespace FSS.Com.RegisterCenterServer.Client
         /// </summary>
         public int Count(string jobName) => Clients.Count(o => o.Value.Jobs.Contains(jobName)); //o => (DateTime.Now - o.Value.HeartbeatAt).TotalMilliseconds < 10000
 
-
         /// <summary>
         /// 获取客户端数量
         /// </summary>
@@ -117,7 +117,7 @@ namespace FSS.Com.RegisterCenterServer.Client
         /// </summary>
         public async Task RemoveAsync(string serverHost)
         {
-            Clients.Remove(serverHost);
+            Clients.TryRemove(serverHost,out _);
             // 读取当前所有任务组的任务
             var groupListAsync = await TaskInfo.ToGroupListAsync();
             var findAll        = groupListAsync.FindAll(o => o.ClientHost == serverHost && o.Status is EumTaskType.Scheduler or EumTaskType.Working);
