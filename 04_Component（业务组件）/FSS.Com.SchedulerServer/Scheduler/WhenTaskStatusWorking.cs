@@ -61,7 +61,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
 
                         // 取出状态为None的，且马上到时间要处理的
                         lstStatusWorking = lstStatusWorking.FindAll(o =>
-                                o.Status == EumTaskType.Working &&                       // 状态必须是 EumTaskType.None
+                                o.Status is EumTaskType.Working or EumTaskType.Scheduler &&                       // 状态必须是 EumTaskType.None
                                 (o.StartAt - DateTime.Now).TotalMilliseconds >= 10000 && // 执行时间在10s后的
                                 dicTaskGroup[o.TaskGroupId].IsEnable)                    // 任务组必须是开启
                             .OrderBy(o => o.StartAt).ToList();

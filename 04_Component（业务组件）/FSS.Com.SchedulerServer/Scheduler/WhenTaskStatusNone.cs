@@ -49,7 +49,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 IsRun = true;
             }
 
-            IocManager.Resolve<IWhenTaskStatus>("Scheduler").Run();
+            //IocManager.Resolve<IWhenTaskStatus>("Scheduler").Run();
             IocManager.Resolve<IWhenTaskStatus>("Working").Run();
             IocManager.Resolve<IWhenTaskStatus>("Finish").Run();
             ThreadPool.QueueUserWorkItem(async _ =>
