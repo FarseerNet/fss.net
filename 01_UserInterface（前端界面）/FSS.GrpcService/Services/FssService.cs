@@ -65,7 +65,7 @@ namespace FSS.GrpcService.Services
             var serverHost  = $"{context.Host}_{context.Peer}";
 
             var runLogAdd = _ioc.Resolve<IRunLogAdd>();
-            var task      = await _ioc.Resolve<ITaskInfo>().ToGroupTaskAsync(taskGroupId);
+            var task      = await _ioc.Resolve<ITaskInfo>().ToGroupAsync(taskGroupId);
 
             if (task.Id != taskId)
             {

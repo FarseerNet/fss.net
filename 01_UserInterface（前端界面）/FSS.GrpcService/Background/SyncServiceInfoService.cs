@@ -30,7 +30,7 @@ namespace FSS.GrpcService.Background
                 _nodeRegister.Register();
                 _clientRegister.SyncCache();
                 
-                await Task.Delay(1000, stoppingToken);
+                await Task.Delay(3000, stoppingToken);
             }
         }
     }

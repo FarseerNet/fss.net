@@ -78,7 +78,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                         }
 
                         // 取出当前任务组的Task
-                        dicTaskGroupIsRun[tGroupId] = await TaskInfo.ToGroupTaskAsync(tGroupId);
+                        dicTaskGroupIsRun[tGroupId] = await TaskInfo.ToGroupAsync(tGroupId);
                         logger.LogDebug($"1、GroupId={taskGroup.Id} {taskGroup.Caption} TaskId={dicTaskGroupIsRun[tGroupId].Id}  Status={dicTaskGroupIsRun[tGroupId].Status}");
 
                         // 任务组状态=未执行
@@ -153,7 +153,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
             while (dicTaskGroupIsRun[taskGroup.Id].Status is EumTaskType.Scheduler)
             {
                 logger.LogDebug($"2、GroupId={taskGroup.Id} {taskGroup.Caption}、{dicTaskGroupIsRun[taskGroup.Id].Id}、{dicTaskGroupIsRun[taskGroup.Id].Status}");
-                var newTask = await TaskInfo.ToGroupTaskAsync(taskGroup.Id);
+                var newTask = await TaskInfo.ToGroupAsync(taskGroup.Id);
 
                 // 不相等，说明已经执行了新的Task
                 if (dicTaskGroupIsRun[taskGroup.Id].Id != newTask.Id)

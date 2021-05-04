@@ -22,6 +22,7 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="SuperSocket" Version="1.6.6.1" />
     </ItemGroup>
 
     <ItemGroup>

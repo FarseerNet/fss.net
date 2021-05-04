@@ -66,6 +66,12 @@ namespace FSS.Com.RegisterCenterServer.Client
         /// </summary>
         public int Count(string jobName) => Clients.Count(o => o.Value.Jobs.Contains(jobName)); //o => (DateTime.Now - o.Value.HeartbeatAt).TotalMilliseconds < 10000
 
+
+        /// <summary>
+        /// 获取客户端数量
+        /// </summary>
+        public int Count() => Clients.Count;
+
         /// <summary>
         /// 取出客户端
         /// </summary>

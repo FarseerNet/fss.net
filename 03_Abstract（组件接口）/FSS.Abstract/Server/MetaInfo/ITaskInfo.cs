@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using FS.DI;
 using FSS.Abstract.Entity.MetaInfo;
@@ -14,11 +15,16 @@ namespace FSS.Abstract.Server.MetaInfo
         /// <summary>
         /// 获取当前任务组的任务
         /// </summary>
-        Task<TaskVO> ToGroupTaskAsync(int taskGroupId);
+        Task<TaskVO> ToGroupAsync(int taskGroupId);
 
         /// <summary>
         /// 计算任务的平均运行速度
         /// </summary>
         Task<int> StatAvgSpeedAsync(int taskGroupId);
+
+        /// <summary>
+        /// 获取所有任务组
+        /// </summary>
+        Task<List<TaskVO>> ToGroupListAsync();
     }
 }
