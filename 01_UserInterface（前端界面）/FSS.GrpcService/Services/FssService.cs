@@ -125,7 +125,7 @@ namespace FSS.GrpcService.Services
                         case EumTaskType.ReScheduler:
                             taskGroup.LastRunAt  = DateTime.Now;
                             taskGroup.ActivateAt = DateTime.Now;
-                            taskGroup.Data       = jobRequest.Data;
+                            if (!string.IsNullOrWhiteSpace(jobRequest.Data)) taskGroup.Data = jobRequest.Data;
                             // 客户端设置了动态时间
                             if (jobRequest.NextTimespan > 0) taskGroup.NextAt = DateTime.Now.AddMilliseconds(jobRequest.NextTimespan);
                             await taskGroupUpdate.SaveAsync(taskGroup); // 要比Task提前保存，后面需要判断下次执行时间
