@@ -17,15 +17,11 @@ namespace FSS.GrpcService.Background
     public class PrintThreadCountService : BackgroundService
     {
         private readonly IIocManager         _ioc;
-        readonly         ITaskGroupList      _taskGroupList;
-        readonly         ITaskGroupScheduler _taskGroupScheduler;
         readonly         ILogger             _logger;
 
         public PrintThreadCountService(IIocManager ioc)
         {
             _ioc                = ioc;
-            _taskGroupList      = _ioc.Resolve<ITaskGroupList>();
-            _taskGroupScheduler = _ioc.Resolve<ITaskGroupScheduler>();
             _logger             = _ioc.Logger<Startup>();
         }
 

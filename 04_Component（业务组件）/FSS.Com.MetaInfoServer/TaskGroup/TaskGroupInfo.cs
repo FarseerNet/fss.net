@@ -20,8 +20,20 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
         {
             return RedisCacheManager.CacheManager.ToEntityAsync<TaskGroupVO>(TaskGroupCache.Key,
                 id.ToString(),
-                _ => TaskGroupAgent.ToEntityAsync(id).MapAsync<TaskGroupVO,TaskGroupPO>(),
+                _ => TaskGroupAgent.ToEntityAsync(id).MapAsync<TaskGroupVO, TaskGroupPO>(),
                 o => o.Id);
+        }
+
+        /// <summary>
+        /// 从数据库中取出并保存
+        /// </summary>
+        public async Task<TaskGroupVO> ToInfoByDbAsync(int id)
+        {
+            var entity = await TaskGroupAgent.ToEntityAsync(id).MapAsync<TaskGroupVO, TaskGroupPO>();
+            await RedisCacheManager.CacheManager.SaveAsync(TaskGroupCache.Key,
+                entity,
+                id.ToString());
+            return entity;
         }
     }
 }

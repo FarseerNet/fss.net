@@ -19,12 +19,23 @@ namespace FSS.Com.MetaInfoServer.Tasks
         public ITaskGroupInfo     TaskGroupInfo     { get; set; }
         public ITaskGroupUpdate   TaskGroupUpdate   { get; set; }
 
+        private static DateTime _lastUpdateGroupAt = DateTime.Now;
+
         /// <summary>
         /// 创建Task，并更新到缓存
         /// </summary>
         public async Task<TaskVO> GetOrCreateAsync(int taskGroupId)
         {
-            var taskGroup = await TaskGroupInfo.ToInfoAsync(taskGroupId);
+            TaskGroupVO taskGroup;
+            // 如果上一次的更新时间超过5分钟，则重新取数据库的任务组
+            if ((DateTime.Now - _lastUpdateGroupAt).TotalMinutes >= 1)
+            {
+                taskGroup          = await TaskGroupInfo.ToInfoByDbAsync(taskGroupId);
+                _lastUpdateGroupAt = DateTime.Now;
+            }
+            else
+                taskGroup = await TaskGroupInfo.ToInfoAsync(taskGroupId);
+
             if (taskGroup == null)
             {
                 IocManager.Instance.Logger<TaskAdd>().LogWarning($"taskGroupId={taskGroupId}，这里查不到taskGroup");
