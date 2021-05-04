@@ -13,10 +13,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Abstract" />
-    </ItemGroup>
-
-    <ItemGroup>
       <PackageReference Include="Grpc.Core.Api" Version="2.37.1" />
     </ItemGroup>
 

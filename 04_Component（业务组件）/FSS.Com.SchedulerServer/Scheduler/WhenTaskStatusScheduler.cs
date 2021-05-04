@@ -7,21 +7,23 @@ using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
 using FSS.Abstract.Server.RegisterCenter;
 using FSS.Abstract.Server.Scheduler;
+using FSS.Com.SchedulerServer.Abstract;
 using Microsoft.Extensions.Logging;
 
 namespace FSS.Com.SchedulerServer.Scheduler
 {
     public class WhenTaskStatusScheduler : IWhenTaskStatus
     {
-        public static           bool            IsRun;
-        public                  ITaskInfo       TaskInfo       { get; set; }
-        public                  IClientRegister ClientRegister { get; set; }
-        public                  ITaskGroupList  TaskGroupList  { get; set; }
-        public                  ILogger         Logger         { get; set; }
-        public                  IIocManager     IocManager     { get; set; }
-        public                  ITaskUpdate     TaskUpdate     { get; set; }
-        public                  IRunLogAdd      RunLogAdd      { get; set; }
-        private static readonly object          ObjLock = new();
+        public static           bool                IsRun;
+        public                  ITaskInfo           TaskInfo           { get; set; }
+        public                  IClientRegister     ClientRegister     { get; set; }
+        public                  ITaskGroupList      TaskGroupList      { get; set; }
+        public                  ILogger             Logger             { get; set; }
+        public                  IIocManager         IocManager         { get; set; }
+        public                  ITaskUpdate         TaskUpdate         { get; set; }
+        public                  IRunLogAdd          RunLogAdd          { get; set; }
+        public                  ICheckClientOffline CheckClientOffline { get; set; }
+        private static readonly object              ObjLock = new();
 
         /// <summary>
         /// 运行当状态为Node的任务
@@ -61,7 +63,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                         // 取出状态为Scheduler的，且调度时间超过2S的
                         lstStatusScheduler = lstStatusScheduler.FindAll(o =>
                                 o.Status == EumTaskType.Scheduler &&                      // 状态必须是 EumTaskType.None
-                                (DateTime.Now - o.SchedulerAt).TotalMilliseconds >= 3000) // 执行时间在50ms内
+                                (DateTime.Now - o.SchedulerAt).TotalMilliseconds >= 5000) // 执行时间在5s后
                             .OrderBy(o => o.SchedulerAt).ToList();
 
                         // 没有任务符合条件
@@ -73,22 +75,34 @@ namespace FSS.Com.SchedulerServer.Scheduler
 
                         foreach (var taskGroupId in lstStatusScheduler.Select(o => o.TaskGroupId))
                         {
-                            // 重新取一遍，担心正好数据被正确处理好了
-                            var task = await TaskInfo.ToGroupAsync(taskGroupId);
+                            try
+                            {
+                                // 重新取一遍，担心正好数据被正确处理好了
+                                var task = await TaskInfo.ToGroupAsync(taskGroupId);
 
-                            // 说明已调度成功
-                            if (task.Status != EumTaskType.Scheduler) break;
+                                // 说明已调度成功
+                                if (task.Status != EumTaskType.Scheduler) break;
 
-                            // 处于Scheduler状态，如果时间>2S，认为客户端无法处理当前JOB，重新调度
-                            var taskTimeSpan = DateTime.Now - task.SchedulerAt;
-                            await RunLogAdd.AddAsync(task.TaskGroupId, task.Id, LogLevel.Warning, $"任务ID：{task.Id}，已调度，{(int) taskTimeSpan.TotalMilliseconds} ms未执行，重新调度");
+                                // 检查客户端是否离线
+                                await CheckClientOffline.Check(task);
+                            }
+                            catch (Exception e)
+                            {
+                                Logger.LogError(e, e.Message);
+                            }
+                            finally
+                            {
+                                // 休眠下，防止CPU过高
+                                await Task.Delay(100);
+                            }
 
-                            // 标记为重新调度
-                            task.Status = EumTaskType.ReScheduler;
-                            await TaskUpdate.SaveAsync(task);
+                            // // 处于Scheduler状态，如果时间>2S，认为客户端无法处理当前JOB，重新调度
+                            // var taskTimeSpan = DateTime.Now - task.SchedulerAt;
+                            // await RunLogAdd.AddAsync(task.TaskGroupId, task.Id, LogLevel.Warning, $"任务ID：{task.Id}，已调度，{(int) taskTimeSpan.TotalMilliseconds} ms未执行，重新调度");
 
-                            // 休眠下，防止CPU过高
-                            await Task.Delay(10);
+                            // // 标记为重新调度
+                            // task.Status = EumTaskType.ReScheduler;
+                            // await TaskUpdate.SaveAsync(task);
                         }
                     }
                     catch (Exception e)
