@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using FS.Cache.Redis;
 using FSS.Abstract.Entity.RegisterCenter;
+using FSS.Abstract.Enum;
+using FSS.Abstract.Server.MetaInfo;
 using FSS.Abstract.Server.RegisterCenter;
 
 namespace FSS.Com.RegisterCenterServer.Client
@@ -15,6 +18,8 @@ namespace FSS.Com.RegisterCenterServer.Client
     {
         private                 string                              Key = "FSS_ClientList";
         public                  IRedisCacheManager                  RedisCacheManager { get; set; }
+        public                  ITaskInfo                           TaskInfo          { get; set; }
+        public                  ITaskUpdate                         TaskUpdate        { get; set; }
         private static readonly Dictionary<string, ClientConnectVO> Clients = new();
 
         /// <summary>
@@ -85,6 +90,7 @@ namespace FSS.Com.RegisterCenterServer.Client
                 //    return null;
                 //}
             }
+
             return client;
         }
 
@@ -109,9 +115,17 @@ namespace FSS.Com.RegisterCenterServer.Client
         /// <summary>
         /// 移除客户端
         /// </summary>
-        public void Remove(string serverHost)
+        public async Task RemoveAsync(string serverHost)
         {
             Clients.Remove(serverHost);
+            // 读取当前所有任务组的任务
+            var groupListAsync = await TaskInfo.ToGroupListAsync();
+            var findAll        = groupListAsync.FindAll(o => o.ClientHost == serverHost && o.Status is EumTaskType.Scheduler or EumTaskType.Working);
+            foreach (var vo in findAll)
+            {
+                vo.Status = EumTaskType.Fail;
+                await TaskUpdate.SaveAsync(vo);
+            }
         }
     }
 }

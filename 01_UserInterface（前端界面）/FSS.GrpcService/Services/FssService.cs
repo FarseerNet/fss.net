@@ -50,7 +50,7 @@ namespace FSS.GrpcService.Services
             }
             finally
             {
-                _ioc.Resolve<IClientRegister>().Remove(serverHost);
+                await _ioc.Resolve<IClientRegister>().RemoveAsync(serverHost);
                 _ioc.Logger<FssService>().LogWarning($"客户端{clientIp} 断开连接");
             }
         }

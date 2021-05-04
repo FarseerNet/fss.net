@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using FS.DI;
 using FSS.Abstract.Entity.RegisterCenter;
 
@@ -40,7 +41,7 @@ namespace FSS.Abstract.Server.RegisterCenter
         /// <summary>
         /// 移除客户端
         /// </summary>
-        void Remove(string serverHost);
+        Task RemoveAsync(string serverHost);
 
         /// <summary>
         /// 获取客户端数量
