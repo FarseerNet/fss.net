@@ -13,7 +13,7 @@ namespace FSS.Com.RegisterCenterServer.Client
     // ReSharper disable once UnusedType.Global
     public class ClientRegister : IClientRegister
     {
-        private                 string                              Key = "ClientList";
+        private                 string                              Key = "FSS_ClientList";
         public                  IRedisCacheManager                  RedisCacheManager { get; set; }
         private static readonly Dictionary<string, ClientConnectVO> Clients = new();
 

@@ -12,7 +12,7 @@ namespace FSS.Com.RegisterCenterServer.Client
     /// </summary>
     public class NodeRegister : INodeRegister
     {
-        public string             Key = "NodeList";
+        public string             Key = "FSS_NodeList";
         public IRedisCacheManager RedisCacheManager { get; set; }
 
         /// <summary>
