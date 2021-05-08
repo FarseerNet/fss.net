@@ -4,7 +4,7 @@ metadata:
   name: fss-grpc
   labels:
     app: fss-grpc
-    k8s.kuboard.cn/layer: svc
+    k8s.kuboard.cn/layer: cloud
 spec:
   replicas: 3
   revisionHistoryLimit: 1
@@ -23,15 +23,11 @@ spec:
       labels:
         app: fss-grpc
     spec:
-      dnsPolicy: "Default"
-      dnsConfig:
-        options:
-          - name: single-request-reopen
-#      nodeSelector:   #节点筛选器
-#        rt: web
+      nodeSelector:   #节点筛选器
+        rt: middleware
       containers:
         - name: fss-grpc
-          image: farseernet/fss:1.0.0-beta.3
+          image: farseernet/fss:latest
           imagePullPolicy: IfNotPresent
           imagePullSecrets:
             - name: regsecret
@@ -55,6 +51,23 @@ spec:
 #             name: fss
 ---
 apiVersion: v1
+data:
+  Database__Items__0__Catalog: ''
+  Database__Items__0__DataType: ''
+  Database__Items__0__PassWord: ''
+  Database__Items__0__Port: ''
+  Database__Items__0__Server: ''
+  Database__Items__0__UserID: ''
+  Logging__LogLevel__Default: ''
+  Redis__0__Password: ''
+  Redis__0__Server: ''
+kind: Secret
+metadata:
+  name: fss
+  namespace: default
+type: Opaque
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: fss-grpc
@@ -76,7 +89,7 @@ metadata:
     nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
 spec:
   rules:
-    - host: your.domain # 内网则可以直接使用Service
+    - host: fss.xxxxxxx # 内网则可以直接使用Service
       http:
         paths:
           - path: /
