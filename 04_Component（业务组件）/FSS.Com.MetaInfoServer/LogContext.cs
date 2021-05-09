@@ -18,7 +18,7 @@ namespace FSS.Com.MetaInfoServer
         /// </summary>
         private readonly string _elasticIndexFormat;
 
-        public LogContext() : base("default")
+        public LogContext() : base("es")
         {
             _elasticIndexFormat = IocManager.Instance.Resolve<IConfigurationRoot>().GetSection("FSS:ElasticIndexFormat").Value;
             if (string.IsNullOrWhiteSpace(_elasticIndexFormat)) _elasticIndexFormat = "yyyy_MM";
