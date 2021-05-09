@@ -31,8 +31,8 @@ namespace FSS.Com.MetaInfoServer.RunLog
                 Content     = content,
                 CreateAt    = DateTime.Now
             };
-            var configurationSection = IocManager.Resolve<IConfigurationRoot>().GetSection("ElasticSearch:[0]:Server");
-            if (!string.IsNullOrWhiteSpace(configurationSection.Value)) await LogContext.Data.RunLog.InsertAsync(runLogPO);
+            var configurationSection = IocManager.Resolve<IConfigurationRoot>().GetSection("ElasticSearch:0:Server").Value;
+            if (!string.IsNullOrWhiteSpace(configurationSection)) await LogContext.Data.RunLog.InsertAsync(runLogPO);
             else await RunLogAgent.AddAsync(runLogPO);
         }
     }

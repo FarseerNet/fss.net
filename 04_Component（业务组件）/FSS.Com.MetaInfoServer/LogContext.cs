@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using FS.DI;
 using FS.ElasticSearch;
 using FS.ElasticSearch.Map;
 using FSS.Com.MetaInfoServer.RunLog.Dal;
+using Microsoft.Extensions.Configuration;
 
 namespace FSS.Com.MetaInfoServer
 {
@@ -11,13 +13,20 @@ namespace FSS.Com.MetaInfoServer
     /// </summary>
     public class LogContext : EsContext<LogContext>
     {
+        /// <summary>
+        /// ES索引日期格式化
+        /// </summary>
+        private readonly string _elasticIndexFormat;
+
         public LogContext() : base("default")
         {
+            _elasticIndexFormat = IocManager.Instance.Resolve<IConfigurationRoot>().GetSection("FSS:ElasticIndexFormat").Value;
+            if (string.IsNullOrWhiteSpace(_elasticIndexFormat)) _elasticIndexFormat = "yyyy_MM";
         }
 
         protected override void CreateModelInit(Dictionary<string, SetDataMap> map)
         {
-            map["RunLog"].SetName($"FssLog_{DateTime.Now:yyyy_MM}", 2, 0, "FssLog");
+            map["RunLog"].SetName($"FssLog_{DateTime.Now.ToString(_elasticIndexFormat)}", 2, 0, "FssLog");
         }
 
         /// <summary>
