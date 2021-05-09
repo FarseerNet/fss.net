@@ -35,7 +35,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
             // 当前没有客户端连接时，休眠
             if (ClientRegister.Count() == 0)
             {
-                Logger.LogDebug($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 当前没有客户端连接，Scheduler休眠...");
+                Logger.LogDebug($"当前没有客户端连接，Scheduler休眠...");
                 return Task.FromResult(0);
             }
 

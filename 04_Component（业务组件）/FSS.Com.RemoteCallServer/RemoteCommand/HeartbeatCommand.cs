@@ -53,7 +53,7 @@ namespace FSS.Com.RemoteCallServer.RemoteCommand
             //};
             ClientRegister.UpdateHeartbeatAt(serverHost, DateTime.Now);
             
-            IocManager.Logger<HeartbeatCommand>().LogDebug($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 收到客户端===> {serverHost}的心跳");
+            IocManager.Logger<HeartbeatCommand>().LogDebug($"收到客户端===> {serverHost}的心跳");
             return Task.FromResult(0);
         }
     }

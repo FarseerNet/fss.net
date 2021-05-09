@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using FS.DI;
 using FS.Extends;
@@ -8,7 +7,6 @@ using FSS.Abstract.Server.MetaInfo;
 using FSS.Abstract.Server.RegisterCenter;
 using FSS.Abstract.Server.RemoteCall;
 using FSS.Abstract.Server.Scheduler;
-using FSS.Com.MetaInfoServer.RunLog;
 using FSS.Com.RemoteCallServer.ClientNotify;
 using Grpc.Core;
 using Microsoft.AspNetCore.Connections;
@@ -146,14 +144,14 @@ namespace FSS.GrpcService.Services
                 // 不成功，则暂停3秒
                 if (task.Status != EumTaskType.Success)
                 {
-                    var message = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 任务：{task.TaskGroupId}-{task.Id} 执行失败";
+                    var message = $"任务：{task.TaskGroupId}-{task.Id} 执行失败";
                     await runLogAdd.AddAsync(task.TaskGroupId, taskId, LogLevel.Warning, $"执行失败");
                     logger.LogWarning(message);
                     return (CommandResponse) _ioc.Resolve<IClientResponse>().Print(message);
                 }
                 else
                 {
-                    var message = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 任务组：TaskGroupId={task.TaskGroupId}，Caption={taskGroup.Caption}，JobName={taskGroup.JobTypeName}，TaskId={task.Id} 执行成功，耗时：{task.RunSpeed} ms";
+                    var message = $"任务组：TaskGroupId={task.TaskGroupId}，Caption={taskGroup.Caption}，JobName={taskGroup.JobTypeName}，TaskId={task.Id} 执行成功，耗时：{task.RunSpeed} ms";
                     await runLogAdd.AddAsync(task.TaskGroupId, taskId, LogLevel.Information, $"执行成功，耗时：{task.RunSpeed} ms");
                     logger.LogInformation(message);
                     return (CommandResponse) _ioc.Resolve<IClientResponse>().Print(message);
