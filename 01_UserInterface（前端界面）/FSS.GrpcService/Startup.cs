@@ -6,6 +6,7 @@ using FS.DI;
 using FS.ElasticSearch;
 using FS.Mapper;
 using FS.Modules;
+using FS.MQ.RedisStream;
 using FSS.Com.MetaInfoServer;
 using FSS.Com.RegisterCenterServer;
 using FSS.Com.RemoteCallServer;
@@ -24,6 +25,7 @@ namespace FSS.GrpcService
         typeof(FarseerCoreModule),
         typeof(MapperModule),
         typeof(RedisModule),
+        typeof(RedisStreamModule),
         typeof(DataModule),
         typeof(ElasticSearchModule),
         typeof(MetaInfoModule),
