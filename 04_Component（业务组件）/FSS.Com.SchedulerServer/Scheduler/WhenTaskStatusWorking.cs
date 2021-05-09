@@ -16,11 +16,11 @@ namespace FSS.Com.SchedulerServer.Scheduler
     public class WhenTaskStatusWorking : IWhenTaskStatus
     {
         public static           bool                IsRun;
-        public                  ITaskInfo           TaskInfo            { get; set; }
-        public                  IClientRegister     ClientRegister      { get; set; }
-        public                  ITaskGroupList      TaskGroupList       { get; set; }
-        public                  ILogger             Logger              { get; set; }
-        public                  IIocManager         IocManager          { get; set; }
+        public                  ITaskInfo           TaskInfo           { get; set; }
+        public                  IClientRegister     ClientRegister     { get; set; }
+        public                  ITaskGroupList      TaskGroupList      { get; set; }
+        public                  ILogger             Logger             { get; set; }
+        public                  IIocManager         IocManager         { get; set; }
         public                  ICheckClientOffline CheckClientOffline { get; set; }
         private static readonly object              ObjLock = new();
 
@@ -59,11 +59,11 @@ namespace FSS.Com.SchedulerServer.Scheduler
                         var lstStatusWorking = lstTask.FindAll(o => ClientRegister.Count(dicTaskGroup[o.TaskGroupId].JobTypeName) > 0);
                         if (lstStatusWorking == null || lstStatusWorking.Count == 0) return;
 
-                        // 取出状态为None的，且马上到时间要处理的
+                        // 取出马上到时间要处理的
                         lstStatusWorking = lstStatusWorking.FindAll(o =>
-                                o.Status is EumTaskType.Working or EumTaskType.Scheduler &&                       // 状态必须是 EumTaskType.None
-                                (o.StartAt - DateTime.Now).TotalMilliseconds >= 10000 && // 执行时间在10s后的
-                                dicTaskGroup[o.TaskGroupId].IsEnable)                    // 任务组必须是开启
+                                (o.Status is EumTaskType.Working or EumTaskType.Scheduler) && // 状态必须是 EumTaskType.None
+                                (DateTime.Now - o.StartAt).TotalMilliseconds >= 10000 &&      // 执行时间在10s后的
+                                dicTaskGroup[o.TaskGroupId].IsEnable)                         // 任务组必须是开启
                             .OrderBy(o => o.StartAt).ToList();
 
                         // 没有任务需要调度
