@@ -45,6 +45,7 @@ namespace FSS.GrpcService
             services.AddHostedService<SyncTaskGroupAvgSpeedService>(); 
             services.AddHostedService<SyncServiceInfoService>();
             services.AddHostedService<AutoClearHisTaskRecordService>();
+            services.AddHostedService<CheckSchedulerWorkingService>();
             //services.AddHostedService<RunThreadSchedulerService>(); 
         }
 
