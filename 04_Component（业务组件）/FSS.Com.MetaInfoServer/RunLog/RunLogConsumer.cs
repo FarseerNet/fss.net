@@ -33,8 +33,11 @@ namespace FSS.Com.MetaInfoServer.RunLog
         {
             foreach (var message in messages)
             {
-                var runLogPO             = JsonConvert.DeserializeObject<RunLogPO>(message);
-                if (UseEs) await LogContext.Data.RunLog.InsertAsync(runLogPO);
+                var runLogPO = JsonConvert.DeserializeObject<RunLogPO>(message);
+                if (UseEs)
+                {
+                    if (!await LogContext.Data.RunLog.InsertAsync(runLogPO)) return false;
+                }
                 else await RunLogAgent.AddAsync(runLogPO);
             }
 
