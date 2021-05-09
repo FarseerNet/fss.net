@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FSS.Abstract.Enum;
@@ -14,6 +15,16 @@ namespace FSS.Com.MetaInfoServer.Tasks.Dal
         /// 获取所有任务列表
         /// </summary>
         public Task<List<TaskPO>> ToListAsync() => MetaInfoContext.Data.Task.ToListAsync();
+
+        /// <summary>
+        /// 获取指定任务组执行成功的任务列表
+        /// </summary>
+        public Task<List<TaskPO>> ToSuccessListAsync(int groupId, int top) => MetaInfoContext.Data.Task.Where(o => o.TaskGroupId == groupId && o.Status == EumTaskType.Success).ToListAsync(top);
+
+        /// <summary>
+        /// 清除成功的任务记录（1天前）
+        /// </summary>
+        public Task ClearSuccessAsync(int groupId, int taskId) => MetaInfoContext.Data.Task.Where(o => o.TaskGroupId == groupId && o.Status == EumTaskType.Success && o.CreateAt < DateTime.Now.AddDays(-1) && o.Id < taskId).DeleteAsync();
 
         /// <summary>
         /// 获取任务信息

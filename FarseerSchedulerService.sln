@@ -48,6 +48,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Farseer.Net.Mapper", "..\Fa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Farseer.Net.Utils", "..\Farseer.Net\Framework\Farseer.Net.Utils\Farseer.Net.Utils.csproj", "{D0140B2B-5879-44DB-BE7F-D73F83AA80DD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Farseer.Net.ElasticSearch", "..\Farseer.Net\Framework\Farseer.Net.ElasticSearch\Farseer.Net.ElasticSearch.csproj", "{D0CF1015-A167-4FA9-9FD0-E42D07C24E82}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,7 @@ Global
 		{D0162383-279C-4B21-9F82-34A1369E1488} = {1684AFF4-C227-4EAD-A272-CE78CFB8AB8A}
 		{6D702613-D4E8-4ED7-8C2E-2C12EA834CA1} = {1684AFF4-C227-4EAD-A272-CE78CFB8AB8A}
 		{D0140B2B-5879-44DB-BE7F-D73F83AA80DD} = {1684AFF4-C227-4EAD-A272-CE78CFB8AB8A}
+		{D0CF1015-A167-4FA9-9FD0-E42D07C24E82} = {1684AFF4-C227-4EAD-A272-CE78CFB8AB8A}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{4831230E-2AA0-426D-A7A6-13BC59345ACC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -131,5 +134,9 @@ Global
 		{D0140B2B-5879-44DB-BE7F-D73F83AA80DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D0140B2B-5879-44DB-BE7F-D73F83AA80DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D0140B2B-5879-44DB-BE7F-D73F83AA80DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0CF1015-A167-4FA9-9FD0-E42D07C24E82}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0CF1015-A167-4FA9-9FD0-E42D07C24E82}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0CF1015-A167-4FA9-9FD0-E42D07C24E82}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0CF1015-A167-4FA9-9FD0-E42D07C24E82}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

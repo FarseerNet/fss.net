@@ -42,10 +42,11 @@ namespace FSS.GrpcService
             services.AddSingleton<IIocManager>(FS.DI.IocManager.Instance.Resolve<IIocManager>());
             
             // 开启任务组调度
-            services.AddHostedService<PrintEndPortService>(); 
-            services.AddHostedService<PrintThreadCountService>();
+            services.AddHostedService<PrintSysInfoService>(); 
+            //services.AddHostedService<PrintThreadCountService>();
             services.AddHostedService<SyncTaskGroupAvgSpeedService>(); 
             services.AddHostedService<SyncServiceInfoService>();
+            services.AddHostedService<AutoClearHisTaskRecordService>();
             //services.AddHostedService<RunThreadSchedulerService>(); 
         }
 
