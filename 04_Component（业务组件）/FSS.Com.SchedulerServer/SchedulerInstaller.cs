@@ -30,7 +30,7 @@ namespace FSS.Com.SchedulerServer
         {
             IocManager.Instance.RegisterAssemblyByConvention(Assembly.GetExecutingAssembly());
             container.Register(Component.For<IWhenTaskStatus>().Named("None").ImplementedBy<WhenTaskStatusNone>().Configuration().LifestyleSingleton());
-            container.Register(Component.For<IWhenTaskStatus>().Named("Scheduler").ImplementedBy<WhenTaskStatusScheduler>().Configuration().LifestyleSingleton());
+            //container.Register(Component.For<IWhenTaskStatus>().Named("Scheduler").ImplementedBy<WhenTaskStatusScheduler>().Configuration().LifestyleSingleton());
             container.Register(Component.For<IWhenTaskStatus>().Named("Working").ImplementedBy<WhenTaskStatusWorking>().Configuration().LifestyleSingleton());
             container.Register(Component.For<IWhenTaskStatus>().Named("Finish").ImplementedBy<WhenTaskStatusFinish>().Configuration().LifestyleSingleton());
         }
