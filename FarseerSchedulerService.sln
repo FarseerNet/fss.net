@@ -50,6 +50,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Farseer.Net.Utils", "..\Far
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Farseer.Net.ElasticSearch", "..\Farseer.Net\Framework\Farseer.Net.ElasticSearch\Farseer.Net.ElasticSearch.csproj", "{D0CF1015-A167-4FA9-9FD0-E42D07C24E82}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Farseer.Net.MQ", "..\Farseer.Net\Framework\Farseer.Net.MQ\Farseer.Net.MQ.csproj", "{FD7D92FA-8802-4DA1-AD2F-C12B32876929}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Farseer.Net.MQ.RedisStream", "..\Farseer.Net\Framework\Farseer.Net.MQ.RedisStream\Farseer.Net.MQ.RedisStream.csproj", "{8F03AF0E-A50F-4904-BA89-14C5BCF42FA1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -72,6 +76,8 @@ Global
 		{6D702613-D4E8-4ED7-8C2E-2C12EA834CA1} = {1684AFF4-C227-4EAD-A272-CE78CFB8AB8A}
 		{D0140B2B-5879-44DB-BE7F-D73F83AA80DD} = {1684AFF4-C227-4EAD-A272-CE78CFB8AB8A}
 		{D0CF1015-A167-4FA9-9FD0-E42D07C24E82} = {1684AFF4-C227-4EAD-A272-CE78CFB8AB8A}
+		{FD7D92FA-8802-4DA1-AD2F-C12B32876929} = {1684AFF4-C227-4EAD-A272-CE78CFB8AB8A}
+		{8F03AF0E-A50F-4904-BA89-14C5BCF42FA1} = {1684AFF4-C227-4EAD-A272-CE78CFB8AB8A}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{4831230E-2AA0-426D-A7A6-13BC59345ACC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -138,5 +144,13 @@ Global
 		{D0CF1015-A167-4FA9-9FD0-E42D07C24E82}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D0CF1015-A167-4FA9-9FD0-E42D07C24E82}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D0CF1015-A167-4FA9-9FD0-E42D07C24E82}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD7D92FA-8802-4DA1-AD2F-C12B32876929}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD7D92FA-8802-4DA1-AD2F-C12B32876929}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD7D92FA-8802-4DA1-AD2F-C12B32876929}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD7D92FA-8802-4DA1-AD2F-C12B32876929}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F03AF0E-A50F-4904-BA89-14C5BCF42FA1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F03AF0E-A50F-4904-BA89-14C5BCF42FA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F03AF0E-A50F-4904-BA89-14C5BCF42FA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F03AF0E-A50F-4904-BA89-14C5BCF42FA1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -1,10 +1,9 @@
 using System;
 using System.Threading.Tasks;
 using FS.DI;
+using FS.MQ.RedisStream;
 using FSS.Abstract.Server.MetaInfo;
-using FSS.Com.MetaInfoServer.Abstract;
 using FSS.Com.MetaInfoServer.RunLog.Dal;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace FSS.Com.MetaInfoServer.RunLog
@@ -14,8 +13,7 @@ namespace FSS.Com.MetaInfoServer.RunLog
     /// </summary>
     public class RunLogAdd : IRunLogAdd
     {
-        public IRunLogAgent RunLogAgent { get; set; }
-        public IIocManager  IocManager  { get; set; }
+        public IIocManager IocManager { get; set; }
 
         /// <summary>
         /// 添加日志记录
@@ -31,9 +29,8 @@ namespace FSS.Com.MetaInfoServer.RunLog
                 Content     = content,
                 CreateAt    = DateTime.Now
             };
-            var configurationSection = IocManager.Resolve<IConfigurationRoot>().GetSection("ElasticSearch:0:Server").Value;
-            if (!string.IsNullOrWhiteSpace(configurationSection)) await LogContext.Data.RunLog.InsertAsync(runLogPO);
-            else await RunLogAgent.AddAsync(runLogPO);
+
+            await IocManager.Resolve<IRedisStreamProduct>("RonLogQueue").SendAsync(runLogPO);
         }
     }
 }
