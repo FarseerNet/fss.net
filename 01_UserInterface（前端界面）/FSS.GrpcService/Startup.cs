@@ -1,13 +1,11 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using FS.Cache.Redis;
 using FS.Core;
 using FS.Data;
 using FS.DI;
+using FS.ElasticSearch;
 using FS.Mapper;
 using FS.Modules;
-using FSS.Abstract.Server.MetaInfo;
-using FSS.Abstract.Server.Scheduler;
 using FSS.Com.MetaInfoServer;
 using FSS.Com.RegisterCenterServer;
 using FSS.Com.RemoteCallServer;
@@ -19,7 +17,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace FSS.GrpcService
 {
@@ -28,6 +25,7 @@ namespace FSS.GrpcService
         typeof(MapperModule),
         typeof(RedisModule),
         typeof(DataModule),
+        typeof(ElasticSearchModule),
         typeof(MetaInfoModule),
         typeof(SchedulerModule),
         typeof(RegisterCenterModule),
