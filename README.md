@@ -317,6 +317,7 @@ public class HelloWorldJob : IFssJob
 | 16  | 实现三种定时功能：时间间隔、Cron表达式、客户端返回 | 完成 |
 | 17  | 支持日志写入ES、数据库二选一（根据是否有ES配置判断） | 完成 |
 | 18  | 增加定时清理1天前成功的任务记录（可设置至少保留多少条） | 完成 |
+| 19  | 日志改用Redis作消费写入 |  完成 |
 
 ## .NET客户端(Farseer.Net.Job)开发进度
 
@@ -334,4 +335,3 @@ public class HelloWorldJob : IFssJob
 |  序号   | 功能  |
 |  ----  | ----  |
 | 1  | 踢除客户端 |
-| 2  | 日志改用Redis作消费写入 |
