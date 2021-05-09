@@ -16,12 +16,16 @@ namespace FSS.Com.MetaInfoServer
         /// <summary>
         /// ES索引日期格式化
         /// </summary>
-        private readonly string _elasticIndexFormat;
+        private static readonly string _elasticIndexFormat;
 
-        public LogContext() : base("es")
+        static LogContext()
         {
             _elasticIndexFormat = IocManager.Instance.Resolve<IConfigurationRoot>().GetSection("FSS:ElasticIndexFormat").Value;
             if (string.IsNullOrWhiteSpace(_elasticIndexFormat)) _elasticIndexFormat = "yyyy_MM";
+        }
+
+        public LogContext() : base("es")
+        {
         }
 
         protected override void CreateModelInit(Dictionary<string, SetDataMap> map)
