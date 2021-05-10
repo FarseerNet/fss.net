@@ -19,6 +19,16 @@ namespace FSS.Abstract.Entity.MetaInfo
         public int TaskGroupId { get; set; }
         
         /// <summary>
+        /// 任务组标题
+        /// </summary>
+        public string Caption { get; set; }
+        
+        /// <summary>
+        /// 实现Job的特性名称（客户端识别哪个实现类）
+        /// </summary>
+        public string JobName { get; set; }
+        
+        /// <summary>
         /// 开始时间
         /// </summary>
         public DateTime StartAt { get; set; }

@@ -22,6 +22,18 @@ namespace FSS.Com.MetaInfoServer.Tasks.Dal
         /// 任务组ID
         /// </summary>
         [Field(Name = "task_group_id")] public int TaskGroupId { get; set; }
+        
+        /// <summary>
+        /// 任务组标题
+        /// </summary>
+        [Field(Name = "caption")]
+        public string Caption { get; set; }
+        
+        /// <summary>
+        /// 实现Job的特性名称（客户端识别哪个实现类）
+        /// </summary>
+        [Field(Name = "job_name")]
+        public string JobName { get; set; }
 
         /// <summary>
         /// 开始时间

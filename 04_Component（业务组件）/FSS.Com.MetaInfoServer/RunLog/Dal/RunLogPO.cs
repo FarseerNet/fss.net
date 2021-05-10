@@ -31,6 +31,18 @@ namespace FSS.Com.MetaInfoServer.RunLog.Dal
         public int TaskId { get; set; }
         
         /// <summary>
+        /// 任务组标题
+        /// </summary>
+        [Field(Name = "caption"),Keyword]
+        public string Caption { get; set; }
+        
+        /// <summary>
+        /// 实现Job的特性名称（客户端识别哪个实现类）
+        /// </summary>
+        [Field(Name = "job_name"),Keyword]
+        public string JobName { get; set; }
+        
+        /// <summary>
         /// 日志级别
         /// </summary>
         [Field(Name = "log_level"),Number(NumberType.Byte)]

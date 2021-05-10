@@ -63,7 +63,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                         var lstTask      = await TaskInfo.ToGroupListAsync();
 
                         // 注册进来的客户端，必须是能处理的，否则退出线程
-                        var lstStatusNone = lstTask.FindAll(o => ClientRegister.Count(dicTaskGroup[o.TaskGroupId].JobTypeName) > 0);
+                        var lstStatusNone = lstTask.FindAll(o => ClientRegister.Count(dicTaskGroup[o.TaskGroupId].JobName) > 0);
                         if (lstStatusNone == null || lstStatusNone.Count == 0) return;
 
                         // 取出状态为None的，且马上到时间要处理的
@@ -97,7 +97,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                             try
                             {
                                 // 取出空闲客户端、开始调度执行
-                                var clientVO = ClientSlb.Slb(taskGroup.JobTypeName);
+                                var clientVO = ClientSlb.Slb(taskGroup.JobName);
 
                                 // 当前没有客户端注册进来
                                 if (clientVO == null)

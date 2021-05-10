@@ -49,6 +49,8 @@ namespace FSS.Com.MetaInfoServer.Tasks
                 {
                     TaskGroupId = taskGroup.Id,
                     StartAt     = taskGroup.NextAt,
+                    Caption     = taskGroup.Caption,
+                    JobName     = taskGroup.JobName,
                     RunSpeed    = 0,
                     ClientHost  = "",
                     ClientIp    = "",

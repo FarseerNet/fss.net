@@ -32,8 +32,8 @@ namespace FSS.Com.MetaInfoServer.TaskGroup.Dal
         /// <summary>
         /// 实现Job的特性名称（客户端识别哪个实现类）
         /// </summary>
-        [Field(Name = "job_type_name")]
-        public string JobTypeName { get; set; }
+        [Field(Name = "job_name")]
+        public string JobName { get; set; }
         
         /// <summary>
         /// 传给客户端的参数，按逗号分隔

@@ -25,7 +25,7 @@ namespace FSS.Abstract.Entity.MetaInfo
         /// <summary>
         /// 实现Job的特性名称（客户端识别哪个实现类）
         /// </summary>
-        public string JobTypeName { get; set; }
+        public string JobName { get; set; }
         
         /// <summary>
         /// 传给客户端的参数，按逗号分隔

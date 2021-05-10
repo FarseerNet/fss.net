@@ -50,7 +50,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 var tGroupId = (int) taskGroupIdState;
                 // 取出任务组
                 var taskGroup    = await TaskGroupInfo.ToInfoAsync(tGroupId);
-                var jobName      = taskGroup.JobTypeName; // 先取JobName，后面判断的时候，可以优化检查客户端是否存在
+                var jobName      = taskGroup.JobName; // 先取JobName，后面判断的时候，可以优化检查客户端是否存在
                 var nextSeconds  = (taskGroup.NextAt - DateTime.Now).TotalSeconds.ConvertType(0);
                 var nextTimeDesc = nextSeconds > 0 ? nextSeconds.ToString() + " 秒" : $"立即";
                 logger.LogInformation($"开始运行调度线程：任务组：GroupId={taskGroup.Id} Caption={taskGroup.Caption} 下次执行时间：{nextTimeDesc}");
@@ -69,7 +69,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
 
                         // 取最新的任务组信息
                         taskGroup = await TaskGroupInfo.ToInfoAsync(tGroupId);
-                        jobName   = taskGroup.JobTypeName;
+                        jobName   = taskGroup.JobName;
                         
                         // 任务组没有开启时，休眠
                         if (taskGroup.IsEnable is false)
@@ -204,7 +204,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
             try
             {
                 // 取出空闲客户端、开始调度执行
-                var clientVO = ClientSlb.Slb(taskGroup.JobTypeName);
+                var clientVO = ClientSlb.Slb(taskGroup.JobName);
 
                 // 当前没有客户端注册进来
                 if (clientVO == null)

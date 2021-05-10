@@ -54,7 +54,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                         var lstTask      = await TaskInfo.ToGroupListAsync();
 
                         // 注册进来的客户端，必须是能处理的，否则退出线程
-                        var lstStatusFinish = lstTask.FindAll(o => ClientRegister.Count(dicTaskGroup[o.TaskGroupId].JobTypeName) > 0);
+                        var lstStatusFinish = lstTask.FindAll(o => ClientRegister.Count(dicTaskGroup[o.TaskGroupId].JobName) > 0);
                         if (lstStatusFinish == null || lstStatusFinish.Count == 0) return;
 
                         // 取出状态为None的，且马上到时间要处理的

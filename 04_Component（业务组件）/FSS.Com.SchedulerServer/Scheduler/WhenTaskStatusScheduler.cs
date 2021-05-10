@@ -57,7 +57,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                         var lstTask      = await TaskInfo.ToGroupListAsync();
 
                         // 注册进来的客户端，必须是能处理的，否则退出线程
-                        var lstStatusScheduler = lstTask.FindAll(o => ClientRegister.Count(dicTaskGroup[o.TaskGroupId].JobTypeName) > 0);
+                        var lstStatusScheduler = lstTask.FindAll(o => ClientRegister.Count(dicTaskGroup[o.TaskGroupId].JobName) > 0);
                         if (lstStatusScheduler == null || lstStatusScheduler.Count == 0) return;
 
                         // 取出状态为Scheduler的，且调度时间超过2S的
