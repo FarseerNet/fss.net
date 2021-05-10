@@ -1,13 +1,10 @@
-using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using FS.DI;
-using FS.ElasticSearch.Configuration;
 using FS.Extends;
 using FS.Utils.Common;
 using FSS.Abstract.Server.MetaInfo;
-using FSS.Abstract.Server.Scheduler;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -19,16 +16,18 @@ namespace FSS.GrpcService.Background
     /// </summary>
     public class PrintSysInfoService : BackgroundService
     {
-        private readonly IIocManager _ioc;
-        readonly         ILogger     _logger;
+        private readonly IIocManager    _ioc;
+        readonly         ILogger        _logger;
+        readonly         ITaskGroupList _taskGroupList;
 
         public PrintSysInfoService(IIocManager ioc)
         {
-            _ioc    = ioc;
-            _logger = _ioc.Logger<Startup>();
+            _ioc           = ioc;
+            _logger        = _ioc.Logger<Startup>();
+            _taskGroupList = _ioc.Resolve<ITaskGroupList>();
         }
 
-        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             var ip = IpHelper.GetIps()[0].Address.MapToIPv4().ToString();
             _logger.LogInformation($"服务({ip})启动完成，监听 http://{IPAddress.Any}:80 ");
@@ -40,7 +39,10 @@ namespace FSS.GrpcService.Background
             var use                  = !string.IsNullOrWhiteSpace(configurationSection) ? $"Elasticsearch，{configurationSection}" : "数据库";
             _logger.LogInformation($"使用 [ {use} ] 作为日志保存记录");
 
-            return Task.FromResult(0);
+            _logger.LogInformation($"正在读取所有任务组信息");
+            var taskGroupVos = await _taskGroupList.ToListAndSaveAsync();
+            _logger.LogInformation($"共获取到：{taskGroupVos.Count} 条任务组信息");
+            
         }
     }
 }
