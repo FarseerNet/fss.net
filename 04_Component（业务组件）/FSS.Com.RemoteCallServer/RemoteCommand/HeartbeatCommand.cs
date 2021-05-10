@@ -42,15 +42,6 @@ namespace FSS.Com.RemoteCallServer.RemoteCommand
 
             // 心跳
             var serverHost = $"{context.Host}_{context.Peer}";
-            //var clientConnectVO = new ClientConnectVO
-            //{
-            //    ServerHost     = serverHost,
-            //    ClientIp       = context.RequestHeaders.GetValue("client_ip"),
-            //    RequestStream  = requestStream,
-            //    ResponseStream = responseStream,
-            //    RegisterAt     = _requestStream.Current.RequestAt.ToTimestamps(),
-            //    HeartbeatAt    = DateTime.Now
-            //};
             ClientRegister.UpdateHeartbeatAt(serverHost, DateTime.Now);
             
             IocManager.Logger<HeartbeatCommand>().LogDebug($"收到客户端===> {serverHost}的心跳");

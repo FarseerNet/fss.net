@@ -57,7 +57,12 @@ namespace FSS.Com.SchedulerServer.Scheduler
 
                         // 注册进来的客户端，必须是能处理的，否则退出线程
                         var lstStatusWorking = lstTask.FindAll(o => ClientRegister.Count(dicTaskGroup[o.TaskGroupId].JobName) > 0);
-                        if (lstStatusWorking == null || lstStatusWorking.Count == 0) return;
+                        if (lstStatusWorking == null || lstStatusWorking.Count == 0)
+                        {
+                            Logger.LogWarning($"检查到当前客户端数量={ClientRegister.Count()},没有一个客户端能处理已有的任务，退出调度线程，等待下一次连接后唤醒...");
+                            IsRun = false;
+                            return;
+                        }
 
                         // 取出马上到时间要处理的
                         lstStatusWorking = lstStatusWorking.FindAll(o =>
@@ -103,6 +108,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                     await Task.Delay(100);
                 }
 
+                Logger.LogWarning($"检查当当前的客户端数量={ClientRegister.Count()}，退出调度线程，等待下一次连接后唤醒...");
                 IsRun = false;
             });
             return Task.FromResult(0);

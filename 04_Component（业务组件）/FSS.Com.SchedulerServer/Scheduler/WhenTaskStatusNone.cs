@@ -49,7 +49,6 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 IsRun = true;
             }
 
-            //IocManager.Resolve<IWhenTaskStatus>("Scheduler").Run();
             IocManager.Resolve<IWhenTaskStatus>("Working").Run();
             IocManager.Resolve<IWhenTaskStatus>("Finish").Run();
             ThreadPool.QueueUserWorkItem(async _ =>
@@ -64,7 +63,12 @@ namespace FSS.Com.SchedulerServer.Scheduler
 
                         // 注册进来的客户端，必须是能处理的，否则退出线程
                         var lstStatusNone = lstTask.FindAll(o => ClientRegister.Count(dicTaskGroup[o.TaskGroupId].JobName) > 0);
-                        if (lstStatusNone == null || lstStatusNone.Count == 0) return;
+                        if (lstStatusNone == null || lstStatusNone.Count == 0)
+                        {
+                            Logger.LogWarning($"检查到当前客户端数量={ClientRegister.Count()},没有一个客户端能处理已有的任务，退出调度线程，等待下一次连接后唤醒...");
+                            IsRun = false;
+                            return;
+                        }
 
                         // 取出状态为None的，且马上到时间要处理的
                         lstStatusNone = lstStatusNone.FindAll(o =>
@@ -102,14 +106,14 @@ namespace FSS.Com.SchedulerServer.Scheduler
                                 // 当前没有客户端注册进来
                                 if (clientVO == null)
                                 {
-                                    IocManager.Logger<WhenTaskStatusNone>().LogWarning($"任务：GroupId={taskGroup.Id} {taskGroup.Caption}-TaskId={task.Id} 需要在（{task.StartAt:yyyy-MM-dd HH:mm:ss}）执行，但没有找到可以调度的客户端");
+                                    Logger.LogWarning($"任务：GroupId={taskGroup.Id} {taskGroup.Caption}-TaskId={task.Id} 需要在（{task.StartAt:yyyy-MM-dd HH:mm:ss}）执行，但没有找到可以调度的客户端");
                                     continue;
                                 }
 
                                 // 同一个任务，多个服务端，只能由一个节点执行调度
                                 if (SchedulerLock.TryLock(task.Id, clientVO.ServerHost))
                                 {
-                                    IocManager.Logger<WhenTaskStatusNone>().LogInformation($"任务：GroupId={taskGroup.Id} TaskId={task.Id} {taskGroup.Caption} 调度给====>{clientVO.ClientIp}");
+                                    Logger.LogInformation($"任务：GroupId={taskGroup.Id} TaskId={task.Id} {taskGroup.Caption} 调度给====>{clientVO.ClientIp}");
 
                                     // 通知客户端处理JOB
                                     task.Status      = EumTaskType.Scheduler;
@@ -155,6 +159,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                     await Task.Delay(100);
                 }
 
+                Logger.LogWarning($"检查当当前的客户端数量={ClientRegister.Count()}，退出调度线程，等待下一次连接后唤醒...");
                 IsRun = false;
             });
             return Task.FromResult(0);
