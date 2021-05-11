@@ -42,7 +42,11 @@ namespace FSS.GrpcService.Background
             _logger.LogInformation($"正在读取所有任务组信息");
             var taskGroupVos = await _taskGroupList.ToListAndSaveAsync();
             _logger.LogInformation($"共获取到：{taskGroupVos.Count} 条任务组信息");
-            
+
+            foreach (var taskGroupVo in taskGroupVos)
+            {
+                _logger.LogInformation($"【{taskGroupVo.IsEnable}】{taskGroupVo.Id}：{taskGroupVo.Caption}、{taskGroupVo.JobName}、{taskGroupVo.NextAt:yyyy-MM-dd:HH:mm:ss}");
+            }
         }
     }
 }
