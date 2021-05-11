@@ -52,5 +52,10 @@ namespace FSS.Abstract.Server.RegisterCenter
         /// 获取客户端数量
         /// </summary>
         int Count();
+
+        /// <summary>
+        /// 客户端是否存在
+        /// </summary>
+        bool IsExists(string serverHost);
     }
 }

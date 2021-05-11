@@ -16,11 +16,13 @@ namespace FSS.GrpcService.Services
 {
     public class FssService : FssServer.FssServerBase
     {
-        private readonly IIocManager _ioc;
+        private readonly IIocManager     _ioc;
+        private readonly IClientRegister _clientRegister;
 
         public FssService(IIocManager ioc)
         {
-            _ioc = ioc;
+            _ioc            = ioc;
+            _clientRegister = _ioc.Resolve<IClientRegister>();
         }
 
         /// <summary>
@@ -32,6 +34,9 @@ namespace FSS.GrpcService.Services
             var clientIp   = context.RequestHeaders.GetValue("client_ip");
             try
             {
+                // 判断客户端是否已经被踢了
+                if (!_clientRegister.IsExists(serverHost)) return;
+                
                 await foreach (var registerRequest in requestStream.ReadAllAsync())
                 {
                     var iocName = $"fss_server_{registerRequest.Command}";
@@ -65,6 +70,8 @@ namespace FSS.GrpcService.Services
             var runLogAdd = _ioc.Resolve<IRunLogAdd>();
             var task      = await _ioc.Resolve<ITaskInfo>().ToGroupAsync(taskGroupId);
 
+            if (!_clientRegister.IsExists(serverHost)) return null;
+            
             if (task.Id > taskId)
             {
                 await runLogAdd.AddAsync(task.TaskGroupId, taskId, LogLevel.Warning, $"与服务端正在处理的Task：{task.Id} 不一致");

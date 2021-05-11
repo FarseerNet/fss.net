@@ -1,5 +1,8 @@
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 using FSS.Abstract.Entity.MetaInfo;
+using FSS.Abstract.Entity.RegisterCenter;
 using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
 using FSS.Abstract.Server.RegisterCenter;
@@ -14,7 +17,9 @@ namespace FSS.Com.SchedulerServer.Scheduler
         public ITaskUpdate     TaskUpdate     { get; set; }
         public IRunLogAdd      RunLogAdd      { get; set; }
         public INodeRegister   NodeRegister   { get; set; }
-        
+        public ITaskGroupInfo  TaskGroupInfo  { get; set; }
+        public ITaskInfo       TaskInfo       { get; set; }
+
         /// <summary>
         /// 检查客户端是否离线
         /// </summary>
@@ -32,6 +37,14 @@ namespace FSS.Com.SchedulerServer.Scheduler
                     await TaskUpdate.SaveAsync(task);
                     return true;
                 }
+
+                // 测试客户端是否假死
+                if (await CheckScheduler(task, client))
+                {
+                    await RunLogAdd.AddAsync(task.TaskGroupId, task.Id, LogLevel.Warning, $"检测到客户端的最后使用时间为：{client.UseAt:yyyy-MM-dd HH:mm:ss}，进入假死状态，强制下线客户端");
+                    await ClientRegister.RemoveAsync(client.ServerHost);
+                    return true;
+                }
             }
             else // 如果不是，则判断服务器节点是否掉线
             {
@@ -45,6 +58,29 @@ namespace FSS.Com.SchedulerServer.Scheduler
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// 检查客户端是否假死（客户端2倍于平时耗时时间未使用，且该客户端关联的所有任务，全部处于调度、工作状态）
+        /// </summary>
+        private async Task<bool> CheckScheduler(TaskVO task, ClientConnectVO client)
+        {
+            var taskGroupVO = await TaskGroupInfo.ToInfoAsync(task.TaskGroupId);
+            var timeout     = taskGroupVO.RunSpeedAvg * 2.5;
+            // 如果时间小于5分钟的，则按5分钟来判定
+            var minTimeout                    = TimeSpan.FromMinutes(5).TotalMilliseconds;
+            if (timeout < minTimeout) timeout = minTimeout;
+
+            // 距离上一次的调度，在超时范围内的，不作假死判断
+            if ((DateTime.Now - client.UseAt).TotalMilliseconds < timeout) return false;
+
+            // 找出当前客户端对应的所有任务、并且执行时间 已经到了
+            var lstTask = await TaskInfo.ToGroupListAsync();
+            lstTask = lstTask.FindAll(o => o.ClientHost == client.ServerHost && o.StartAt < DateTime.Now); //client.Jobs.Contains(o.JobName)
+            if (lstTask == null || lstTask.Count == 0) return false;
+
+            // 全部处于调度、工作状态，说明客户端已经假死了
+            return lstTask.All(o => o.Status is EumTaskType.Scheduler or EumTaskType.Working);
         }
     }
 }

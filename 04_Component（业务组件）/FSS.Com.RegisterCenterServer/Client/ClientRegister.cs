@@ -58,12 +58,6 @@ namespace FSS.Com.RegisterCenterServer.Client
         /// </summary>
         public List<ClientConnectVO> ToList()
         {
-            //var lstTimeoutClient = Clients.Where(o => (DateTime.Now - o.Value.HeartbeatAt).TotalMilliseconds > 10000);
-            //foreach (var client in lstTimeoutClient)
-            //{
-            //    Clients.Remove(client.Key);
-            //}
-
             return Clients.Select(o => o.Value).ToList();
         }
 
@@ -84,11 +78,6 @@ namespace FSS.Com.RegisterCenterServer.Client
         {
             if (Clients.TryGetValue(serverHost, out var client))
             {
-                //if ((DateTime.Now - client.HeartbeatAt).TotalMilliseconds > 10000)
-                //{
-                //    Clients.Remove(serverHost);
-                //    return null;
-                //}
             }
 
             return client;
@@ -107,17 +96,17 @@ namespace FSS.Com.RegisterCenterServer.Client
         /// <summary>
         /// 客户端是否存在
         /// </summary>
-        public bool IsExists(string serverHost)
-        {
-            return Clients.ContainsKey(serverHost);
-        }
+        public bool IsExists(string serverHost) => Clients.ContainsKey(serverHost);
 
         /// <summary>
         /// 移除客户端
         /// </summary>
         public async Task RemoveAsync(string serverHost)
         {
+            if (!IsExists(serverHost)) return;
+            
             Clients.TryRemove(serverHost,out _);
+            SyncCache();
             // 读取当前所有任务组的任务
             var groupListAsync = await TaskInfo.ToGroupListAsync();
             var findAll        = groupListAsync.FindAll(o => o.ClientHost == serverHost && o.Status is EumTaskType.Scheduler or EumTaskType.Working);
