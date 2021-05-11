@@ -38,7 +38,6 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 return Task.FromResult(0);
             }
 
-            if (IsRun) return Task.FromResult(0);
             lock (ObjLock)
             {
                 if (IsRun) return Task.FromResult(0);
