@@ -57,5 +57,15 @@ namespace FSS.Abstract.Server.RegisterCenter
         /// 客户端是否存在
         /// </summary>
         bool IsExists(string serverHost);
+
+        /// <summary>
+        /// 取出全局客户端列表
+        /// </summary>
+        List<ClientConnectVO> ToListByRedis();
+
+        /// <summary>
+        /// 客户端是否存在
+        /// </summary>
+        Task<bool> IsExistsByRedis(string serverHost);
     }
 }

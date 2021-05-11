@@ -39,22 +39,32 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 }
 
                 // 测试客户端是否假死
-                if (await CheckScheduler(task, client))
+                if (await CheckFeignDeath(task, client))
                 {
                     await RunLogAdd.AddAsync(task.TaskGroupId, task.Id, LogLevel.Warning, $"检测到客户端的最后使用时间为：{client.UseAt:yyyy-MM-dd HH:mm:ss}，进入假死状态，强制下线客户端");
                     await ClientRegister.RemoveAsync(client.ServerHost);
                     return true;
                 }
+
+                return false;
             }
-            else // 如果不是，则判断服务器节点是否掉线
+
+            // 判断服务器节点是否掉线
+            if (!NodeRegister.IsNodeExists(task.ServerNode)) // 服务端掉线
             {
-                if (!NodeRegister.IsNodeExists(task.ServerNode)) // 服务端掉线
-                {
-                    await RunLogAdd.AddAsync(task.TaskGroupId, task.Id, LogLevel.Warning, $"任务ID：{task.Id}，服务端节点下线，强制设为失败状态");
-                    task.Status = EumTaskType.Fail;
-                    await TaskUpdate.SaveAsync(task);
-                    return true;
-                }
+                await RunLogAdd.AddAsync(task.TaskGroupId, task.Id, LogLevel.Warning, $"任务ID：{task.Id}，服务端节点下线，强制设为失败状态");
+                task.Status = EumTaskType.Fail;
+                await TaskUpdate.SaveAsync(task);
+                return true;
+            }
+
+            // 客户端是否掉线（客户端的注册不在当前节点）
+            if ((DateTime.Now - task.StartAt).TotalMinutes >= 1 && ! await ClientRegister.IsExistsByRedis(task.ClientHost)) // 大于1分钟，才检查
+            {
+                await RunLogAdd.AddAsync(task.TaskGroupId, task.Id, LogLevel.Warning, $"任务ID：{task.Id}，客户端假死状态，强制设为失败状态");
+                task.Status = EumTaskType.Fail;
+                await TaskUpdate.SaveAsync(task);
+                return true;
             }
 
             return false;
@@ -63,7 +73,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
         /// <summary>
         /// 检查客户端是否假死（客户端2倍于平时耗时时间未使用，且该客户端关联的所有任务，全部处于调度、工作状态）
         /// </summary>
-        private async Task<bool> CheckScheduler(TaskVO task, ClientConnectVO client)
+        private async Task<bool> CheckFeignDeath(TaskVO task, ClientConnectVO client)
         {
             var taskGroupVO = await TaskGroupInfo.ToInfoAsync(task.TaskGroupId);
             var timeout     = taskGroupVO.RunSpeedAvg * 2.5;
