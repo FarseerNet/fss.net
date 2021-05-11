@@ -34,11 +34,12 @@ namespace FSS.GrpcService.Services
             var clientIp   = context.RequestHeaders.GetValue("client_ip");
             try
             {
-                // 判断客户端是否已经被踢了
-                if (!_clientRegister.IsExists(serverHost)) return;
                 
                 await foreach (var registerRequest in requestStream.ReadAllAsync())
                 {
+                    // 判断客户端是否已经被踢了
+                    if (registerRequest.Command !="Register" &&!_clientRegister.IsExists(serverHost)) return;
+                    
                     var iocName = $"fss_server_{registerRequest.Command}";
                     if (!_ioc.IsRegistered(iocName))
                         await _ioc.Resolve<IClientResponse>().PrintAsync(responseStream, $"请求命令{registerRequest.Command}，不在服务端识别的范围中");
@@ -90,7 +91,6 @@ namespace FSS.GrpcService.Services
             var taskGroupUpdate = _ioc.Resolve<ITaskGroupUpdate>();
             var clientRegister  = _ioc.Resolve<IClientRegister>();
             var logger          = _ioc.Logger<ITaskGroupScheduler>();
-
 
             try
             {
