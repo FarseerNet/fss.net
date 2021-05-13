@@ -37,7 +37,6 @@ namespace FSS.GrpcService.Background
                 foreach (var taskGroupVO in lst)
                 {
                     var lstTask = await _taskList.ToSuccessListAsync(taskGroupVO.Id, reservedTaskCount);
-                    if (lstTask.Count != reservedTaskCount) continue;
                     var taskId = lstTask.Min(o => o.Id);
                     
                     // 清除历史记录
