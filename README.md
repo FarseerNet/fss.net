@@ -285,7 +285,10 @@ public class HelloWorldJob : IFssJob
     }
 }
 ```
+## UI控制台
+请参考：https://github.com/FarseerNet/FOPS
 
+基于ASP.NET Core Blazor 5语言编写
 ## 任务组
 
 任务组：是要执行任务的基本信息：任务名称、开始时间、执行次数、执行耗时、启用状态、下一次执行的任务ID。

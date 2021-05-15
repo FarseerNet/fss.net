@@ -2,6 +2,8 @@ using System;
 using System.Threading.Tasks;
 using FS.Cache.Redis;
 using FS.Extends;
+using FS.Utils.Common;
+using FS.Utils.Component;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
@@ -27,14 +29,25 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
         /// <summary>
         /// 保存TaskGroup
         /// </summary>
-        public async Task SaveAsync(TaskGroupVO taskGroup)
+        public async Task SaveAsync(TaskGroupVO vo)
         {
-            await UpdateAsync(taskGroup);
-            var taskGroupPO = taskGroup.Map<TaskGroupPO>();
-            taskGroupPO.Cron       = null;
-            taskGroupPO.IntervalMs = null;
-            taskGroupPO.IsEnable   = null;
-            await TaskGroupAgent.UpdateAsync(taskGroup.Id, taskGroupPO);
+            if (vo.IntervalMs < 1)
+            {
+                // 是否为数字
+                if (IsType.IsInt(vo.Cron))
+                {
+                    vo.IntervalMs = vo.Cron.ConvertType(0L);
+                    vo.Cron       = "";
+                }
+                else if (!new Cron().Parse(vo.Cron))
+                {
+                    throw new Exception("Cron格式错误");
+                }
+            }
+
+            await UpdateAsync(vo);
+            var taskGroupPO = vo.Map<TaskGroupPO>();
+            await TaskGroupAgent.UpdateAsync(vo.Id, taskGroupPO);
         }
 
         /// <summary>

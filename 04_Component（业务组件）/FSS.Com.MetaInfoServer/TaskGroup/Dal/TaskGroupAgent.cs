@@ -26,6 +26,11 @@ namespace FSS.Com.MetaInfoServer.TaskGroup.Dal
         public Task UpdateAsync(int id, TaskGroupPO taskGroup) => MetaInfoContext.Data.TaskGroup.Where(o => o.Id == id).UpdateAsync(taskGroup);
 
         /// <summary>
+        /// 添加任务组
+        /// </summary>
+        public Task AddAsync(TaskGroupPO po) => MetaInfoContext.Data.TaskGroup.InsertAsync(po, true);
+
+        /// <summary>
         /// 更新任务ID
         /// </summary>
         public Task UpdateTaskIdAsync(int taskGroupId, int taskId) => MetaInfoContext.Data.TaskGroup.Where(o => o.Id == taskGroupId).UpdateAsync(new TaskGroupPO {TaskId = taskId});
