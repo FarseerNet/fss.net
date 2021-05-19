@@ -41,6 +41,11 @@ namespace FSS.Com.MetaInfoServer.Tasks.Dal
         [Field(Name = "start_at")] public DateTime? StartAt { get; set; }
 
         /// <summary>
+        /// 实际执行时间
+        /// </summary>
+        [Field(Name = "run_at")] public DateTime? RunAt { get; set; }
+
+        /// <summary>
         /// 运行耗时
         /// </summary>
         [Field(Name = "run_speed")] public int? RunSpeed { get; set; }

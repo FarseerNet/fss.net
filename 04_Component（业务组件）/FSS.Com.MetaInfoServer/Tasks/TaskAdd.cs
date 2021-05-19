@@ -57,6 +57,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
                     Progress    = 0,
                     Status      = EumTaskType.None,
                     CreateAt    = DateTime.Now,
+                    RunAt       = DateTime.Now,
                     ServerNode  = ""
                 };
                 await TaskAgent.AddAsync(task);

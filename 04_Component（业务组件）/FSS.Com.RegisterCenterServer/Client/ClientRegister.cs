@@ -114,6 +114,11 @@ namespace FSS.Com.RegisterCenterServer.Client
         public int Count() => Clients.Count;
 
         /// <summary>
+        /// 取出全局客户端数量
+        /// </summary>
+        public Task<long> ToClientCountAsync() => RedisCacheManager.Db.HashLengthAsync(Key);
+
+        /// <summary>
         /// 取出客户端
         /// </summary>
         public ClientConnectVO ToInfo(string serverHost)

@@ -46,5 +46,10 @@ namespace FSS.Com.MetaInfoServer.Abstract
         /// 清除成功的任务记录（1天前）
         /// </summary>
         Task ClearSuccessAsync(int groupId, int taskId);
+
+        /// <summary>
+        /// 今日执行失败数量
+        /// </summary>
+        Task<int> TodayFailCountAsync();
     }
 }

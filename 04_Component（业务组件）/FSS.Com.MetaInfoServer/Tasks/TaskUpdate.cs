@@ -40,6 +40,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
                 case EumTaskType.Success:
                 case EumTaskType.ReScheduler:
 
+                    task.RunAt = DateTime.Now;
                     var taskGroup = await TaskGroupInfo.ToInfoAsync(task.TaskGroupId);
                     // 说明上一次任务，没有设置下一次的时间（动态设置）
                     // 本次的时间策略晚，则通过时间策略计算出来

@@ -67,5 +67,10 @@ namespace FSS.Abstract.Server.RegisterCenter
         /// 客户端是否存在
         /// </summary>
         Task<bool> IsExistsByRedis(string serverHost);
+
+        /// <summary>
+        /// 取出全局客户端数量
+        /// </summary>
+        Task<long> ToClientCountAsync();
     }
 }

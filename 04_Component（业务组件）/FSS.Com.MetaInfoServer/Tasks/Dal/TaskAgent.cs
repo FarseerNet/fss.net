@@ -50,5 +50,10 @@ namespace FSS.Com.MetaInfoServer.Tasks.Dal
         /// 取前100条的运行速度
         /// </summary>
         public Task<List<int>> ToSpeedListAsync(int groupId) => MetaInfoContext.Data.Task.Where(o => o.TaskGroupId == groupId && o.Status == EumTaskType.Success).Desc(o => o.Id).ToSelectListAsync(100, o => o.RunSpeed.GetValueOrDefault());
+        
+        /// <summary>
+        /// 今日执行失败数量
+        /// </summary>
+        public Task<int> TodayFailCountAsync() => MetaInfoContext.Data.Task.Where(o => o.CreateAt >= DateTime.Now.Date).CountAsync();
     }
 }

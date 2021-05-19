@@ -60,5 +60,10 @@ namespace FSS.Com.MetaInfoServer.Tasks
             if (speedList.Count == 0) return 0;
             return speedList.Sum() / speedList.Count;
         }
+        
+        /// <summary>
+        /// 今日执行失败数量
+        /// </summary>
+        public Task<int> TodayFailCountAsync() => TaskAgent.TodayFailCountAsync();
     }
 }

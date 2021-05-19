@@ -7,6 +7,7 @@ using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Server.MetaInfo;
 using FSS.Com.MetaInfoServer.Abstract;
 using FSS.Com.MetaInfoServer.TaskGroup.Dal;
+using StackExchange.Redis;
 
 namespace FSS.Com.MetaInfoServer.TaskGroup
 {
@@ -36,6 +37,14 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
             return RedisCacheManager.CacheManager.GetListAsync(TaskGroupCache.Key,
                 _ => TaskGroupAgent.ToListAsync().MapAsync<TaskGroupVO, TaskGroupPO>()
                 , o => o.Id);
+        }
+
+        /// <summary>
+        /// 获取任务组数量
+        /// </summary>
+        public Task<long> Count()
+        {
+            return RedisCacheManager.Db.HashLengthAsync(TaskGroupCache.Key);
         }
 
         /// <summary>
