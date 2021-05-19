@@ -79,7 +79,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                         // 没有任务需要调度
                         if (lstStatusNone == null || lstStatusNone.Count == 0)
                         {
-                            await Task.Delay(500);
+                            await Task.Delay(100);
                             continue;
                         }
 

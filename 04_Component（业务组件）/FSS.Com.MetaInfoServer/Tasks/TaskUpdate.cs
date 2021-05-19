@@ -16,6 +16,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
     {
         public IRedisCacheManager RedisCacheManager { get; set; }
         public ITaskAgent         TaskAgent         { get; set; }
+        public ITaskAdd           TaskAdd           { get; set; }
         public ITaskGroupUpdate   TaskGroupUpdate   { get; set; }
         public ITaskGroupInfo     TaskGroupInfo     { get; set; }
 
@@ -40,7 +41,6 @@ namespace FSS.Com.MetaInfoServer.Tasks
                 case EumTaskType.Success:
                 case EumTaskType.ReScheduler:
 
-                    task.RunAt = DateTime.Now;
                     var taskGroup = await TaskGroupInfo.ToInfoAsync(task.TaskGroupId);
                     // 说明上一次任务，没有设置下一次的时间（动态设置）
                     // 本次的时间策略晚，则通过时间策略计算出来
@@ -60,11 +60,18 @@ namespace FSS.Com.MetaInfoServer.Tasks
 
                         await TaskGroupUpdate.SaveAsync(taskGroup);
                     }
+
                     break;
             }
 
             await TaskAgent.UpdateAsync(task.Id, task.Map<TaskPO>());
             await UpdateAsync(task);
+
+            // 完成后，立即生成一个新的任务
+            if (task.Status is EumTaskType.Success or EumTaskType.Fail or EumTaskType.ReScheduler)
+            {
+                await TaskAdd.GetOrCreateAsync(task.TaskGroupId);
+            }
         }
     }
 }

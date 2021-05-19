@@ -112,6 +112,7 @@ namespace FSS.GrpcService.Services
                 taskGroup.RunCount++;
                 taskGroup.ActivateAt = DateTime.Now;
                 taskGroup.LastRunAt  = DateTime.Now;
+                task.RunAt           = DateTime.Now;
                 await taskGroupUpdate.UpdateAsync(taskGroup);
 
                 // 实时同步JOB执行状态
