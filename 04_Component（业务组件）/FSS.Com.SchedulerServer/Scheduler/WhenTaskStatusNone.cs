@@ -79,7 +79,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                         // 没有任务需要调度
                         if (lstStatusNone == null || lstStatusNone.Count == 0)
                         {
-                            await Task.Delay(100);
+                            await Task.Delay(50);
                             continue;
                         }
 
@@ -142,12 +142,13 @@ namespace FSS.Com.SchedulerServer.Scheduler
                                 task.Status = EumTaskType.Fail;
                                 await TaskUpdate.SaveAsync(task);
                                 await RunLogAdd.AddAsync(task.TaskGroupId, task.Id, LogLevel.Error, msg);
-                                Thread.Sleep(3000);
+                                Thread.Sleep(100);
                             }
 
                             // 休眠下，防止CPU过高
                             await Task.Delay(10);
                         }
+                        continue;
                     }
                     catch (Exception e)
                     {
