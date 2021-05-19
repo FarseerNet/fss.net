@@ -41,6 +41,7 @@ namespace FSS.GrpcService.Background
                     
                     // 清除历史记录
                     await _taskList.ClearSuccessAsync(taskGroupVO.Id, taskId);
+                    Thread.Sleep(1000);
                 }
 
                 await Task.Delay(1000 * 60 * 60, stoppingToken); // 1个小时执行一次
