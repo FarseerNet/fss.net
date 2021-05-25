@@ -28,6 +28,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
         public                  INodeRegister   NodeRegister   { get; set; }
         public                  ISchedulerLock  SchedulerLock  { get; set; }
         private static readonly object          ObjLock = new();
+
         /// <summary>
         /// 运行当状态为Node的任务
         /// </summary>
@@ -71,10 +72,11 @@ namespace FSS.Com.SchedulerServer.Scheduler
 
                         // 取出状态为None的，且马上到时间要处理的
                         lstStatusNone = lstStatusNone.FindAll(o =>
-                                o.Status == EumTaskType.None &&                       // 状态必须是 EumTaskType.None
-                                (o.StartAt - DateTime.Now).TotalMilliseconds <= 50 && // 执行时间在50ms内
-                                dicTaskGroup[o.TaskGroupId].IsEnable)                 // 任务组必须是开启
-                            .OrderBy(o => o.StartAt).ToList();
+                            o.Status == EumTaskType.None &&                       // 状态必须是 EumTaskType.None
+                            (o.StartAt - DateTime.Now).TotalMilliseconds <= 50 && // 执行时间在50ms内
+                            dicTaskGroup[o.TaskGroupId].IsEnable);                // 任务组必须是开启
+                            
+                            //.OrderBy(o => o.StartAt).ToList();
 
                         // 没有任务需要调度
                         if (lstStatusNone == null || lstStatusNone.Count == 0)
@@ -83,11 +85,13 @@ namespace FSS.Com.SchedulerServer.Scheduler
                             continue;
                         }
 
-                        foreach (var taskGroupId in lstStatusNone.Select(o => o.TaskGroupId))
+                        Parallel.ForEach(lstStatusNone.Select(o => o.TaskGroupId), new ParallelOptions(), async taskGroupId =>
                         {
+                            //foreach (var taskGroupId in lstStatusNone.Select(o => o.TaskGroupId))
+                            //{
                             // 重新取一遍，担心正好数据被正确处理好了
                             var task = await TaskInfo.ToGroupAsync(taskGroupId);
-                        
+
                             var taskGroup = dicTaskGroup[task.TaskGroupId];
                             var timeSpan  = task.StartAt - DateTime.Now;
                             // 任务没开始，休眠
@@ -106,7 +110,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                                 if (clientVO == null)
                                 {
                                     Logger.LogWarning($"任务：GroupId={taskGroup.Id} {taskGroup.Caption}-TaskId={task.Id} 需要在（{task.StartAt:yyyy-MM-dd HH:mm:ss}）执行，但没有找到可以调度的客户端");
-                                    continue;
+                                    return;
                                 }
 
                                 // 同一个任务，多个服务端，只能由一个节点执行调度
@@ -142,12 +146,12 @@ namespace FSS.Com.SchedulerServer.Scheduler
                                 task.Status = EumTaskType.Fail;
                                 await TaskUpdate.SaveAsync(task);
                                 await RunLogAdd.AddAsync(task.TaskGroupId, task.Id, LogLevel.Error, msg);
-                                Thread.Sleep(100);
                             }
 
                             // 休眠下，防止CPU过高
                             await Task.Delay(10);
-                        }
+                            //}
+                        });
                         continue;
                     }
                     catch (Exception e)
