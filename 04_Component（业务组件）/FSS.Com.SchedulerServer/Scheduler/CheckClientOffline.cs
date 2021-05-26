@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using FS.Utils.Common;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Entity.RegisterCenter;
 using FSS.Abstract.Enum;
@@ -26,8 +27,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
         public async Task<bool> Check(TaskVO task, TaskGroupVO taskGroupVO)
         {
             // 如果 任务的运行节点是当前节点时，判断客户端是否在线
-            var nodeIp = NodeRegister.GetNodeIp();
-            if (task.ServerNode == nodeIp)
+            if (task.ServerNode == IpHelper.GetIp)
             {
                 var client = ClientRegister.ToInfo(task.ClientHost);
                 if (client == null) // 客户端掉线了

@@ -1,7 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using FS.DI;
+using FS.Utils.Common;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
@@ -13,7 +13,6 @@ using Microsoft.Extensions.Logging;
 
 namespace FSS.Com.SchedulerServer.Scheduler
 {
-    [Obsolete]
     public class TaskScheduler : ITaskScheduler
     {
         public IIocManager     IocManager     { get; set; }
@@ -43,13 +42,13 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 // 同一个任务，多个服务端，只能由一个节点执行调度
                 if (SchedulerLock.TryLock(task.Id, clientVO.ServerHost))
                 {
-                    //Logger.LogInformation($"任务：GroupId={taskGroup.Id} TaskId={task.Id} {taskGroup.Caption} 调度给====>{clientVO.ClientIp}");
+                    logger.LogInformation($"任务：GroupId={taskGroup.Id} TaskId={task.Id} {taskGroup.Caption} 调度给====>{clientVO.ClientIp}");
 
                     // 通知客户端处理JOB
-                    task.Status      = EumTaskType.Scheduler;
-                    task.ClientHost  = clientVO.ServerHost;
-                    task.ClientIp    = clientVO.ClientIp;
-                    task.ServerNode  = NodeRegister.GetNodeIp();
+                    task.Status     = EumTaskType.Scheduler;
+                    task.ClientHost = clientVO.ServerHost;
+                    task.ClientIp   = clientVO.ClientIp;
+                    task.ServerNode = IpHelper.GetIp;
                     task.SchedulerAt = DateTime.Now;
                     await TaskUpdate.UpdateAsync(task);
 

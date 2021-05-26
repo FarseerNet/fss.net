@@ -105,9 +105,9 @@ namespace FSS.Com.RegisterCenterServer.Client
         }
 
         /// <summary>
-        /// 获取客户端数量
+        /// 获取客户端是否存在
         /// </summary>
-        public int Count(string jobName) => Clients.Count(o => o.Value.JobName == jobName); //o => (DateTime.Now - o.Value.HeartbeatAt).TotalMilliseconds < 10000
+        public bool Exists(string jobName) => Clients.Any(o => o.Value.JobName == jobName); //o => (DateTime.Now - o.Value.HeartbeatAt).TotalMilliseconds < 10000
 
         /// <summary>
         /// 获取客户端数量

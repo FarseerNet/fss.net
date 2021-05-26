@@ -14,7 +14,7 @@ namespace FSS.Com.RegisterCenterServer.Client
     {
         public string             Key = "FSS_NodeList";
         public IRedisCacheManager RedisCacheManager { get; set; }
-
+        
         /// <summary>
         /// 注册当前IP到服务列表中
         /// </summary>
@@ -23,11 +23,6 @@ namespace FSS.Com.RegisterCenterServer.Client
             var ipAddresses = IpHelper.GetIps().Select(o => o.Address.MapToIPv4().ToString()).Distinct().ToList();
             RedisCacheManager.HashSetTransaction(Key, ipAddresses, field => field, value => DateTime.Now.ToTimestamp().ToString());
         }
-
-        /// <summary>
-        /// 获取当前节点IP
-        /// </summary>
-        public string GetNodeIp() => IpHelper.GetIps().Select(o => o.Address.MapToIPv4().ToString()).FirstOrDefault();
 
         /// <summary>
         /// 检查服务节点是否在线

@@ -10,11 +10,6 @@ namespace FSS.Abstract.Server.RegisterCenter
         void Register();
 
         /// <summary>
-        /// 获取当前节点IP
-        /// </summary>
-        string GetNodeIp();
-
-        /// <summary>
         /// 检查服务节点是否在线
         /// </summary>
         bool IsNodeExists(string ip);

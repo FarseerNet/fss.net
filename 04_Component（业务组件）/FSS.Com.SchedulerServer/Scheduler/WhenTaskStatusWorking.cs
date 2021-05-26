@@ -34,11 +34,11 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 {
                     try
                     {
-                        var dicTaskGroup = (await TaskGroupList.ToListAsync()).ToDictionary(o => o.Id, o => o);
+                        var dicTaskGroup = await TaskGroupList.ToListByMemoryAsync();
                         var lstTask      = await TaskInfo.ToGroupListAsync();
 
                         // 注册进来的客户端，必须是能处理的，否则退出线程
-                        var lstStatusWorking = lstTask.FindAll(o => ClientRegister.Count(dicTaskGroup[o.TaskGroupId].JobName) > 0);
+                        var lstStatusWorking = lstTask.FindAll(o => ClientRegister.Exists(dicTaskGroup[o.TaskGroupId].JobName));
                         if (lstStatusWorking == null || lstStatusWorking.Count == 0)
                         {
                             await Task.Delay(3000);

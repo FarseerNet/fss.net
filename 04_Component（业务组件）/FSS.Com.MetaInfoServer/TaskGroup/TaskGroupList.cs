@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FS.Cache;
 using FS.Cache.Redis;
@@ -7,6 +9,7 @@ using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Server.MetaInfo;
 using FSS.Com.MetaInfoServer.Abstract;
 using FSS.Com.MetaInfoServer.TaskGroup.Dal;
+using Microsoft.Extensions.Caching.Memory;
 using StackExchange.Redis;
 
 namespace FSS.Com.MetaInfoServer.TaskGroup
@@ -18,6 +21,10 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
     {
         public ITaskGroupAgent    TaskGroupAgent    { get; set; }
         public IRedisCacheManager RedisCacheManager { get; set; }
+
+        readonly MemoryCache memoryCache = new MemoryCache(new MemoryCacheOptions
+        {
+        });
 
         /// <summary>
         /// 获取全部任务列表
@@ -37,6 +44,19 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
             return RedisCacheManager.CacheManager.GetListAsync(TaskGroupCache.Key,
                 _ => TaskGroupAgent.ToListAsync().MapAsync<TaskGroupVO, TaskGroupPO>()
                 , o => o.Id);
+        }
+
+        /// <summary>
+        /// 本地缓存获取任务组
+        /// </summary>
+        public Task<Dictionary<int, TaskGroupVO>> ToListByMemoryAsync()
+        {
+            return memoryCache.GetOrCreate(TaskGroupCache.Key, async o =>
+            {
+                o.AbsoluteExpiration = DateTimeOffset.Now.AddMinutes(1);
+                var lst= await ToListAsync();
+                return lst.ToDictionary(o => o.Id, o => o);
+            });
         }
 
         /// <summary>

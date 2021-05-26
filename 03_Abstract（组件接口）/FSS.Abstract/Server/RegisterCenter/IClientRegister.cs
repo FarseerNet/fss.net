@@ -46,7 +46,7 @@ namespace FSS.Abstract.Server.RegisterCenter
         /// <summary>
         /// 获取客户端数量
         /// </summary>
-        int Count(string jobName);
+        bool Exists(string jobName);
 
         /// <summary>
         /// 获取客户端数量
