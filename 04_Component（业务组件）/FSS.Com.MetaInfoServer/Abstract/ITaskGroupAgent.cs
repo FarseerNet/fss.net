@@ -24,11 +24,6 @@ namespace FSS.Com.MetaInfoServer.Abstract
         Task UpdateAsync(int id, TaskGroupPO taskGroup);
 
         /// <summary>
-        /// 更新任务ID
-        /// </summary>
-        Task UpdateTaskIdAsync(int taskGroupId, int taskId);
-
-        /// <summary>
         /// 更新任务时间
         /// </summary>
         Task UpdateNextAtAsync(int taskGroupId, DateTime nextAt);

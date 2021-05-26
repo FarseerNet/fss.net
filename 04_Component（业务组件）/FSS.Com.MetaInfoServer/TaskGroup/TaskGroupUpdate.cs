@@ -50,20 +50,9 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
         }
 
         /// <summary>
-        /// 更新任务ID
-        /// </summary>
-        public async Task UpdateTaskIdAsync(int taskGroupId, int taskId)
-        {
-            var taskGroupVO = await TaskGroupInfo.ToInfoAsync(taskGroupId);
-            taskGroupVO.TaskId = taskId;
-            await UpdateAsync(taskGroupVO);
-            await TaskGroupAgent.UpdateTaskIdAsync(taskGroupId, taskId);
-        }
-
-        /// <summary>
         /// 统计失败次数，按次数递增时间
         /// </summary>
-        public async Task StatFailAsync(TaskVO task)
+        public async Task StatFailAsync(TaskVO task, TaskGroupVO taskGroupVO)
         {
             var failKey = TaskCache.FailKey(task.TaskGroupId);
 
@@ -83,11 +72,9 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
                         var nextAt = DateTime.Now.AddMinutes(count * 5);
 
                         // 当计划下次时间，比计算出来的时间要早（一般是立即就要执行），则强制更新下次时间为计算后的时间（延迟执行）
-                        var taskGroupVO = await TaskGroupInfo.ToInfoAsync(task.TaskGroupId);
                         if (taskGroupVO.NextAt < nextAt)
                         {
                             taskGroupVO.NextAt = nextAt;
-                            await SaveAsync(taskGroupVO);
                         }
                     }
 

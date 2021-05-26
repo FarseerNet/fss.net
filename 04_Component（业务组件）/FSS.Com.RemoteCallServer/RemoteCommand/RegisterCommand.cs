@@ -51,7 +51,7 @@ namespace FSS.Com.RemoteCallServer.RemoteCommand
                 ResponseStream = responseStream,
                 RegisterAt     = _requestStream.Current.RequestAt.ToTimestamps(),
                 HeartbeatAt    = DateTime.Now,
-                Jobs           = _requestStream.Current.Data.Split(',')
+                JobName           = _requestStream.Current.Data
             };
             ClientRegister.Register(clientConnectVO);
 
@@ -59,7 +59,7 @@ namespace FSS.Com.RemoteCallServer.RemoteCommand
             await ClientResponse.PrintAsync(_responseStream, $"FSS平台==> {clientConnectVO.ServerHost}：成功建立连接，欢迎{clientConnectVO.ClientIp}");
             
             // 有客户端进来，运行调度
-            await IocManager.Resolve<IWhenTaskStatus>("None").Run();
+            //await IocManager.Resolve<IWhenTaskStatus>("None").Run();
         }
     }
 }

@@ -47,7 +47,7 @@ namespace FSS.GrpcService
             services.AddHostedService<SyncTaskGroupAvgSpeedService>(); 
             services.AddHostedService<SyncServiceInfoService>();
             services.AddHostedService<AutoClearHisTaskRecordService>();
-            services.AddHostedService<CheckSchedulerWorkingService>();
+            //services.AddHostedService<CheckSchedulerWorkingService>();
             //services.AddHostedService<RunThreadSchedulerService>(); 
         }
 
@@ -71,7 +71,7 @@ namespace FSS.GrpcService
 
         public override void PreInitialize()
         {
-            ThreadPool.SetMinThreads(200, 200);
+            //ThreadPool.SetMinThreads(200, 200);
         }
 
         public override void PostInitialize()

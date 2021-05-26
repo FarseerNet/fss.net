@@ -48,6 +48,6 @@ namespace FSS.Abstract.Entity.RegisterCenter
         /// <summary>
         /// 当前客户端能处理的JOB
         /// </summary>
-        public string[] Jobs { get; set; }
+        public string JobName { get; set; }
     }
 }

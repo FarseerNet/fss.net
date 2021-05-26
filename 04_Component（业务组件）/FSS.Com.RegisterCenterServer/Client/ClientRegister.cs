@@ -22,6 +22,7 @@ namespace FSS.Com.RegisterCenterServer.Client
         public                  IRedisCacheManager                            RedisCacheManager { get; set; }
         public                  ITaskInfo                                     TaskInfo          { get; set; }
         public                  ITaskUpdate                                   TaskUpdate        { get; set; }
+        public                  ITaskGroupInfo                                TaskGroupInfo     { get; set; }
         private static readonly ConcurrentDictionary<string, ClientConnectVO> Clients = new();
 
         /// <summary>
@@ -106,7 +107,7 @@ namespace FSS.Com.RegisterCenterServer.Client
         /// <summary>
         /// 获取客户端数量
         /// </summary>
-        public int Count(string jobName) => Clients.Count(o => o.Value.Jobs.Contains(jobName)); //o => (DateTime.Now - o.Value.HeartbeatAt).TotalMilliseconds < 10000
+        public int Count(string jobName) => Clients.Count(o => o.Value.JobName == jobName); //o => (DateTime.Now - o.Value.HeartbeatAt).TotalMilliseconds < 10000
 
         /// <summary>
         /// 获取客户端数量
@@ -155,11 +156,12 @@ namespace FSS.Com.RegisterCenterServer.Client
             SyncCache();
             // 读取当前所有任务组的任务
             var groupListAsync = await TaskInfo.ToGroupListAsync();
-            var findAll        = groupListAsync.FindAll(o => o.ClientHost == serverHost && o.Status is EumTaskType.Scheduler or EumTaskType.Working);
+            var findAll        = groupListAsync.FindAll(o => o.ClientHost == serverHost && o.Status is EumTaskType.Scheduler or EumTaskType.Working or EumTaskType.ReScheduler);
             foreach (var vo in findAll)
             {
+                var taskGroup = await TaskGroupInfo.ToInfoAsync(vo.TaskGroupId);
                 vo.Status = EumTaskType.Fail;
-                await TaskUpdate.SaveAsync(vo);
+                await TaskUpdate.SaveAsync(vo, taskGroup);
             }
         }
     }

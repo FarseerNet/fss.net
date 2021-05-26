@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FS.DI;
+using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
 using FSS.Abstract.Server.RegisterCenter;
@@ -15,19 +17,12 @@ namespace FSS.Com.SchedulerServer.Scheduler
 {
     public class WhenTaskStatusNone : IWhenTaskStatus
     {
-        public static           bool            IsRun;
-        public                  ITaskInfo       TaskInfo       { get; set; }
-        public                  IClientRegister ClientRegister { get; set; }
-        public                  ITaskGroupList  TaskGroupList  { get; set; }
-        public                  ILogger         Logger         { get; set; }
-        public                  IIocManager     IocManager     { get; set; }
-        public                  ITaskUpdate     TaskUpdate     { get; set; }
-        public                  IClientSlb      ClientSlb      { get; set; }
-        public                  IRunLogAdd      RunLogAdd      { get; set; }
-        public                  IClientResponse ClientResponse { get; set; }
-        public                  INodeRegister   NodeRegister   { get; set; }
-        public                  ISchedulerLock  SchedulerLock  { get; set; }
-        private static readonly object          ObjLock = new();
+        public ITaskInfo       TaskInfo       { get; set; }
+        public IClientRegister ClientRegister { get; set; }
+        public ITaskGroupList  TaskGroupList  { get; set; }
+        public ILogger         Logger         { get; set; }
+        public IIocManager     IocManager     { get; set; }
+        public ITaskScheduler  TaskScheduler  { get; set; }
 
         /// <summary>
         /// 运行当状态为Node的任务
@@ -36,135 +31,65 @@ namespace FSS.Com.SchedulerServer.Scheduler
         {
             Logger = IocManager.Logger<WhenTaskStatusNone>();
 
-            // 当前没有客户端连接时，休眠
-            if (ClientRegister.Count() == 0)
-            {
-                Logger.LogDebug($"当前没有客户端连接，None休眠...");
-                return Task.FromResult(0);
-            }
-
-            lock (ObjLock)
-            {
-                if (IsRun) return Task.FromResult(0);
-                IsRun = true;
-            }
-
-            IocManager.Resolve<IWhenTaskStatus>("Working").Run();
-            IocManager.Resolve<IWhenTaskStatus>("Finish").Run();
             ThreadPool.QueueUserWorkItem(async _ =>
             {
-                while (ClientRegister.Count() > 0)
+                while (true)
                 {
-                    IsRun = true;
                     try
                     {
-                        var dicTaskGroup = (await TaskGroupList.ToListAndSaveAsync()).ToDictionary(o => o.Id, o => o);
+                        var dicTaskGroup = (await TaskGroupList.ToListAsync()).ToDictionary(o => o.Id, o => o);
                         var lstTask      = await TaskInfo.ToGroupListAsync();
 
                         // 注册进来的客户端，必须是能处理的，否则退出线程
                         var lstStatusNone = lstTask.FindAll(o => ClientRegister.Count(dicTaskGroup[o.TaskGroupId].JobName) > 0);
                         if (lstStatusNone == null || lstStatusNone.Count == 0)
                         {
-                            Logger.LogWarning($"检查到当前客户端数量={ClientRegister.Count()},没有一个客户端能处理已有的任务，退出调度线程，等待下一次连接后唤醒...");
-                            IsRun = false;
-                            return;
+                            await Task.Delay(3000);
+                            continue;
                         }
 
                         // 取出状态为None的，且马上到时间要处理的
                         lstStatusNone = lstStatusNone.FindAll(o =>
-                            o.Status == EumTaskType.None &&                       // 状态必须是 EumTaskType.None
-                            (o.StartAt - DateTime.Now).TotalMilliseconds <= 50 && // 执行时间在50ms内
-                            dicTaskGroup[o.TaskGroupId].IsEnable);                // 任务组必须是开启
-                            
-                            //.OrderBy(o => o.StartAt).ToList();
+                                o.Status == EumTaskType.None &&                 // 状态必须是 EumTaskType.None
+                                (o.StartAt - DateTime.Now).TotalMinutes <= 1 && // 执行时间在1分钟内
+                                dicTaskGroup[o.TaskGroupId].IsEnable)           // 任务组必须是开启
+                            .OrderBy(o => o.StartAt).ToList();
 
                         // 没有任务需要调度
                         if (lstStatusNone == null || lstStatusNone.Count == 0)
                         {
+                            //Logger.LogDebug($"没有任务需要调度");
                             await Task.Delay(50);
                             continue;
                         }
 
-                        Parallel.ForEach(lstStatusNone.Select(o => o.TaskGroupId), new ParallelOptions(), async taskGroupId =>
+                        //Parallel.ForEach(lstStatusNone.Select(o => o.TaskGroupId), new ParallelOptions(), async taskGroupId =>
+                        //{
+
+                        var lstSchedulerTask = new List<Task>();
+                        foreach (var task in lstStatusNone)
                         {
-                            //foreach (var taskGroupId in lstStatusNone.Select(o => o.TaskGroupId))
-                            //{
                             // 重新取一遍，担心正好数据被正确处理好了
-                            var task = await TaskInfo.ToGroupAsync(taskGroupId);
+                            //var task = await TaskInfo.ToGroupAsync(taskGroupId);
 
-                            var taskGroup = dicTaskGroup[task.TaskGroupId];
-                            var timeSpan  = task.StartAt - DateTime.Now;
-                            // 任务没开始，休眠
-                            if (timeSpan.TotalMilliseconds > 0)
-                            {
-                                Logger.LogDebug($"执行任务：GroupId={taskGroup.Id} {taskGroup.Caption} taskId={task.Id}，还需要等待 {timeSpan.TotalMilliseconds} ms，休眠中...");
-                                await Task.Delay((int) timeSpan.TotalMilliseconds);
-                            }
-
-                            try
-                            {
-                                // 取出空闲客户端、开始调度执行
-                                var clientVO = ClientSlb.Slb(taskGroup.JobName);
-
-                                // 当前没有客户端注册进来
-                                if (clientVO == null)
-                                {
-                                    Logger.LogWarning($"任务：GroupId={taskGroup.Id} {taskGroup.Caption}-TaskId={task.Id} 需要在（{task.StartAt:yyyy-MM-dd HH:mm:ss}）执行，但没有找到可以调度的客户端");
-                                    return;
-                                }
-
-                                // 同一个任务，多个服务端，只能由一个节点执行调度
-                                if (SchedulerLock.TryLock(task.Id, clientVO.ServerHost))
-                                {
-                                    Logger.LogInformation($"任务：GroupId={taskGroup.Id} TaskId={task.Id} {taskGroup.Caption} 调度给====>{clientVO.ClientIp}");
-
-                                    // 通知客户端处理JOB
-                                    task.Status      = EumTaskType.Scheduler;
-                                    task.ClientHost  = clientVO.ServerHost;
-                                    task.ClientIp    = clientVO.ClientIp;
-                                    task.ServerNode  = NodeRegister.GetNodeIp();
-                                    task.SchedulerAt = DateTime.Now;
-                                    await TaskUpdate.UpdateAsync(task);
-
-                                    // 通知客户端开始任务调度
-                                    await ClientResponse.JobSchedulerAsync(clientVO, taskGroup, task);
-                                }
-                            }
-                            catch (Exception e) // 通知失败
-                            {
-                                if (e.InnerException != null) e = e.InnerException;
-
-                                var statusCode = StatusCode.Unknown;
-                                var msg        = e.Message;
-                                if (e is RpcException rpcException1)
-                                {
-                                    msg        = rpcException1.Status.Detail;
-                                    statusCode = rpcException1.Status.StatusCode;
-                                }
-
-                                // 通知失败，则把当前任务设为失败
-                                task.Status = EumTaskType.Fail;
-                                await TaskUpdate.SaveAsync(task);
-                                await RunLogAdd.AddAsync(task.TaskGroupId, task.Id, LogLevel.Error, msg);
-                            }
+                            //var taskGroup = dicTaskGroup[task.TaskGroupId];
+                            lstSchedulerTask.Add(TaskScheduler.Scheduler(dicTaskGroup[task.TaskGroupId], task));
 
                             // 休眠下，防止CPU过高
-                            await Task.Delay(10);
-                            //}
-                        });
+                            //await Task.Delay(10);
+                        }
+
+                        await Task.WhenAll(lstSchedulerTask);
+                        //});
                         continue;
                     }
                     catch (Exception e)
                     {
                         Logger.LogError(e, e.Message);
+                        // 休眠下，防止CPU过高
+                        await Task.Delay(100);
                     }
-
-                    // 休眠下，防止CPU过高
-                    await Task.Delay(100);
                 }
-
-                Logger.LogWarning($"检查当当前的客户端数量={ClientRegister.Count()}，退出调度线程，等待下一次连接后唤醒...");
-                IsRun = false;
             });
             return Task.FromResult(0);
         }

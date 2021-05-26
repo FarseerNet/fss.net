@@ -12,11 +12,6 @@ namespace FSS.Abstract.Server.MetaInfo
         Task UpdateAsync(TaskGroupVO taskGroup);
 
         /// <summary>
-        /// 更新任务ID
-        /// </summary>
-        Task UpdateTaskIdAsync(int taskGroupId, int taskId);
-
-        /// <summary>
         /// 保存TaskGroup
         /// </summary>
         Task SaveAsync(TaskGroupVO taskGroup);
@@ -24,6 +19,6 @@ namespace FSS.Abstract.Server.MetaInfo
         /// <summary>
         /// 统计失败次数，按次数递增时间
         /// </summary>
-        Task StatFailAsync(TaskVO task);
+        Task StatFailAsync(TaskVO task, TaskGroupVO taskGroupVO);
     }
 }

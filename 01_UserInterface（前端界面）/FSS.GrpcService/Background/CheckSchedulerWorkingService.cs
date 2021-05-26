@@ -33,12 +33,12 @@ namespace FSS.GrpcService.Background
             {
                 if (_clientRegister.Count() > 0)
                 {
-                    if (!WhenTaskStatusNone.IsRun || !WhenTaskStatusWorking.IsRun || !WhenTaskStatusFinish.IsRun)
-                    {
-                        await _ioc.Resolve<IWhenTaskStatus>("None").Run();
-                        await _ioc.Resolve<IWhenTaskStatus>("Working").Run();
-                        await _ioc.Resolve<IWhenTaskStatus>("Finish").Run();
-                    }
+                    // if (!WhenTaskStatusNone.IsRun || !WhenTaskStatusWorking.IsRun || !WhenTaskStatusFinish.IsRun)
+                    // {
+                    //     await _ioc.Resolve<IWhenTaskStatus>("None").Run();
+                    //     await _ioc.Resolve<IWhenTaskStatus>("Working").Run();
+                    //     await _ioc.Resolve<IWhenTaskStatus>("Finish").Run();
+                    // }
                 }
 
                 await Task.Delay(5000, stoppingToken);

@@ -19,7 +19,7 @@ namespace FSS.Com.RegisterCenterServer.Client
             if (clientVos == null || clientVos.Count == 0) return null;
 
             // 简单实现：取使用时间最后的。
-            return clientVos.Where(o => o.Jobs.Contains(jobName)).OrderBy(o => o.UseAt).FirstOrDefault();
+            return clientVos.Where(o => o.JobName==jobName).OrderBy(o => o.UseAt).FirstOrDefault();
         }
     }
 }

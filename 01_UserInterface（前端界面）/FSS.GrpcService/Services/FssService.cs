@@ -91,7 +91,7 @@ namespace FSS.GrpcService.Services
             var clientResponse  = _ioc.Resolve<ClientResponse>();
             var taskGroupUpdate = _ioc.Resolve<ITaskGroupUpdate>();
             var clientRegister  = _ioc.Resolve<IClientRegister>();
-            var logger          = _ioc.Logger<ITaskGroupScheduler>();
+            var logger          = _ioc.Logger<ITaskScheduler>();
 
             try
             {
@@ -139,8 +139,7 @@ namespace FSS.GrpcService.Services
                             if (!string.IsNullOrWhiteSpace(jobRequest.Data)) taskGroup.Data = jobRequest.Data;
                             // 客户端设置了动态时间
                             if (jobRequest.NextTimespan > 0) taskGroup.NextAt = DateTime.Now.AddMilliseconds(jobRequest.NextTimespan);
-                            await taskGroupUpdate.SaveAsync(taskGroup); // 要比Task提前保存，后面需要判断下次执行时间
-                            await taskUpdate.SaveAsync(task);
+                            await taskUpdate.SaveAsync(task, taskGroup);
                             break;
                         default:
                             await taskUpdate.UpdateAsync(task);
@@ -158,15 +157,13 @@ namespace FSS.GrpcService.Services
                 if (task.Status != EumTaskType.Success)
                 {
                     var message = $"任务：{task.TaskGroupId}-{task.Id} 执行失败";
-                    await runLogAdd.AddAsync(task.TaskGroupId, taskId, LogLevel.Warning, $"执行失败");
-                    logger.LogWarning(message);
+                    await runLogAdd.AddAsync(task.TaskGroupId, taskId, LogLevel.Warning, message);
                     return (CommandResponse) _ioc.Resolve<IClientResponse>().Print(message);
                 }
                 else
                 {
                     var message = $"任务组：TaskGroupId={task.TaskGroupId}，Caption={taskGroup.Caption}，JobName={taskGroup.JobName}，TaskId={task.Id} 执行成功，耗时：{task.RunSpeed} ms";
-                    await runLogAdd.AddAsync(task.TaskGroupId, taskId, LogLevel.Information, $"执行成功，耗时：{task.RunSpeed} ms");
-                    logger.LogInformation(message);
+                    await runLogAdd.AddAsync(task.TaskGroupId, taskId, LogLevel.Information, message);
                     return (CommandResponse) _ioc.Resolve<IClientResponse>().Print(message);
                 }
             }

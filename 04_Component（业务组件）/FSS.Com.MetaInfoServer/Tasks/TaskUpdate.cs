@@ -25,15 +25,13 @@ namespace FSS.Com.MetaInfoServer.Tasks
         /// </summary>
         public async Task UpdateAsync(TaskVO task)
         {
-            // 统计失败次数，按次数递增时间
-            await TaskGroupUpdate.StatFailAsync(task);
             await RedisCacheManager.CacheManager.SaveAsync(TaskCache.Key, task, task.TaskGroupId, new CacheOption());
         }
 
         /// <summary>
         /// 保存Task
         /// </summary>
-        public async Task SaveAsync(TaskVO task)
+        public async Task SaveAsync(TaskVO task, TaskGroupVO taskGroup)
         {
             switch (task.Status)
             {
@@ -41,7 +39,6 @@ namespace FSS.Com.MetaInfoServer.Tasks
                 case EumTaskType.Success:
                 case EumTaskType.ReScheduler:
 
-                    var taskGroup = await TaskGroupInfo.ToInfoAsync(task.TaskGroupId);
                     // 说明上一次任务，没有设置下一次的时间（动态设置）
                     // 本次的时间策略晚，则通过时间策略计算出来
                     if (DateTime.Now > taskGroup.NextAt)
@@ -57,20 +54,21 @@ namespace FSS.Com.MetaInfoServer.Tasks
                         {
                             taskGroup.NextAt = DateTime.Now.AddSeconds(30);
                         }
-
-                        await TaskGroupUpdate.SaveAsync(taskGroup);
                     }
 
+                    await TaskAgent.UpdateAsync(task.Id, task.Map<TaskPO>());
+                    //await UpdateAsync(task); // 不需要更新缓存了，在创建新任务的时候，会更新缓存
+                    
+                    // 统计失败次数，按次数递增时间
+                    await TaskGroupUpdate.StatFailAsync(task, taskGroup);
+                    // 完成后，立即生成一个新的任务
+                    await TaskAdd.CreateAsync(taskGroup);
+                    await TaskGroupUpdate.SaveAsync(taskGroup);
                     break;
-            }
-
-            await TaskAgent.UpdateAsync(task.Id, task.Map<TaskPO>());
-            await UpdateAsync(task);
-
-            // 完成后，立即生成一个新的任务
-            if (task.Status is EumTaskType.Success or EumTaskType.Fail or EumTaskType.ReScheduler)
-            {
-                await TaskAdd.GetOrCreateAsync(task.TaskGroupId);
+                default:
+                    await TaskAgent.UpdateAsync(task.Id, task.Map<TaskPO>());
+                    await UpdateAsync(task);
+                    break;
             }
         }
     }

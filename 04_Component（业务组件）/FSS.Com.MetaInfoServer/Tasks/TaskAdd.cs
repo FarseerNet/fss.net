@@ -22,19 +22,13 @@ namespace FSS.Com.MetaInfoServer.Tasks
         /// <summary>
         /// 创建Task，并更新到缓存
         /// </summary>
-        public async Task<TaskVO> GetOrCreateAsync(int taskGroupId)
+        public async Task<TaskVO> CreateAsync(TaskGroupVO taskGroup)
         {
-            var taskGroup = await TaskGroupInfo.ToInfoAsync(taskGroupId);
-            if (taskGroup == null)
-            {
-                IocManager.Instance.Logger<TaskAdd>().LogWarning($"taskGroupId={taskGroupId}，这里查不到taskGroup");
-            }
-
-            var task = await TaskAgent.ToUnExecutedTaskAsync(taskGroup.Id);
+            var task = await TaskAgent.ToUnExecutedTaskAsync(taskGroup.Id).MapAsync<TaskVO, TaskPO>();
             if (task == null)
             {
                 // 没查到时，自动创建一条对应的Task
-                task = new TaskPO
+                var po = new TaskPO
                 {
                     TaskGroupId = taskGroup.Id,
                     StartAt     = taskGroup.NextAt,
@@ -49,14 +43,25 @@ namespace FSS.Com.MetaInfoServer.Tasks
                     RunAt       = DateTime.Now,
                     ServerNode  = ""
                 };
-                await TaskAgent.AddAsync(task);
-                await TaskGroupUpdate.UpdateTaskIdAsync(taskGroup.Id, task.Id.GetValueOrDefault());
+                await TaskAgent.AddAsync(po);
+                taskGroup.TaskId = po.Id.GetValueOrDefault();
+                task = po.Map<TaskVO>();
             }
 
-            var taskVo = task.Map<TaskVO>();
-            await RedisCacheManager.CacheManager.SaveAsync(TaskCache.Key, taskVo, taskVo.TaskGroupId);
+            await RedisCacheManager.CacheManager.SaveAsync(TaskCache.Key, task, task.TaskGroupId);
+            return task;
+        }
 
-            return taskVo;
+
+        /// <summary>
+        /// 创建Task，并更新到缓存
+        /// </summary>
+        public async Task<TaskVO> GetOrCreateAsync(int taskGroupId)
+        {
+            var taskGroup = await TaskGroupInfo.ToInfoAsync(taskGroupId);
+            var task      = await CreateAsync(taskGroup);
+            await TaskGroupUpdate.SaveAsync(taskGroup);
+            return task;
         }
     }
 }

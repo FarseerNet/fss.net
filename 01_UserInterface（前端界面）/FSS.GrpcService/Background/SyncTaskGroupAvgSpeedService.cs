@@ -44,7 +44,7 @@ namespace FSS.GrpcService.Background
                     var taskGroupVO = await _taskGroupInfo.ToInfoAsync(taskGroupVo.Id);
                     taskGroupVO.RunSpeedAvg = statAvgSpeed;
                     await _taskGroupUpdate.SaveAsync(taskGroupVO);
-                    _logger.LogDebug($"成功同步TaskGroupId={taskGroupVO.Id} 的平均耗时为：{statAvgSpeed} ms");
+                    //_logger.LogDebug($"成功同步TaskGroupId={taskGroupVO.Id} 的平均耗时为：{statAvgSpeed} ms");
                     
                     await Task.Delay(1000, stoppingToken);
                 }

@@ -22,7 +22,7 @@ namespace FSS.Com.MetaInfoServer.RunLog
         /// </summary>
         public async Task AddAsync(int taskGroupId, int taskId, LogLevel logLevel, string content)
         {
-            if (logLevel is LogLevel.Error or LogLevel.Warning) IocManager.Logger<RunLogAdd>().Log(logLevel, content);
+            if (logLevel is LogLevel.Error) IocManager.Logger<RunLogAdd>().Log(logLevel, content);
             var groupInfo = await TaskGroupInfo.ToInfoAsync(taskGroupId) ?? new TaskGroupVO();
             var runLogPO = new RunLogPO
             {

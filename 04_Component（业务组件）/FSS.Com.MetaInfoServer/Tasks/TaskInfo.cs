@@ -38,7 +38,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
         /// </summary>
         public Task<List<TaskVO>> ToGroupListAsync()
         {
-            return RedisCacheManager.CacheManager.GetListAsync<TaskVO>(TaskCache.Key,
+            return RedisCacheManager.CacheManager.GetListAsync(TaskCache.Key,
                 async _ =>
                 {
                     var taskGroupVos = await TaskGroupList.ToListAsync();
