@@ -62,12 +62,14 @@ namespace FSS.Com.SchedulerServer.Scheduler
                             await Task.Delay(200);
                             continue;
                         }
-                        logger.LogInformation($"取任务{lstStatusNone.Count} 条任务，共耗时：{sw.ElapsedMilliseconds} ms");
+
+                        var getDataTime = sw.ElapsedMilliseconds;
+                        sw.Restart();
                         var lstSchedulerTask = lstStatusNone.Select(task => TaskScheduler.Scheduler(dicTaskGroup[task.TaskGroupId], task)).ToList();
                         await Task.WhenAll(lstSchedulerTask);
                         
-                        logger.LogInformation($"调度{lstStatusNone.Count} 条任务，共耗时：{sw.ElapsedMilliseconds} ms");
-                        //logger.LogInformation("--------------------");
+                        logger.LogInformation($"统计：共 {lstStatusNone.Count} 条任务，取任务耗时：{getDataTime} ms，调度耗时：{sw.ElapsedMilliseconds} ms");
+                        logger.LogInformation("--------------------------------------------------------------------------------");
                     }
                     catch (Exception e)
                     {
