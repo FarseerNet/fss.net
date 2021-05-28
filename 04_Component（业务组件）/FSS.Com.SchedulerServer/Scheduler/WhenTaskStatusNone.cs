@@ -52,7 +52,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                         // 取出状态为None的，且马上到时间要处理的
                         lstStatusNone = lstStatusNone.FindAll(o =>
                                 o.Status == EumTaskType.None &&                 // 状态必须是 EumTaskType.None
-                                (o.StartAt - DateTime.Now).TotalMinutes <= 1 && // 执行时间在1分钟内
+                                (o.StartAt - DateTime.Now).TotalMinutes <= 2 && // 执行时间在1分钟内
                                 dicTaskGroup[o.TaskGroupId].IsEnable)           // 任务组必须是开启
                             .OrderBy(o => o.StartAt).ToList();
                         
@@ -62,7 +62,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                             await Task.Delay(200);
                             continue;
                         }
-
+                        logger.LogInformation($"取任务{lstStatusNone.Count} 条任务，共耗时：{sw.ElapsedMilliseconds} ms");
                         var lstSchedulerTask = lstStatusNone.Select(task => TaskScheduler.Scheduler(dicTaskGroup[task.TaskGroupId], task)).ToList();
                         await Task.WhenAll(lstSchedulerTask);
                         
