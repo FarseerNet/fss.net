@@ -42,7 +42,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 // 同一个任务，多个服务端，只能由一个节点执行调度
                 if (SchedulerLock.TryLock(task.Id, clientVO.ServerHost))
                 {
-                    logger.LogInformation($"任务：GroupId={taskGroup.Id} TaskId={task.Id} {taskGroup.Caption} 调度给====>{clientVO.ClientIp}");
+                    logger.LogDebug($"任务：GroupId={taskGroup.Id} TaskId={task.Id} {taskGroup.Caption} 调度给====>{clientVO.ClientIp}");
 
                     // 通知客户端处理JOB
                     task.Status     = EumTaskType.Scheduler;
