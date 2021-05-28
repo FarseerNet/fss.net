@@ -37,7 +37,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 {
                     try
                     {
-                        //Stopwatch sw           = Stopwatch.StartNew();
+                        Stopwatch sw           = Stopwatch.StartNew();
                         var       dicTaskGroup = await TaskGroupList.ToListByMemoryAsync();
                         var       lstTask      = await TaskInfo.ToGroupListAsync();
 
@@ -66,7 +66,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                         var lstSchedulerTask = lstStatusNone.Select(task => TaskScheduler.Scheduler(dicTaskGroup[task.TaskGroupId], task)).ToList();
                         await Task.WhenAll(lstSchedulerTask);
                         
-                        //logger.LogInformation($"{lstStatusNone.Count} 耗时：{sw.ElapsedMilliseconds} ms");
+                        logger.LogInformation($"调度{lstStatusNone.Count} 条任务，共耗时：{sw.ElapsedMilliseconds} ms");
                         //logger.LogInformation("--------------------");
                     }
                     catch (Exception e)

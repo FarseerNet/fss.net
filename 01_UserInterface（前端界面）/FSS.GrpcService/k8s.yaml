@@ -6,7 +6,7 @@ metadata:
     app: fss-grpc
     k8s.kuboard.cn/layer: cloud
 spec:
-  replicas: 3
+  replicas: 1
   revisionHistoryLimit: 1
   minReadySeconds: 10     # 这里需要估一个比较合理的值，从容器启动到应用正常提供服务
   strategy:               # k8s 默认的 strategy 就是 RollingUpdate， 这里写明出来可以调节细节参数
@@ -28,7 +28,7 @@ spec:
       containers:
         - name: fss-grpc
           image: farseernet/fss:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           imagePullSecrets:
             - name: regsecret
           ports:
