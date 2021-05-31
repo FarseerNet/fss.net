@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FS.DI;
+using FS.MQ.RedisStream;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
@@ -60,6 +61,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                         foreach (var task in lstStatusFinish)
                         {
                             await TaskAdd.GetOrCreateAsync(task.TaskGroupId);
+                            await IocManager.Resolve<IRedisStreamProduct>("TaskScheduler").SendAsync(task.TaskGroupId.ToString());
                             Logger.LogDebug($"\t1、新建任务: GroupId={task.TaskGroupId} TaskId={task.Id}");
                             await Task.Delay(10);
                         }

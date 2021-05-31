@@ -59,11 +59,6 @@ namespace FSS.Abstract.Server.RegisterCenter
         bool IsExists(string serverHost);
 
         /// <summary>
-        /// 取出全局客户端列表
-        /// </summary>
-        List<ClientConnectVO> ToListByRedis();
-
-        /// <summary>
         /// 客户端是否存在
         /// </summary>
         Task<bool> IsExistsByRedis(string serverHost);
@@ -72,5 +67,15 @@ namespace FSS.Abstract.Server.RegisterCenter
         /// 取出全局客户端数量
         /// </summary>
         Task<long> ToClientCountAsync();
+
+        /// <summary>
+        /// 取出全局客户端列表（本地缓存）
+        /// </summary>
+        Task<List<ClientConnectVO>> ToListByMemoryAsync();
+
+        /// <summary>
+        /// 取出全局客户端列表
+        /// </summary>
+        Task<List<ClientConnectVO>> ToListByRedisAsync();
     }
 }

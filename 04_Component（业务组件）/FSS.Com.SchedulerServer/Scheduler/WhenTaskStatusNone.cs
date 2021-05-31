@@ -40,7 +40,6 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 {
                     try
                     {
-                        Stopwatch sw           = Stopwatch.StartNew();
                         var       dicTaskGroup = await TaskGroupList.ToListByMemoryAsync();
                         var       lstTask      = await TaskInfo.ToGroupListAsync();
 
@@ -72,14 +71,6 @@ namespace FSS.Com.SchedulerServer.Scheduler
                             if (streamRange.Any(o=>o.Values[0].Value.ToString() == taskVO.TaskGroupId.ToString())) continue;
                             await IocManager.Resolve<IRedisStreamProduct>("TaskScheduler").SendAsync(taskVO.TaskGroupId.ToString());
                         }
-                        
-                        //var getDataTime = sw.ElapsedMilliseconds;
-                        //sw.Restart();
-                        //var lstSchedulerTask = lstStatusNone.Select(task => TaskScheduler.Scheduler(dicTaskGroup[task.TaskGroupId], task)).ToList();
-                        //await Task.WhenAll(lstSchedulerTask);
-                        
-                        //logger.LogInformation($"统计：共 {lstStatusNone.Count} 条任务，取任务耗时：{getDataTime} ms，调度耗时：{sw.ElapsedMilliseconds} ms");
-                        //logger.LogInformation("--------------------------------------------------------------------------------");
                     }
                     catch (Exception e)
                     {

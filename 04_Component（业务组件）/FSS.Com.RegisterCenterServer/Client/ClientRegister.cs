@@ -8,6 +8,7 @@ using FSS.Abstract.Entity.RegisterCenter;
 using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
 using FSS.Abstract.Server.RegisterCenter;
+using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 
 namespace FSS.Com.RegisterCenterServer.Client
@@ -24,6 +25,10 @@ namespace FSS.Com.RegisterCenterServer.Client
         public                  ITaskUpdate                                   TaskUpdate        { get; set; }
         public                  ITaskGroupInfo                                TaskGroupInfo     { get; set; }
         private static readonly ConcurrentDictionary<string, ClientConnectVO> Clients = new();
+
+        readonly MemoryCache _memoryCache = new MemoryCache(new MemoryCacheOptions
+        {
+        });
 
         /// <summary>
         /// 注册
@@ -66,9 +71,9 @@ namespace FSS.Com.RegisterCenterServer.Client
         /// <summary>
         /// 取出全局客户端列表
         /// </summary>
-        public List<ClientConnectVO> ToListByRedis()
+        public async Task<List<ClientConnectVO>> ToListByRedisAsync()
         {
-            var hashGetAll = RedisCacheManager.Db.HashGetAll(Key);
+            var hashGetAll = await RedisCacheManager.Db.HashGetAllAsync(Key);
             if (hashGetAll == null || hashGetAll.Length == 0) return null;
             var lst = hashGetAll.Select(o => JsonConvert.DeserializeObject<ClientConnectVO>(o.Value.ToString())).ToList();
             for (int i = 0; i < lst.Count; i++)
@@ -76,13 +81,25 @@ namespace FSS.Com.RegisterCenterServer.Client
                 // 心跳大于1秒中，任为已经下线了
                 if ((DateTime.Now - lst[i].HeartbeatAt).TotalMinutes >= 1)
                 {
-                    RedisCacheManager.Db.HashDelete(Key, lst[i].ServerHost);
+                    await RedisCacheManager.Db.HashDeleteAsync(Key, lst[i].ServerHost);
                     lst.RemoveAt(i);
                     i--;
                 }
             }
 
             return lst;
+        }
+
+        /// <summary>
+        /// 取出全局客户端列表（本地缓存）
+        /// </summary>
+        public async Task<List<ClientConnectVO>> ToListByMemoryAsync()
+        {
+            return await _memoryCache.GetOrCreate(Key, o =>
+            {
+                o.AbsoluteExpiration = DateTimeOffset.Now.AddMinutes(1);
+                return ToListByRedisAsync();
+            });
         }
 
         /// <summary>

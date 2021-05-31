@@ -57,6 +57,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                     {
                         await SchedulerLock.ClearLock(newTask.Id);
                         await Schedule(taskGroup: taskGroup, task: task, clientVO: clientVO);
+                        return;
                     }
                     //throw new Exception($"任务：GroupId={taskGroup.Id} {taskGroup.Caption}-TaskId={task.Id} ，已被调度。");
                     logger.LogWarning($"任务：GroupId={taskGroup.Id} {taskGroup.Caption}-TaskId={task.Id} ，已被调度。");
