@@ -15,7 +15,7 @@ namespace FSS.Abstract.Server.MetaInfo
         /// <summary>
         /// 获取当前任务组的任务
         /// </summary>
-        Task<TaskVO> ToGroupAsync(int taskGroupId);
+        Task<TaskVO> ToInfoByGroupIdAsync(int taskGroupId);
 
         /// <summary>
         /// 计算任务的平均运行速度

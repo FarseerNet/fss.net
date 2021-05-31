@@ -25,7 +25,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
         /// <summary>
         /// 获取当前任务组的任务
         /// </summary>
-        public Task<TaskVO> ToGroupAsync(int taskGroupId)
+        public Task<TaskVO> ToInfoByGroupIdAsync(int taskGroupId)
         {
             return RedisCacheManager.CacheManager.ToEntityAsync(TaskCache.Key,
                 taskGroupId.ToString(),

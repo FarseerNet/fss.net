@@ -20,7 +20,6 @@ namespace FSS.Com.SchedulerServer.Scheduler
         public IClientSlb      ClientSlb      { get; set; }
         public IRunLogAdd      RunLogAdd      { get; set; }
         public IClientResponse ClientResponse { get; set; }
-        public INodeRegister   NodeRegister   { get; set; }
         public ISchedulerLock  SchedulerLock  { get; set; }
 
         /// <summary>
@@ -35,6 +34,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 var clientVO = ClientSlb.Slb(taskGroup.JobName);
                 if (clientVO == null)
                 {
+                    throw new Exception($"任务：GroupId={taskGroup.Id} {taskGroup.Caption}-TaskId={task.Id} 需要在（{task.StartAt:yyyy-MM-dd HH:mm:ss}）执行，但没有找到可以调度的客户端");
                     logger.LogWarning($"任务：GroupId={taskGroup.Id} {taskGroup.Caption}-TaskId={task.Id} 需要在（{task.StartAt:yyyy-MM-dd HH:mm:ss}）执行，但没有找到可以调度的客户端");
                     return;
                 }
@@ -42,7 +42,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 // 同一个任务，多个服务端，只能由一个节点执行调度
                 if (SchedulerLock.TryLock(task.Id, clientVO.ServerHost))
                 {
-                    logger.LogDebug($"任务：GroupId={taskGroup.Id} TaskId={task.Id} {taskGroup.Caption} 调度给====>{clientVO.ClientIp}");
+                    //logger.LogDebug($"任务：GroupId={taskGroup.Id} TaskId={task.Id} {taskGroup.Caption} 调度给====>{clientVO.ClientIp}");
 
                     // 通知客户端处理JOB
                     task.Status     = EumTaskType.Scheduler;
@@ -57,6 +57,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 }
                 else
                 {
+                    //throw new Exception($"任务：GroupId={taskGroup.Id} {taskGroup.Caption}-TaskId={task.Id} ，已被调度。");
                     logger.LogWarning($"任务：GroupId={taskGroup.Id} {taskGroup.Caption}-TaskId={task.Id} ，已被调度。");
                 }
             }
@@ -77,6 +78,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 task.Status = EumTaskType.Fail;
                 await TaskUpdate.SaveAsync(task, taskGroup);
                 await RunLogAdd.AddAsync(task.TaskGroupId, task.Id, LogLevel.Error, msg);
+                throw new Exception(msg);
             }
         }
     }

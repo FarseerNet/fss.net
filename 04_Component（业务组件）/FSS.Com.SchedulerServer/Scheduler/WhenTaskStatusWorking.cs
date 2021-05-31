@@ -64,7 +64,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                             try
                             {
                                 // 重新取一遍，担心正好数据被正确处理好了
-                                var task = await TaskInfo.ToGroupAsync(taskGroupId);
+                                var task = await TaskInfo.ToInfoByGroupIdAsync(taskGroupId);
 
                                 // 检查客户端是否离线
                                 await CheckClientOffline.Check(task, dicTaskGroup[taskGroupId]);

@@ -4,7 +4,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using FS.Cache.Redis;
 using FS.DI;
+using FS.MQ.RedisStream;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
@@ -18,11 +20,12 @@ namespace FSS.Com.SchedulerServer.Scheduler
 {
     public class WhenTaskStatusNone : IWhenTaskStatus
     {
-        public ITaskInfo       TaskInfo       { get; set; }
-        public IClientRegister ClientRegister { get; set; }
-        public ITaskGroupList  TaskGroupList  { get; set; }
-        public IIocManager     IocManager     { get; set; }
-        public ITaskScheduler  TaskScheduler  { get; set; }
+        public ITaskInfo          TaskInfo          { get; set; }
+        public IClientRegister    ClientRegister    { get; set; }
+        public ITaskGroupList     TaskGroupList     { get; set; }
+        public IIocManager        IocManager        { get; set; }
+        public ITaskScheduler     TaskScheduler     { get; set; }
+        public IRedisCacheManager RedisCacheManager { get; set; }
 
         /// <summary>
         /// 运行当状态为Node的任务
@@ -42,10 +45,10 @@ namespace FSS.Com.SchedulerServer.Scheduler
                         var       lstTask      = await TaskInfo.ToGroupListAsync();
 
                         // 注册进来的客户端，必须是能处理的，否则退出线程
-                        var lstStatusNone = lstTask.FindAll(o => ClientRegister.Exists(dicTaskGroup[o.TaskGroupId].JobName));
+                        var lstStatusNone = lstTask.FindAll(o => ClientRegister.Exists(o.JobName));
                         if (lstStatusNone == null || lstStatusNone.Count == 0)
                         {
-                            await Task.Delay(3000);
+                            await Task.Delay(5000);
                             continue;
                         }
 
@@ -59,17 +62,24 @@ namespace FSS.Com.SchedulerServer.Scheduler
                         // 没有任务需要调度
                         if (lstStatusNone == null || lstStatusNone.Count == 0)
                         {
-                            await Task.Delay(200);
+                            await Task.Delay(5000);
                             continue;
                         }
 
-                        var getDataTime = sw.ElapsedMilliseconds;
-                        sw.Restart();
-                        var lstSchedulerTask = lstStatusNone.Select(task => TaskScheduler.Scheduler(dicTaskGroup[task.TaskGroupId], task)).ToList();
-                        await Task.WhenAll(lstSchedulerTask);
+                        var streamRange = await RedisCacheManager.Db.StreamRangeAsync("TaskScheduler");
+                        foreach (var taskVO in lstStatusNone)
+                        {
+                            if (streamRange.Any(o=>o.Values[0].Value.ToString() == taskVO.TaskGroupId.ToString())) continue;
+                            await IocManager.Resolve<IRedisStreamProduct>("TaskScheduler").SendAsync(taskVO.TaskGroupId.ToString());
+                        }
                         
-                        logger.LogInformation($"统计：共 {lstStatusNone.Count} 条任务，取任务耗时：{getDataTime} ms，调度耗时：{sw.ElapsedMilliseconds} ms");
-                        logger.LogInformation("--------------------------------------------------------------------------------");
+                        //var getDataTime = sw.ElapsedMilliseconds;
+                        //sw.Restart();
+                        //var lstSchedulerTask = lstStatusNone.Select(task => TaskScheduler.Scheduler(dicTaskGroup[task.TaskGroupId], task)).ToList();
+                        //await Task.WhenAll(lstSchedulerTask);
+                        
+                        //logger.LogInformation($"统计：共 {lstStatusNone.Count} 条任务，取任务耗时：{getDataTime} ms，调度耗时：{sw.ElapsedMilliseconds} ms");
+                        //logger.LogInformation("--------------------------------------------------------------------------------");
                     }
                     catch (Exception e)
                     {
@@ -77,7 +87,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                         // 休眠下，防止CPU过高
                         await Task.Delay(100);
                     }
-                    await Task.Delay(50);
+                    await Task.Delay(5000);
                 }
             });
             return Task.FromResult(0);

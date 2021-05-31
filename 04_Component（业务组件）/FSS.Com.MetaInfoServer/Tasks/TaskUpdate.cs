@@ -2,7 +2,9 @@ using System;
 using System.Threading.Tasks;
 using FS.Cache;
 using FS.Cache.Redis;
+using FS.DI;
 using FS.Extends;
+using FS.MQ.RedisStream;
 using FS.Utils.Component;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Enum;
@@ -18,6 +20,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
         public ITaskAgent         TaskAgent         { get; set; }
         public ITaskAdd           TaskAdd           { get; set; }
         public ITaskGroupUpdate   TaskGroupUpdate   { get; set; }
+        public IIocManager        IocManager        { get; set; }
         public ITaskGroupInfo     TaskGroupInfo     { get; set; }
 
         /// <summary>
@@ -58,12 +61,13 @@ namespace FSS.Com.MetaInfoServer.Tasks
 
                     await TaskAgent.UpdateAsync(task.Id, task.Map<TaskPO>());
                     //await UpdateAsync(task); // 不需要更新缓存了，在创建新任务的时候，会更新缓存
-                    
+
                     // 统计失败次数，按次数递增时间
                     await TaskGroupUpdate.StatFailAsync(task, taskGroup);
                     // 完成后，立即生成一个新的任务
-                    await TaskAdd.CreateAsync(taskGroup);
+                    task = await TaskAdd.CreateAsync(taskGroup);
                     await TaskGroupUpdate.SaveAsync(taskGroup);
+                    await IocManager.Resolve<IRedisStreamProduct>("TaskScheduler").SendAsync(task.TaskGroupId.ToString());
                     break;
                 default:
                     await TaskAgent.UpdateAsync(task.Id, task.Map<TaskPO>());
