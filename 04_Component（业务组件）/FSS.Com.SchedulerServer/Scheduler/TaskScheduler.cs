@@ -1,8 +1,10 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using FS.DI;
 using FS.Utils.Common;
 using FSS.Abstract.Entity.MetaInfo;
+using FSS.Abstract.Entity.RegisterCenter;
 using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
 using FSS.Abstract.Server.RegisterCenter;
@@ -21,6 +23,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
         public IRunLogAdd      RunLogAdd      { get; set; }
         public IClientResponse ClientResponse { get; set; }
         public ISchedulerLock  SchedulerLock  { get; set; }
+        public ITaskInfo       TaskInfo      { get; set; }
 
         /// <summary>
         /// 调度
@@ -43,20 +46,18 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 if (SchedulerLock.TryLock(task.Id, clientVO.ServerHost))
                 {
                     //logger.LogDebug($"任务：GroupId={taskGroup.Id} TaskId={task.Id} {taskGroup.Caption} 调度给====>{clientVO.ClientIp}");
-
-                    // 通知客户端处理JOB
-                    task.Status     = EumTaskType.Scheduler;
-                    task.ClientHost = clientVO.ServerHost;
-                    task.ClientIp   = clientVO.ClientIp;
-                    task.ServerNode = IpHelper.GetIp;
-                    task.SchedulerAt = DateTime.Now;
-                    await TaskUpdate.UpdateAsync(task);
-
-                    // 通知客户端开始任务调度
-                    await ClientResponse.JobSchedulerAsync(clientVO, taskGroup, task);
+                    await Schedule(taskGroup: taskGroup, task: task, clientVO: clientVO);
                 }
                 else
                 {
+                    // 等待1S后，如果任务状态还是None，则删除锁
+                    await Task.Delay(1000);
+                    var newTask = await TaskInfo.ToInfoByGroupIdAsync(task.TaskGroupId);
+                    if (task.Id == newTask.Id && newTask.Status == EumTaskType.None)
+                    {
+                        await SchedulerLock.ClearLock(newTask.Id);
+                        await Schedule(taskGroup: taskGroup, task: task, clientVO: clientVO);
+                    }
                     //throw new Exception($"任务：GroupId={taskGroup.Id} {taskGroup.Caption}-TaskId={task.Id} ，已被调度。");
                     logger.LogWarning($"任务：GroupId={taskGroup.Id} {taskGroup.Caption}-TaskId={task.Id} ，已被调度。");
                 }
@@ -78,8 +79,26 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 task.Status = EumTaskType.Fail;
                 await TaskUpdate.SaveAsync(task, taskGroup);
                 await RunLogAdd.AddAsync(task.TaskGroupId, task.Id, LogLevel.Error, msg);
-                throw new Exception(msg);
+                await SchedulerLock.ClearLock(task.Id);
+                logger.LogError(msg);
             }
+        }
+
+        /// <summary>
+        /// 更新任务信息并调度
+        /// </summary>
+        private async Task Schedule(TaskGroupVO taskGroup, TaskVO task, ClientConnectVO clientVO)
+        {
+            // 通知客户端处理JOB
+            task.Status      = EumTaskType.Scheduler;
+            task.ClientHost  = clientVO.ServerHost;
+            task.ClientIp    = clientVO.ClientIp;
+            task.ServerNode  = IpHelper.GetIp;
+            task.SchedulerAt = DateTime.Now;
+            await TaskUpdate.UpdateAsync(task);
+
+            // 通知客户端开始任务调度
+            await ClientResponse.JobSchedulerAsync(clientVO, taskGroup, task);
         }
     }
 }
