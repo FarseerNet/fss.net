@@ -16,11 +16,6 @@ namespace FSS.Com.MetaInfoServer.Tasks
         public ITaskAgent TaskAgent { get; set; }
 
         /// <summary>
-        /// 获取全部任务列表
-        /// </summary>
-        public Task<List<TaskVO>> ToListAsync() => TaskAgent.ToListAsync().MapAsync<TaskVO, TaskPO>();
-
-        /// <summary>
         /// 获取指定任务组执行成功的任务列表
         /// </summary>
         public Task<List<TaskVO>> ToSuccessListAsync(int groupId, int top) => TaskAgent.ToSuccessListAsync(groupId, top).MapAsync<TaskVO, TaskPO>();

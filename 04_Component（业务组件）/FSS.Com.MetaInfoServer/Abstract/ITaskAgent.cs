@@ -8,11 +8,6 @@ namespace FSS.Com.MetaInfoServer.Abstract
     public interface ITaskAgent : ITransientDependency
     {
         /// <summary>
-        /// 获取所有任务列表
-        /// </summary>
-        Task<List<TaskPO>> ToListAsync();
-        
-        /// <summary>
         /// 获取任务信息
         /// </summary>
         Task<TaskPO> ToEntityAsync(int id);
