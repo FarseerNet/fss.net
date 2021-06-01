@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using FS.DI;
 using FS.Utils.Common;
@@ -37,7 +36,6 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 var clientVO = ClientSlb.Slb(taskGroup.JobName);
                 if (clientVO == null)
                 {
-                    throw new Exception($"任务：GroupId={taskGroup.Id} {taskGroup.Caption}-TaskId={task.Id} 需要在（{task.StartAt:yyyy-MM-dd HH:mm:ss}）执行，但没有找到可以调度的客户端");
                     logger.LogWarning($"任务：GroupId={taskGroup.Id} {taskGroup.Caption}-TaskId={task.Id} 需要在（{task.StartAt:yyyy-MM-dd HH:mm:ss}）执行，但没有找到可以调度的客户端");
                     return;
                 }
@@ -59,7 +57,6 @@ namespace FSS.Com.SchedulerServer.Scheduler
                         await Schedule(taskGroup: taskGroup, task: task, clientVO: clientVO);
                         return;
                     }
-                    //throw new Exception($"任务：GroupId={taskGroup.Id} {taskGroup.Caption}-TaskId={task.Id} ，已被调度。");
                     logger.LogWarning($"任务：GroupId={taskGroup.Id} {taskGroup.Caption}-TaskId={task.Id} ，已被调度。");
                 }
             }

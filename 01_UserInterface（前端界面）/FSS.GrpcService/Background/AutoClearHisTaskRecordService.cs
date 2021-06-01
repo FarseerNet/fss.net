@@ -33,6 +33,7 @@ namespace FSS.GrpcService.Background
             var reservedTaskCount = _ioc.Resolve<IConfigurationRoot>().GetSection("FSS:ReservedTaskCount").Value.ConvertType(20);
             while (true)
             {
+                await Task.Delay(1000 * 60 * 60, stoppingToken); // 1个小时执行一次
                 var lst = await _taskGroupList.ToListAsync();
                 foreach (var taskGroupVO in lst)
                 {
@@ -43,8 +44,6 @@ namespace FSS.GrpcService.Background
                     await _taskList.ClearSuccessAsync(taskGroupVO.Id, taskId);
                     Thread.Sleep(1000);
                 }
-
-                await Task.Delay(1000 * 60 * 60, stoppingToken); // 1个小时执行一次
             }
         }
     }

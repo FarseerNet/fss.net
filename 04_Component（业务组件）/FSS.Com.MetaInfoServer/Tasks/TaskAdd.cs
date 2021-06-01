@@ -51,8 +51,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
             await RedisCacheManager.CacheManager.SaveAsync(TaskCache.Key, task, task.TaskGroupId);
             return task;
         }
-
-
+        
         /// <summary>
         /// 创建Task，并更新到缓存
         /// </summary>
@@ -60,7 +59,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
         {
             var taskGroup = await TaskGroupInfo.ToInfoAsync(taskGroupId);
             var task      = await CreateAsync(taskGroup);
-            await TaskGroupUpdate.SaveAsync(taskGroup);
+            await TaskGroupUpdate.UpdateAsync(taskGroup);
             return task;
         }
     }

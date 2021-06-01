@@ -22,7 +22,7 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
         public ITaskGroupAgent    TaskGroupAgent    { get; set; }
         public IRedisCacheManager RedisCacheManager { get; set; }
 
-        readonly MemoryCache memoryCache = new MemoryCache(new MemoryCacheOptions
+        readonly MemoryCache memoryCache = new(new MemoryCacheOptions
         {
         });
 

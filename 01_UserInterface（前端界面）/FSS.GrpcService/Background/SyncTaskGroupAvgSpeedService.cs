@@ -34,6 +34,7 @@ namespace FSS.GrpcService.Background
         {
             while (true)
             {
+                await Task.Delay(5 * 60 * 1000, stoppingToken);
                 var taskGroupVos = await _taskGroupList.ToListAsync();
                 foreach (var taskGroupVo in taskGroupVos)
                 {
@@ -48,7 +49,6 @@ namespace FSS.GrpcService.Background
                     
                     await Task.Delay(1000, stoppingToken);
                 }
-                await Task.Delay(5 * 60 * 1000, stoppingToken);
             }
         }
     }

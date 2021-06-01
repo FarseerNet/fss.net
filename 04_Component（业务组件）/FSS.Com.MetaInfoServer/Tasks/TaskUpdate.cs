@@ -21,7 +21,6 @@ namespace FSS.Com.MetaInfoServer.Tasks
         public ITaskAdd           TaskAdd           { get; set; }
         public ITaskGroupUpdate   TaskGroupUpdate   { get; set; }
         public IIocManager        IocManager        { get; set; }
-        public ITaskGroupInfo     TaskGroupInfo     { get; set; }
 
         /// <summary>
         /// 更新Task（如果状态是成功、失败、重新调度，则应该调Save）
@@ -66,7 +65,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
                     await TaskGroupUpdate.StatFailAsync(task, taskGroup);
                     // 完成后，立即生成一个新的任务
                     task = await TaskAdd.CreateAsync(taskGroup);
-                    await TaskGroupUpdate.SaveAsync(taskGroup);
+                    await TaskGroupUpdate.UpdateAsync(taskGroup);
                     await IocManager.Resolve<IRedisStreamProduct>("TaskScheduler").SendAsync(task.TaskGroupId.ToString());
                     break;
                 default:

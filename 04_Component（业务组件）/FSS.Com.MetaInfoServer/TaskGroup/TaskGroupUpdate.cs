@@ -24,27 +24,16 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
         /// <summary>
         /// 更新TaskGroup
         /// </summary>
-        public Task UpdateAsync(TaskGroupVO taskGroup) => TaskGroupCache.SaveAsync(taskGroup.Id, taskGroup);
+        public Task UpdateAsync(TaskGroupVO vo)
+        {
+            return TaskGroupCache.SaveAsync(vo.Id, vo);
+        }
 
         /// <summary>
         /// 保存TaskGroup
         /// </summary>
         public async Task SaveAsync(TaskGroupVO vo)
         {
-            if (vo.IntervalMs < 1)
-            {
-                // 是否为数字
-                if (IsType.IsInt(vo.Cron))
-                {
-                    vo.IntervalMs = vo.Cron.ConvertType(0L);
-                    vo.Cron       = "";
-                }
-                else if (!new Cron().Parse(vo.Cron))
-                {
-                    throw new Exception("Cron格式错误");
-                }
-            }
-
             await TaskGroupAgent.UpdateAsync(vo.Id, vo.Map<TaskGroupPO>());
             await UpdateAsync(vo);
         }

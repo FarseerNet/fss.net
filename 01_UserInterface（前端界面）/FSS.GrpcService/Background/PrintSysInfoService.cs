@@ -41,12 +41,12 @@ namespace FSS.GrpcService.Background
             _logger.LogInformation($"使用 [ {use} ] 作为日志保存记录");
 
             _logger.LogInformation($"正在读取所有任务组信息");
-            var taskGroupVos = await _taskGroupList.ToListAndSaveAsync();
+            var taskGroupVos = await _taskGroupList.ToListByMemoryAsync();
             _logger.LogInformation($"共获取到：{taskGroupVos.Count} 条任务组信息");
 
             foreach (var taskGroupVo in taskGroupVos)
             {
-                _logger.LogInformation($"【{taskGroupVo.IsEnable}】{taskGroupVo.Id}：{taskGroupVo.Caption}、{taskGroupVo.JobName}、{taskGroupVo.NextAt:yyyy-MM-dd:HH:mm:ss}");
+                _logger.LogInformation($"【{taskGroupVo.Value.IsEnable}】{taskGroupVo.Value.Id}：{taskGroupVo.Value.Caption}、{taskGroupVo.Value.JobName}、{taskGroupVo.Value.NextAt:yyyy-MM-dd:HH:mm:ss}");
             }
             
             await _ioc.Resolve<IWhenTaskStatus>("None").Run();
