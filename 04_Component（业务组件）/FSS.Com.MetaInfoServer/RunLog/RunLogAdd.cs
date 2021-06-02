@@ -22,20 +22,8 @@ namespace FSS.Com.MetaInfoServer.RunLog
         /// </summary>
         public async Task AddAsync(int taskGroupId, int taskId, LogLevel logLevel, string content)
         {
-            if (logLevel is LogLevel.Error or LogLevel.Warning) IocManager.Logger<RunLogAdd>().Log(logLevel, content);
             var groupInfo = await TaskGroupInfo.ToInfoAsync(taskGroupId) ?? new TaskGroupVO();
-            var runLogPO = new RunLogPO
-            {
-                TaskGroupId = taskGroupId,
-                TaskId      = taskId,
-                Caption     = groupInfo.Caption ?? "",
-                JobName     = groupInfo.JobName ?? "",
-                LogLevel = logLevel,
-                Content  = content,
-                CreateAt = DateTime.Now
-            };
-
-            await IocManager.Resolve<IRedisStreamProduct>("RonLogQueue").SendAsync(runLogPO);
+            await AddAsync(groupInfo, taskId, logLevel, content);
         }
 
         /// <summary>
