@@ -78,7 +78,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 // 通知失败，则把当前任务设为失败
                 task.Status = EumTaskType.Fail;
                 await TaskUpdate.SaveAsync(task, taskGroup);
-                await RunLogAdd.AddAsync(task.TaskGroupId, task.Id, LogLevel.Error, msg);
+                await RunLogAdd.AddAsync(taskGroup, task.Id, LogLevel.Error, msg);
                 await SchedulerLock.ClearLock(task.Id);
                 _logger.LogError(msg);
             }

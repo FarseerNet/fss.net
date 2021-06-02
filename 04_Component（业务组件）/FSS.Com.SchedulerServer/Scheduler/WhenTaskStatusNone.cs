@@ -50,7 +50,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                         foreach (var task in lstNoneTask.Where(taskVO => lstTask.All(o => o.Id != taskVO.Id)))
                         {
                             // 强制设为失败
-                            await RunLogAdd.AddAsync(task.TaskGroupId, task.Id, LogLevel.Warning, $"任务ID：{task.Id}，与当前任务组正在执行的任务不一致，强制设为失败状态");
+                            await RunLogAdd.AddAsync(dicTaskGroup[task.TaskGroupId], task.Id, LogLevel.Warning, $"任务ID：{task.Id}，与当前任务组正在执行的任务不一致，强制设为失败状态");
                             task.Status = EumTaskType.Fail;
                             await TaskUpdate.SaveAsync(task);
                         }

@@ -37,5 +37,25 @@ namespace FSS.Com.MetaInfoServer.RunLog
 
             await IocManager.Resolve<IRedisStreamProduct>("RonLogQueue").SendAsync(runLogPO);
         }
+
+        /// <summary>
+        /// 添加日志记录
+        /// </summary>
+        public async Task AddAsync(TaskGroupVO groupInfo, int taskId, LogLevel logLevel, string content)
+        {
+            if (logLevel is LogLevel.Error or LogLevel.Warning) IocManager.Logger<RunLogAdd>().Log(logLevel, content);
+            var runLogPO = new RunLogPO
+            {
+                TaskGroupId = groupInfo.Id,
+                TaskId      = taskId,
+                Caption     = groupInfo.Caption ?? "",
+                JobName     = groupInfo.JobName ?? "",
+                LogLevel    = logLevel,
+                Content     = content,
+                CreateAt    = DateTime.Now
+            };
+
+            await IocManager.Resolve<IRedisStreamProduct>("RonLogQueue").SendAsync(runLogPO);
+        }
     }
 }
