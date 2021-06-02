@@ -46,5 +46,10 @@ namespace FSS.Com.MetaInfoServer.Abstract
         /// 今日执行失败数量
         /// </summary>
         Task<int> TodayFailCountAsync();
+
+        /// <summary>
+        /// 获取未执行的任务列表
+        /// </summary>
+        Task<List<TaskPO>> ToNoneListAsync();
     }
 }

@@ -23,8 +23,10 @@ namespace FSS.Com.SchedulerServer.Scheduler
         public ITaskInfo          TaskInfo          { get; set; }
         public IClientRegister    ClientRegister    { get; set; }
         public ITaskGroupList     TaskGroupList     { get; set; }
+        public ITaskList          TaskList          { get; set; }
+        public ITaskUpdate        TaskUpdate        { get; set; }
         public IIocManager        IocManager        { get; set; }
-        public ITaskScheduler     TaskScheduler     { get; set; }
+        public IRunLogAdd         RunLogAdd         { get; set; }
         public IRedisCacheManager RedisCacheManager { get; set; }
 
         /// <summary>
@@ -40,9 +42,19 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 {
                     try
                     {
-                        var       dicTaskGroup = await TaskGroupList.ToListByMemoryAsync();
-                        var       lstTask      = await TaskInfo.ToGroupListAsync();
-
+                        var dicTaskGroup = await TaskGroupList.ToListByMemoryAsync();
+                        var lstTask      = await TaskInfo.ToGroupListAsync();
+                        
+                        // 找出未执行的任务列表
+                        var lstNoneTask  = await TaskList.ToNoneListAsync();
+                        foreach (var task in lstNoneTask.Where(taskVO => lstTask.All(o => o.Id != taskVO.Id)))
+                        {
+                            // 强制设为失败
+                            await RunLogAdd.AddAsync(task.TaskGroupId, task.Id, LogLevel.Warning, $"任务ID：{task.Id}，与当前任务组正在执行的任务不一致，强制设为失败状态");
+                            task.Status = EumTaskType.Fail;
+                            await TaskUpdate.SaveAsync(task);
+                        }
+                        
                         // 注册进来的客户端，必须是能处理的，否则退出线程
                         var lstStatusNone = lstTask.FindAll(o => ClientRegister.Exists(o.JobName));
                         if (lstStatusNone == null || lstStatusNone.Count == 0)

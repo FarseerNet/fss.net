@@ -48,7 +48,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                         // 取出马上到时间要处理的
                         lstStatusWorking = lstStatusWorking.FindAll(o =>
                                 (o.Status is EumTaskType.Working or EumTaskType.Scheduler) && // 状态必须是 EumTaskType.None
-                                (DateTime.Now - o.StartAt).TotalMilliseconds >= 10000 &&      // 执行时间在10s后的
+                                (DateTime.Now - o.SchedulerAt).TotalMilliseconds >= 10000 &&      // 执行时间在10s后的
                                 dicTaskGroup[o.TaskGroupId].IsEnable)                         // 任务组必须是开启
                             .OrderBy(o => o.StartAt).ToList();
 

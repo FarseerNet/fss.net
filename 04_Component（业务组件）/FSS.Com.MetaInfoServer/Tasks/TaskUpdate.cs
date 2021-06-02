@@ -33,6 +33,14 @@ namespace FSS.Com.MetaInfoServer.Tasks
         /// <summary>
         /// 保存Task
         /// </summary>
+        public async Task SaveAsync(TaskVO task)
+        {
+            await TaskAgent.UpdateAsync(task.Id, task.Map<TaskPO>());
+        }
+        
+        /// <summary>
+        /// 保存Task
+        /// </summary>
         public async Task SaveAsync(TaskVO task, TaskGroupVO taskGroup)
         {
             switch (task.Status)
@@ -50,7 +58,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
                         if (taskGroup.IntervalMs > 0) taskGroup.NextAt = DateTime.Now.AddMilliseconds(taskGroup.IntervalMs);
                         else if (string.IsNullOrWhiteSpace(taskGroup.Cron) is false && cron.Parse(taskGroup.Cron))
                         {
-                            taskGroup.NextAt = cron.GetNext(DateTime.Now); // 未实现
+                            taskGroup.NextAt = cron.GetNext(DateTime.Now);
                         }
                         else // 没有找到设置下一次时间的设置，则默认30S执行一次
                         {
@@ -62,9 +70,9 @@ namespace FSS.Com.MetaInfoServer.Tasks
                     //await UpdateAsync(task); // 不需要更新缓存了，在创建新任务的时候，会更新缓存
 
                     // 统计失败次数，按次数递增时间
-                    await TaskGroupUpdate.StatFailAsync(task, taskGroup);
+                    //await TaskGroupUpdate.StatFailAsync(task, taskGroup);
                     // 完成后，立即生成一个新的任务
-                    task = await TaskAdd.CreateAsync(taskGroup);
+                    task = await TaskAdd.CreateAsync(taskGroup, task);
                     await TaskGroupUpdate.UpdateAsync(taskGroup);
                     await IocManager.Resolve<IRedisStreamProduct>("TaskScheduler").SendAsync(task.TaskGroupId.ToString());
                     break;

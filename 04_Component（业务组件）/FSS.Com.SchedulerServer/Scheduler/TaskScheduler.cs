@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using FS.DI;
 using FS.Utils.Common;
@@ -22,21 +23,22 @@ namespace FSS.Com.SchedulerServer.Scheduler
         public IRunLogAdd      RunLogAdd      { get; set; }
         public IClientResponse ClientResponse { get; set; }
         public ISchedulerLock  SchedulerLock  { get; set; }
-        public ITaskInfo       TaskInfo      { get; set; }
+        public ITaskInfo       TaskInfo       { get; set; }
+        ILogger                _logger;
 
         /// <summary>
         /// 调度
         /// </summary>
         public async Task Scheduler(TaskGroupVO taskGroup, TaskVO task)
         {
-            var logger = IocManager.Logger<TaskScheduler>();
+            _logger = IocManager.Logger<TaskScheduler>();
             try
             {
                 // 取出空闲客户端、开始调度执行
                 var clientVO = ClientSlb.Slb(taskGroup.JobName);
                 if (clientVO == null)
                 {
-                    logger.LogWarning($"任务：GroupId={taskGroup.Id} {taskGroup.Caption}-TaskId={task.Id} 需要在（{task.StartAt:yyyy-MM-dd HH:mm:ss}）执行，但没有找到可以调度的客户端");
+                    _logger.LogWarning($"任务：GroupId={taskGroup.Id} {taskGroup.Caption}-TaskId={task.Id} 需要在（{task.StartAt:yyyy-MM-dd HH:mm:ss}）执行，但没有找到可以调度的客户端");
                     return;
                 }
 
@@ -57,7 +59,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                         await Schedule(taskGroup: taskGroup, task: task, clientVO: clientVO);
                         return;
                     }
-                    logger.LogWarning($"任务：GroupId={taskGroup.Id} {taskGroup.Caption}-TaskId={task.Id} ，已被调度。");
+                    _logger.LogWarning($"任务：GroupId={taskGroup.Id} {taskGroup.Caption}-TaskId={task.Id} ，已被调度。");
                 }
             }
             catch (Exception e) // 通知失败
@@ -78,7 +80,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 await TaskUpdate.SaveAsync(task, taskGroup);
                 await RunLogAdd.AddAsync(task.TaskGroupId, task.Id, LogLevel.Error, msg);
                 await SchedulerLock.ClearLock(task.Id);
-                logger.LogError(msg);
+                _logger.LogError(msg);
             }
         }
 
@@ -87,6 +89,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
         /// </summary>
         private async Task Schedule(TaskGroupVO taskGroup, TaskVO task, ClientConnectVO clientVO)
         {
+            //Stopwatch sw = Stopwatch.StartNew();
             // 通知客户端处理JOB
             task.Status      = EumTaskType.Scheduler;
             task.ClientHost  = clientVO.ServerHost;
@@ -97,6 +100,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
 
             // 通知客户端开始任务调度
             await ClientResponse.JobSchedulerAsync(clientVO, taskGroup, task);
+            //_logger.LogInformation($"统计：调度【{task.Caption} ({task.JobName})】耗时：{sw.ElapsedMilliseconds} ms");
         }
     }
 }

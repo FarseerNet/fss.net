@@ -2,11 +2,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FS.Cache.Redis;
+using FS.Core;
 using FS.Extends;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Server.MetaInfo;
 using FSS.Com.MetaInfoServer.Abstract;
 using FSS.Com.MetaInfoServer.Tasks.Dal;
+using Newtonsoft.Json;
 
 namespace FSS.Com.MetaInfoServer.Tasks
 {
@@ -21,7 +23,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
         /// 获取任务信息
         /// </summary>
         public Task<TaskVO> ToInfoByDbAsync(int id) => TaskAgent.ToEntityAsync(id).MapAsync<TaskVO, TaskPO>();
-        
+
         /// <summary>
         /// 获取当前任务组的任务
         /// </summary>
@@ -47,6 +49,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
                     {
                         lst.Add(await TaskAdd.GetOrCreateAsync(taskGroupVo.Id));
                     }
+
                     return lst;
                 }, o => o.TaskGroupId);
         }
@@ -60,7 +63,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
             if (speedList.Count == 0) return 0;
             return speedList.Sum() / speedList.Count;
         }
-        
+
         /// <summary>
         /// 今日执行失败数量
         /// </summary>

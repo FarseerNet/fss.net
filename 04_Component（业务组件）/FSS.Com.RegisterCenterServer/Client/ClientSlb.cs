@@ -20,6 +20,7 @@ namespace FSS.Com.RegisterCenterServer.Client
 
             // 简单实现：取使用时间最后的。
             return clientVos.Where(o => o.JobName==jobName).OrderBy(o => o.UseAt).FirstOrDefault();
+            //return clientVos.Find(o => o.JobName == jobName);
         }
     }
 }

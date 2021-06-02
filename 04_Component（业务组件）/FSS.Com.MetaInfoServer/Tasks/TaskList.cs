@@ -24,5 +24,10 @@ namespace FSS.Com.MetaInfoServer.Tasks
         /// 清除成功的任务记录（1天前）
         /// </summary>
         public Task ClearSuccessAsync(int groupId, int taskId) => TaskAgent.ClearSuccessAsync(groupId, taskId);
+
+        /// <summary>
+        /// 获取未执行的任务列表
+        /// </summary>
+        public Task<List<TaskVO>> ToNoneListAsync() => TaskAgent.ToNoneListAsync().MapAsync<TaskVO, TaskPO>();
     }
 }

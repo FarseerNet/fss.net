@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using FS.DI;
 using FS.Extends;
@@ -64,9 +65,11 @@ namespace FSS.GrpcService.Services
         /// </summary>
         public override async Task<CommandResponse> JobInvoke(IAsyncStreamReader<JobInvokeRequest> requestStream, ServerCallContext context)
         {
-            var taskGroupId = context.RequestHeaders.GetValue("task_group_id").ConvertType(0);
-            var taskId      = context.RequestHeaders.GetValue("task_id").ConvertType(0);
-            var serverHost  = $"{context.Host}_{context.Peer}";
+            Stopwatch sw          = Stopwatch.StartNew();
+            var       logger      = _ioc.Logger<ITaskScheduler>();
+            var       taskGroupId = context.RequestHeaders.GetValue("task_group_id").ConvertType(0);
+            var       taskId      = context.RequestHeaders.GetValue("task_id").ConvertType(0);
+            var       serverHost  = $"{context.Host}_{context.Peer}";
 
             var runLogAdd = _ioc.Resolve<IRunLogAdd>();
             var task      = await _ioc.Resolve<ITaskInfo>().ToInfoByGroupIdAsync(taskGroupId);
@@ -87,12 +90,12 @@ namespace FSS.GrpcService.Services
                 return (CommandResponse) _ioc.Resolve<IClientResponse>().Print($"指定的TaskId：{taskId} 所属的任务组：{task.TaskGroupId} 不存在");
             }
 
+
             var taskUpdate      = _ioc.Resolve<ITaskUpdate>();
             var clientResponse  = _ioc.Resolve<ClientResponse>();
             var taskGroupUpdate = _ioc.Resolve<ITaskGroupUpdate>();
             var clientRegister  = _ioc.Resolve<IClientRegister>();
-            var logger          = _ioc.Logger<ITaskScheduler>();
-
+            
             try
             {
                 // 更新客户端的使用时间
@@ -110,8 +113,9 @@ namespace FSS.GrpcService.Services
                 {
                     task.RunAt = DateTime.Now; // 首次执行，记录时间
                 }
+                
                 task.Status = EumTaskType.Working;
-                await taskUpdate.UpdateAsync(task);
+                //await taskUpdate.UpdateAsync(task);
 
                 // 更新group元信息
                 taskGroup.RunCount++;
@@ -153,6 +157,7 @@ namespace FSS.GrpcService.Services
                     }
                 }
 
+                //logger.LogInformation($"统计：收受处理结果 耗时：{sw.ElapsedMilliseconds} ms");
                 // 不成功，则暂停3秒
                 if (task.Status != EumTaskType.Success)
                 {

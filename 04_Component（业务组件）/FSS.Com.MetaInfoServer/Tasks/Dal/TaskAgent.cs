@@ -22,6 +22,11 @@ namespace FSS.Com.MetaInfoServer.Tasks.Dal
         public Task<List<TaskPO>> ToSuccessListAsync(int groupId, int top) => MetaInfoContext.Data.Task.Where(o => o.TaskGroupId == groupId && o.Status == EumTaskType.Success).Desc(o=>o.CreateAt).ToListAsync(top);
 
         /// <summary>
+        /// 获取未执行的任务列表
+        /// </summary>
+        public Task<List<TaskPO>> ToNoneListAsync() => MetaInfoContext.Data.Task.Where(o => o.Status == EumTaskType.None).Asc(o=>o.CreateAt).ToListAsync();
+
+        /// <summary>
         /// 清除成功的任务记录（1天前）
         /// </summary>
         public Task ClearSuccessAsync(int groupId, int taskId) => MetaInfoContext.Data.Task.Where(o => o.TaskGroupId == groupId && o.Status == EumTaskType.Success && o.CreateAt < DateTime.Now.AddDays(-1) && o.Id < taskId).DeleteAsync();

@@ -32,8 +32,8 @@ namespace FSS.Com.SchedulerServer.Scheduler
         /// </summary>
         public async Task<bool> Consumer(StreamEntry[] messages, ConsumeContext ea)
         {
-            var logger       = IocManager.Logger<TaskSchedulerConsumer>();
-            var dicTaskGroup = await TaskGroupList.ToListByMemoryAsync();
+            var       logger       = IocManager.Logger<TaskSchedulerConsumer>();
+            var       dicTaskGroup = await TaskGroupList.ToListByMemoryAsync();
             foreach (var message in messages)
             {
                 Stopwatch sw          = Stopwatch.StartNew();
@@ -44,7 +44,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                     continue;
                 }
 
-                var taskVO = await TaskInfo.ToInfoByGroupIdAsync(taskGroupId);
+                var       taskVO = await TaskInfo.ToInfoByGroupIdAsync(taskGroupId);
                 // 如果任务在当前节点没有客户端连接
                 if (!ClientRegister.Exists(taskVO.JobName))
                 {
