@@ -73,8 +73,9 @@ namespace FSS.Com.SchedulerServer.Scheduler
 
                 try
                 {
+                    var getDateTime = sw.ElapsedMilliseconds;
                     await TaskScheduler.Scheduler(dicTaskGroup[taskVO.TaskGroupId], taskVO);
-                    logger.LogInformation($"调度：耗时 {sw.ElapsedMilliseconds} ms，【{taskVO.Caption} ({taskVO.JobName})】");
+                    logger.LogInformation($"调度：耗时 取数据：{getDateTime} ms Grpc：{sw.ElapsedMilliseconds} ms，【{taskVO.Caption} ({taskVO.JobName})】");
                     await ea.Ack(message);
                 }
                 catch (Exception e)
