@@ -86,11 +86,9 @@ namespace FSS.GrpcService.Services
             // 服务端当前任务ID与客户端请求的任务ID不一致
             if (task.Id > taskId)
             {
-                await runLogAdd.AddAsync(taskGroup, taskId, LogLevel.Warning, $"与服务端正在处理的Task：{task.Id} 不一致");
-                return (CommandResponse) _ioc.Resolve<IClientResponse>().Print($"指定的TaskId：{taskId} 与服务端正在处理的Task：{task.Id} 不一致");
+                await runLogAdd.AddAsync(taskGroup, taskId, LogLevel.Warning, $"与服务端正在处理的Task： {taskGroup.Caption}（{taskGroup.JobName}） 不一致");
+                return (CommandResponse) _ioc.Resolve<IClientResponse>().Print($"指定的TaskId：{taskId} {taskGroup.Caption}（{taskGroup.JobName}） 与服务端正在处理的Task：{task.Id} 不一致");
             }
-
-
 
             var taskUpdate      = _ioc.Resolve<ITaskUpdate>();
             var clientResponse  = _ioc.Resolve<ClientResponse>();
@@ -106,7 +104,7 @@ namespace FSS.GrpcService.Services
                 if (task.ClientHost != serverHost)
                 {
                     await runLogAdd.AddAsync(taskGroup, taskId, LogLevel.Warning, $"{task.ClientHost}与本次请求{serverHost} 不一致，忽略本次请求");
-                    return (CommandResponse) clientResponse.Ignore($"任务ID：{task.Id}，{task.ClientHost}与本次请求{serverHost} 不一致，忽略本次请求");
+                    return (CommandResponse) clientResponse.Ignore($"任务ID： {taskGroup.Caption}（{taskGroup.JobName}） ，{task.ClientHost}与本次请求{serverHost} 不一致，忽略本次请求");
                 }
 
                 // 更新Task元信息
@@ -123,7 +121,7 @@ namespace FSS.GrpcService.Services
                 taskGroup.ActivateAt = DateTime.Now;
                 taskGroup.LastRunAt  = DateTime.Now;
                 
-                await taskGroupUpdate.UpdateAsync(taskGroup);
+                //await taskGroupUpdate.UpdateAsync(taskGroup);
 
                 // 实时同步JOB执行状态
                 await foreach (var jobRequest in requestStream.ReadAllAsync())
@@ -133,6 +131,12 @@ namespace FSS.GrpcService.Services
                     task.Status   = (EumTaskType) jobRequest.Status;
                     task.RunSpeed = jobRequest.RunSpeed;
 
+                    // 如果有日志
+                    if (jobRequest.Log != null && !string.IsNullOrWhiteSpace(jobRequest.Log.Log))
+                    {
+                        await runLogAdd.AddAsync(taskGroup, task.Id, (LogLevel) jobRequest.Log.LogLevel, jobRequest.Log.Log);
+                    }
+                    
                     // 如果是成功、错误状态，则要立即更新数据库
                     switch (task.Status)
                     {
@@ -150,16 +154,8 @@ namespace FSS.GrpcService.Services
                             await taskUpdate.UpdateAsync(task);
                             break;
                     }
-
-                    // 如果有日志
-                    if (jobRequest.Log != null && !string.IsNullOrWhiteSpace(jobRequest.Log.Log))
-                    {
-                        await runLogAdd.AddAsync(taskGroup, task.Id, (LogLevel) jobRequest.Log.LogLevel, jobRequest.Log.Log);
-                    }
                 }
-
-                //logger.LogInformation($"统计：收受处理结果 耗时：{sw.ElapsedMilliseconds} ms");
-                // 不成功，则暂停3秒
+                
                 if (task.Status != EumTaskType.Success)
                 {
                     var message = $"任务：{task.TaskGroupId}-{task.Id} 执行失败";
@@ -177,6 +173,7 @@ namespace FSS.GrpcService.Services
             {
                 if (e.InnerException != null) e = e.InnerException;
                 task.Status = EumTaskType.Fail;
+                await taskUpdate.SaveAsync(task, taskGroup);
                 logger.LogError(e.Message);
                 return (CommandResponse) _ioc.Resolve<IClientResponse>().Print(e.Message);
             }

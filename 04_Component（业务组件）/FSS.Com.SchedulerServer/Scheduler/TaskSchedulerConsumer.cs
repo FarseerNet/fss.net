@@ -84,6 +84,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 }
             }
 
+            Console.WriteLine();
             return false;
         }
 
