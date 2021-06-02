@@ -74,7 +74,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 try
                 {
                     await TaskScheduler.Scheduler(dicTaskGroup[taskVO.TaskGroupId], taskVO);
-                    logger.LogInformation($"统计：调度【{taskVO.Caption} ({taskVO.JobName})】耗时：{sw.ElapsedMilliseconds} ms");
+                    logger.LogInformation($"调度：耗时 {sw.ElapsedMilliseconds} ms，【{taskVO.Caption} ({taskVO.JobName})】");
                     await ea.Ack(message);
                 }
                 catch (Exception e)
