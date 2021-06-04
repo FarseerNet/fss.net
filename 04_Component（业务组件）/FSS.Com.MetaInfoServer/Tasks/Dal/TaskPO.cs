@@ -21,7 +21,7 @@ namespace FSS.Com.MetaInfoServer.Tasks.Dal
         /// <summary>
         /// 任务组ID
         /// </summary>
-        [Field(Name = "task_group_id")] public int TaskGroupId { get; set; }
+        [Field(Name = "task_group_id")] public int? TaskGroupId { get; set; }
         
         /// <summary>
         /// 任务组标题
