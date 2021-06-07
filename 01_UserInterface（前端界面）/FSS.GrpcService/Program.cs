@@ -13,7 +13,7 @@ namespace FSS.GrpcService
     [RedisStream]
     public class Program
     {
-        public static int Port = 81;
+        public static int Port = 80;
         public static void Main(string[] args)
         {
             FarseerApplication.Run<Startup>("FSS.GrpcService").Initialize();

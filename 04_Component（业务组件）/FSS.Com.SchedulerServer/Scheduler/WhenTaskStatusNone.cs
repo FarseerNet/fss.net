@@ -24,6 +24,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
         public IClientRegister    ClientRegister    { get; set; }
         public ITaskGroupList     TaskGroupList     { get; set; }
         public ITaskList          TaskList          { get; set; }
+        public ITaskAdd           TaskAdd           { get; set; }
         public ITaskUpdate        TaskUpdate        { get; set; }
         public IIocManager        IocManager        { get; set; }
         public IRunLogAdd         RunLogAdd         { get; set; }
@@ -53,6 +54,17 @@ namespace FSS.Com.SchedulerServer.Scheduler
                             await RunLogAdd.AddAsync(dicTaskGroup[task.TaskGroupId], task.Id, LogLevel.Warning, $"任务ID：{task.Id}，与当前任务组正在执行的任务不一致，强制设为失败状态");
                             task.Status = EumTaskType.Fail;
                             await TaskUpdate.SaveAsync(task);
+                        }
+                        
+                        // 找到Task不存在的任务（数据库被手动删除）
+                        foreach (var taskGroupVO in dicTaskGroup)
+                        {
+                            if (lstTask.Exists(o=>o.Id == taskGroupVO.Value.TaskId)) continue;
+                            var taskDb = await TaskInfo.ToInfoByDbAsync(taskGroupVO.Value.TaskId);
+                            if (taskDb == null)
+                            {
+                                await TaskAdd.GetOrCreateAsync(taskGroupVO.Key);
+                            }
                         }
                         
                         // 注册进来的客户端，必须是能处理的，否则退出线程
