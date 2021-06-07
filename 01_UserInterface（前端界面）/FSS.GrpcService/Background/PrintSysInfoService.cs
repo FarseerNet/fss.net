@@ -31,7 +31,7 @@ namespace FSS.GrpcService.Background
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             var ip = IpHelper.GetIps()[0].Address.MapToIPv4().ToString();
-            _logger.LogInformation($"服务({ip})启动完成，监听 http://{IPAddress.Any}:80 ");
+            _logger.LogInformation($"服务({ip})启动完成，监听 http://{IPAddress.Any}:{Program.Port} ");
 
             var reservedTaskCount = _ioc.Resolve<IConfigurationRoot>().GetSection("FSS:ReservedTaskCount").Value.ConvertType(20);
             _logger.LogInformation($"当前系统设置任务至少保留：{reservedTaskCount}条");

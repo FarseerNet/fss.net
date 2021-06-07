@@ -13,6 +13,7 @@ namespace FSS.GrpcService
     [RedisStream]
     public class Program
     {
+        public static int Port = 81;
         public static void Main(string[] args)
         {
             FarseerApplication.Run<Startup>("FSS.GrpcService").Initialize();
@@ -32,7 +33,8 @@ namespace FSS.GrpcService
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     //Setup a HTTP/2 endpoint without TLS.
-                    webBuilder.ConfigureKestrel(options => options.Listen(IPAddress.Any, 81)).UseStartup<Startup>();
+                    webBuilder.ConfigureKestrel(options => options.ListenAnyIP(Port))
+                        .UseStartup<Startup>();
                 });
         }
     }
