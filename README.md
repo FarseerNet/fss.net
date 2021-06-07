@@ -71,6 +71,7 @@ FSS的设计初衷是为了实现分布式的调度，运行Job的程序不应�
 ## 服务端搭建
 
 `1、mysql 脚本（你也可以换其它数据库）`
+```mysql
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
