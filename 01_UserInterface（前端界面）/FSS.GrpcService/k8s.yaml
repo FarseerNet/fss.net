@@ -28,7 +28,7 @@ spec:
       containers:
         - name: fss-grpc
           image: farseernet/fss:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           imagePullSecrets:
             - name: regsecret
           ports:
@@ -61,6 +61,7 @@ data:
   Logging__LogLevel__Default: ''
   Redis__0__Password: ''
   Redis__0__Server: ''
+  ElasticSearch__Server: aHR0cDovL2Vz
 kind: Secret
 metadata:
   name: fss
