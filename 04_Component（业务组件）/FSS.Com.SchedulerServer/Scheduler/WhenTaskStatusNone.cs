@@ -45,28 +45,32 @@ namespace FSS.Com.SchedulerServer.Scheduler
                     {
                         var dicTaskGroup = await TaskGroupList.ToListByMemoryAsync();
                         var lstTask      = await TaskInfo.ToGroupListAsync();
-                        
+
                         // 找出未执行的任务列表
-                        var lstNoneTask  = await TaskList.ToNoneListAsync();
-                        foreach (var task in lstNoneTask.Where(taskVO =>lstTask.All(o => o.Id != taskVO.Id && dicTaskGroup.ContainsKey(o.TaskGroupId))))
+                        var lstNoneTask = await TaskList.ToNoneListAsync();
+                        foreach (var task in lstNoneTask.Where(taskVO => lstTask.All(o => o.Id != taskVO.Id)))
                         {
                             // 强制设为失败
-                            await RunLogAdd.AddAsync(dicTaskGroup[task.TaskGroupId], task.Id, LogLevel.Warning, $"任务ID：{task.Id}，与当前任务组正在执行的任务不一致，强制设为失败状态");
+                            if (dicTaskGroup.ContainsKey(task.TaskGroupId))
+                            {
+                                await RunLogAdd.AddAsync(dicTaskGroup[task.TaskGroupId], task.Id, LogLevel.Warning, $"任务ID：{task.Id}，与当前任务组正在执行的任务不一致，强制设为失败状态");
+                            }
+
                             task.Status = EumTaskType.Fail;
                             await TaskUpdate.SaveAsync(task);
                         }
-                        
+
                         // 找到Task不存在的任务（数据库被手动删除）
                         foreach (var taskGroupVO in dicTaskGroup)
                         {
-                            if (lstTask.Exists(o=>o.Id == taskGroupVO.Value.TaskId)) continue;
+                            if (lstTask.Exists(o => o.Id == taskGroupVO.Value.TaskId)) continue;
                             var taskDb = await TaskInfo.ToInfoByDbAsync(taskGroupVO.Value.TaskId);
                             if (taskDb == null)
                             {
                                 await TaskAdd.GetOrCreateAsync(taskGroupVO.Key);
                             }
                         }
-                        
+
                         // 注册进来的客户端，必须是能处理的，否则退出线程
                         var lstStatusNone = lstTask.FindAll(o => ClientRegister.Exists(o.JobName));
                         if (lstStatusNone == null || lstStatusNone.Count == 0)
@@ -81,7 +85,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                                 (o.StartAt - DateTime.Now).TotalMinutes <= 2 && // 执行时间在1分钟内
                                 dicTaskGroup[o.TaskGroupId].IsEnable)           // 任务组必须是开启
                             .OrderBy(o => o.StartAt).ToList();
-                        
+
                         // 没有任务需要调度
                         if (lstStatusNone == null || lstStatusNone.Count == 0)
                         {
@@ -92,7 +96,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                         var streamRange = await RedisCacheManager.Db.StreamRangeAsync("TaskScheduler");
                         foreach (var taskVO in lstStatusNone)
                         {
-                            if (streamRange.Any(o=>o.Values[0].Value.ToString() == taskVO.TaskGroupId.ToString())) continue;
+                            if (streamRange.Any(o => o.Values[0].Value.ToString() == taskVO.TaskGroupId.ToString())) continue;
                             await IocManager.Resolve<IRedisStreamProduct>("TaskScheduler").SendAsync(taskVO.TaskGroupId.ToString());
                         }
                     }
@@ -102,6 +106,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                         // 休眠下，防止CPU过高
                         await Task.Delay(100);
                     }
+
                     await Task.Delay(5000);
                 }
             });
