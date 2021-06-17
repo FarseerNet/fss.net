@@ -18,7 +18,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
     /// <summary>
     /// 新任务调度
     /// </summary>
-    [Consumer(Enable = true, RedisName = "default", QueueName = "TaskScheduler", PullCount = 5, ConsumeThreadNums = 4)]
+    [Consumer(Enable = true, RedisName = "default", QueueName = "TaskScheduler", PullCount = 5, ConsumeThreadNums = 1)]
     public class TaskSchedulerConsumer : IListenerMessage
     {
         public IClientRegister ClientRegister { get; set; }
@@ -44,6 +44,13 @@ namespace FSS.Com.SchedulerServer.Scheduler
                     continue;
                 }
 
+                // 任务组禁用，不执行
+                if (!dicTaskGroup.ContainsKey(taskGroupId) || !dicTaskGroup[taskGroupId].IsEnable)
+                {
+                    await ea.Ack(message);
+                    continue;
+                }
+                
                 var       taskVO = await TaskInfo.ToInfoByGroupIdAsync(taskGroupId);
                 // 如果任务在当前节点没有客户端连接
                 if (!ClientRegister.Exists(taskVO.JobName))
@@ -66,7 +73,6 @@ namespace FSS.Com.SchedulerServer.Scheduler
                     continue;
                 }
 
-                if (!dicTaskGroup.ContainsKey(taskVO.TaskGroupId)) continue;
                 if (taskVO.Status != EumTaskType.None)
                 {
                     await ea.Ack(message);

@@ -31,5 +31,10 @@ namespace FSS.Abstract.Server.MetaInfo
         /// 本地缓存获取任务组
         /// </summary>
         Task<Dictionary<int, TaskGroupVO>> ToListByMemoryAsync();
+
+        /// <summary>
+        /// 获取全部任务列表（数据库）
+        /// </summary>
+        Task<List<TaskGroupVO>> ToListByDbAsync();
     }
 }

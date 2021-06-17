@@ -44,6 +44,7 @@ namespace FSS.GrpcService
             // 开启任务组调度
             services.AddHostedService<PrintSysInfoService>(); 
             services.AddHostedService<SyncTaskGroupAvgSpeedService>(); 
+            services.AddHostedService<SyncTaskGroupService>(); 
             services.AddHostedService<SyncServiceInfoService>();
             services.AddHostedService<AutoClearHisTaskRecordService>();
         }

@@ -20,5 +20,10 @@ namespace FSS.Abstract.Server.MetaInfo
         /// 统计失败次数，按次数递增时间
         /// </summary>
         Task StatFailAsync(TaskVO task, TaskGroupVO taskGroupVO);
+
+        /// <summary>
+        /// 移除缓存任务组ID
+        /// </summary>
+        Task RemoveAsync(int taskGroupId);
     }
 }

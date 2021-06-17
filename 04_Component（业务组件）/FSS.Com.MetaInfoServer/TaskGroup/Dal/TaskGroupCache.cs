@@ -43,5 +43,13 @@ namespace FSS.Com.MetaInfoServer.TaskGroup.Dal
             var redisValue = await RedisCacheManager.Db.HashGetAsync(Key, taskGroupId);
             return !redisValue.HasValue ? null : JsonConvert.DeserializeObject<TaskGroupVO>(redisValue.ToString());
         }
+
+        /// <summary>
+        /// 移除缓存任务组ID
+        /// </summary>
+        public Task RemoveAsync(int taskGroupId)
+        {
+            return RedisCacheManager.Db.HashDeleteAsync(Key, taskGroupId);
+        }
     }
 }

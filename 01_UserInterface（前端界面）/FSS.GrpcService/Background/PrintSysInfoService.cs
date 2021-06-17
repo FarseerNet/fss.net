@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,12 +21,14 @@ namespace FSS.GrpcService.Background
         private readonly IIocManager    _ioc;
         readonly         ILogger        _logger;
         readonly         ITaskGroupList _taskGroupList;
+        readonly         ITaskGroupInfo _taskGroupInfo;
 
         public PrintSysInfoService(IIocManager ioc)
         {
             _ioc           = ioc;
             _logger        = _ioc.Logger<Startup>();
             _taskGroupList = _ioc.Resolve<ITaskGroupList>();
+            _taskGroupInfo = _ioc.Resolve<ITaskGroupInfo>();
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -41,12 +44,16 @@ namespace FSS.GrpcService.Background
             _logger.LogInformation($"使用 [ {use} ] 作为日志保存记录");
 
             _logger.LogInformation($"正在读取所有任务组信息");
-            var taskGroupVos = await _taskGroupList.ToListByMemoryAsync();
-            _logger.LogInformation($"共获取到：{taskGroupVos.Count} 条任务组信息");
+            var lstGroupByDb = await _taskGroupList.ToListByDbAsync();
+            var lstGroupByCache = await _taskGroupList.ToListByMemoryAsync();
+            _logger.LogInformation($"共获取到：{lstGroupByCache.Count} 条任务组信息");
 
-            foreach (var taskGroupVo in taskGroupVos)
+            foreach (var taskGroupVo in lstGroupByDb)
             {
-                _logger.LogInformation($"【{taskGroupVo.Value.IsEnable}】{taskGroupVo.Value.Id}：{taskGroupVo.Value.Caption}、{taskGroupVo.Value.JobName}、{taskGroupVo.Value.NextAt:yyyy-MM-dd:HH:mm:ss}");
+                // 强制从缓存中再读一次，可以实现当缓存丢失时，可以重新写入该条任务组到缓存
+                await _taskGroupInfo.ToInfoAsync(taskGroupVo.Id);
+                
+                _logger.LogInformation($"【{taskGroupVo.IsEnable}】{taskGroupVo.Id}：{taskGroupVo.Caption}、{taskGroupVo.JobName}、{taskGroupVo.NextAt:yyyy-MM-dd:HH:mm:ss}");
             }
             
             await _ioc.Resolve<IWhenTaskStatus>("None").Run();

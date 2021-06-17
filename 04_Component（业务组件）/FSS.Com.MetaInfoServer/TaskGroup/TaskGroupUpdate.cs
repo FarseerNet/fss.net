@@ -28,6 +28,13 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
         {
             return TaskGroupCache.SaveAsync(vo.Id, vo);
         }
+        /// <summary>
+        /// 移除缓存任务组ID
+        /// </summary>
+        public Task RemoveAsync(int taskGroupId)
+        {
+            return TaskGroupCache.RemoveAsync(taskGroupId);
+        }
 
         /// <summary>
         /// 保存TaskGroup

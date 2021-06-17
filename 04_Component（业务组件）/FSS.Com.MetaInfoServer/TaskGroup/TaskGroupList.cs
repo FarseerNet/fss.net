@@ -37,6 +37,14 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
         }
 
         /// <summary>
+        /// 获取全部任务列表（数据库）
+        /// </summary>
+        public Task<List<TaskGroupVO>> ToListByDbAsync()
+        {
+            return TaskGroupAgent.ToListAsync().MapAsync<TaskGroupVO, TaskGroupPO>();
+        }
+
+        /// <summary>
         /// 获取全部任务列表
         /// </summary>
         public Task<List<TaskGroupVO>> ToListAsync()

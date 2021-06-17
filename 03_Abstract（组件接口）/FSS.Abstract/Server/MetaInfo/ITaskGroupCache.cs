@@ -21,5 +21,10 @@ namespace FSS.Abstract.Server.MetaInfo
         /// 获取任务组
         /// </summary>
         Task<TaskGroupVO> ToEntityAsync(int taskGroupId);
+
+        /// <summary>
+        /// 移除缓存任务组ID
+        /// </summary>
+        Task RemoveAsync(int taskGroupId);
     }
 }
