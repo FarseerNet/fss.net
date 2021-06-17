@@ -67,6 +67,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                             // 任务组停止状态
                             else if (dicTaskGroup.ContainsKey(task.TaskGroupId) && !dicTaskGroup[task.TaskGroupId].IsEnable)
                             {
+                                task.Status = EumTaskType.Fail;
                                 await RunLogAdd.AddAsync(dicTaskGroup[task.TaskGroupId], task.Id, LogLevel.Information, $"任务ID：{task.Id}，任务组:{task.TaskGroupId}，当前任务组停止状态，强制设为失败状态");
                                 await TaskUpdate.SaveAsync(task, dicTaskGroup[task.TaskGroupId]);
                             }
