@@ -50,12 +50,14 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 {
                     // 取出全局客户端，如果都没有，则返回true，删除消息
                     var lst = await ClientRegister.ToListByMemoryAsync();
+                    // 没有客户端
                     if (lst == null || lst.Count == 0)
                     {
                         await ea.Ack(message);
                         continue;
                     }
 
+                    // 没有相关的Job注册进来
                     var result = lst.All(o => o.JobName != taskVO.JobName);
                     if (result)
                     {
@@ -71,6 +73,15 @@ namespace FSS.Com.SchedulerServer.Scheduler
                     continue;
                 }
 
+                // 执行时间距离现在，还差多久
+                var startTs = taskVO.StartAt - DateTime.Now;
+                // 大于1个小时，删除本轮消息
+                if (startTs.TotalHours >= 1)
+                {
+                    await ea.Ack(message);
+                    continue;
+                }
+                
                 try
                 {
                     var getDateTime = sw.ElapsedMilliseconds;
