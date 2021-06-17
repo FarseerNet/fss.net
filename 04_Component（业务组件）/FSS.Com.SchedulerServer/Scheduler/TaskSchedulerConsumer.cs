@@ -18,7 +18,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
     /// <summary>
     /// 新任务调度
     /// </summary>
-    [Consumer(Enable = true, RedisName = "default", QueueName = "TaskScheduler", PullCount = 5, ConsumeThreadNums = 1)]
+    [Consumer(Enable = true, RedisName = "default", QueueName = "TaskScheduler", PullCount = 5, ConsumeThreadNums = 4)]
     public class TaskSchedulerConsumer : IListenerMessage
     {
         public IClientRegister ClientRegister { get; set; }
