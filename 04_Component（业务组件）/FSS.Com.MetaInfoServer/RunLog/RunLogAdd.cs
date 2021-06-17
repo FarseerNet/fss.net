@@ -43,7 +43,7 @@ namespace FSS.Com.MetaInfoServer.RunLog
                 CreateAt    = DateTime.Now
             };
 
-            await IocManager.Resolve<IRedisStreamProduct>("RonLogQueue").SendAsync(runLogPO);
+            await IocManager.Resolve<IRedisStreamProduct>("RunLogQueue").SendAsync(runLogPO);
         }
     }
 }

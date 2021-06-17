@@ -16,7 +16,7 @@ namespace FSS.Com.MetaInfoServer.RunLog
     /// <summary>
     /// 写入日志
     /// </summary>
-    [Consumer(Enable = true, RedisName = "default", GroupName = "insert", QueueName = "RonLogQueue", PullCount = 1, ConsumeThreadNums = 4)]
+    [Consumer(Enable = true, RedisName = "default", GroupName = "insert", QueueName = "RunLogQueue", PullCount = 1, ConsumeThreadNums = 1)]
     public class RunLogConsumer : IListenerMessage
     {
         public          IRunLogAgent RunLogAgent { get; set; }
