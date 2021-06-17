@@ -48,7 +48,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
 
                         // 找出未执行的任务列表
                         var lstNoneTask = await TaskList.ToNoneListAsync();
-                        foreach (var task in lstNoneTask.Where(taskVO => lstTask.All(o => o.Id != taskVO.Id)))
+                        foreach (var task in lstNoneTask)
                         {
                             if (lstTask.All(o => o.Id != task.Id))
                             {
