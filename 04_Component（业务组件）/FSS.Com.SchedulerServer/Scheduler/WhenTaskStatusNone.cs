@@ -50,14 +50,26 @@ namespace FSS.Com.SchedulerServer.Scheduler
                         var lstNoneTask = await TaskList.ToNoneListAsync();
                         foreach (var task in lstNoneTask.Where(taskVO => lstTask.All(o => o.Id != taskVO.Id)))
                         {
-                            // 强制设为失败
-                            if (dicTaskGroup.ContainsKey(task.TaskGroupId))
+                            if (lstTask.All(o => o.Id != task.Id))
                             {
-                                await RunLogAdd.AddAsync(dicTaskGroup[task.TaskGroupId], task.Id, LogLevel.Warning, $"任务ID：{task.Id}，与当前任务组正在执行的任务不一致，强制设为失败状态");
+                                task.Status = EumTaskType.Fail;
+                                // 强制设为失败
+                                if (dicTaskGroup.ContainsKey(task.TaskGroupId))
+                                {
+                                    await RunLogAdd.AddAsync(dicTaskGroup[task.TaskGroupId], task.Id, LogLevel.Warning, $"任务ID：{task.Id}，与当前任务组正在执行的任务不一致，强制设为失败状态");
+                                    await TaskUpdate.SaveAsync(task, dicTaskGroup[task.TaskGroupId]);
+                                }
+                                else
+                                {
+                                    await TaskUpdate.SaveAsync(task);
+                                }
                             }
-
-                            task.Status = EumTaskType.Fail;
-                            await TaskUpdate.SaveAsync(task);
+                            // 任务组停止状态
+                            else if (dicTaskGroup.ContainsKey(task.TaskGroupId) && !dicTaskGroup[task.TaskGroupId].IsEnable)
+                            {
+                                await RunLogAdd.AddAsync(dicTaskGroup[task.TaskGroupId], task.Id, LogLevel.Information, $"任务ID：{task.Id}，任务组:{task.TaskGroupId}，当前任务组停止状态，强制设为失败状态");
+                                await TaskUpdate.SaveAsync(task, dicTaskGroup[task.TaskGroupId]);
+                            }
                         }
 
                         // 找到Task不存在的任务（数据库被手动删除）

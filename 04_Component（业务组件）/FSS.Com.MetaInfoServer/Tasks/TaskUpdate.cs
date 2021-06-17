@@ -29,6 +29,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
         {
             await RedisCacheManager.CacheManager.SaveAsync(TaskCache.Key, task, task.TaskGroupId, new CacheOption());
         }
+
         /// <summary>
         /// 移除缓存的任务
         /// </summary>
@@ -42,9 +43,10 @@ namespace FSS.Com.MetaInfoServer.Tasks
         /// </summary>
         public async Task SaveAsync(TaskVO task)
         {
+            await UpdateAsync(task);
             await TaskAgent.UpdateAsync(task.Id, task.Map<TaskPO>());
         }
-        
+
         /// <summary>
         /// 保存Task
         /// </summary>
@@ -78,10 +80,18 @@ namespace FSS.Com.MetaInfoServer.Tasks
 
                     // 统计失败次数，按次数递增时间
                     //await TaskGroupUpdate.StatFailAsync(task, taskGroup);
-                    // 完成后，立即生成一个新的任务
-                    task = await TaskAdd.CreateAsync(taskGroup, task);
-                    await TaskGroupUpdate.UpdateAsync(taskGroup);
-                    await IocManager.Resolve<IRedisStreamProduct>("TaskScheduler").SendAsync(task.TaskGroupId.ToString());
+                    if (taskGroup.IsEnable)
+                    {
+                        // 完成后，立即生成一个新的任务
+                        task = await TaskAdd.CreateAsync(taskGroup, task);
+                        await TaskGroupUpdate.UpdateAsync(taskGroup);
+                        await IocManager.Resolve<IRedisStreamProduct>("TaskScheduler").SendAsync(task.TaskGroupId.ToString());
+                    }
+                    else
+                    {
+                        await TaskGroupUpdate.UpdateAsync(taskGroup); // 这里不能合并优化。
+                    }
+
                     break;
                 default:
                     await TaskAgent.UpdateAsync(task.Id, task.Map<TaskPO>());
