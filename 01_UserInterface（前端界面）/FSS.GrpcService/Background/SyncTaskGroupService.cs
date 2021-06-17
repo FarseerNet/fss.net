@@ -16,6 +16,8 @@ namespace FSS.GrpcService.Background
         readonly         ITaskGroupList   _taskGroupList;
         readonly         ITaskGroupInfo   _taskGroupInfo;
         readonly         ITaskGroupUpdate _taskGroupUpdate;
+        readonly         ITaskInfo        _taskInfo;
+        readonly         ITaskUpdate      _taskUpdate;
 
         public SyncTaskGroupService(IIocManager ioc)
         {
@@ -23,6 +25,8 @@ namespace FSS.GrpcService.Background
             _taskGroupList   = _ioc.Resolve<ITaskGroupList>();
             _taskGroupInfo   = _ioc.Resolve<ITaskGroupInfo>();
             _taskGroupUpdate = _ioc.Resolve<ITaskGroupUpdate>();
+            _taskInfo        = _ioc.Resolve<ITaskInfo>();
+            _taskUpdate      = _ioc.Resolve<ITaskUpdate>();
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -46,6 +50,16 @@ namespace FSS.GrpcService.Background
                     if (!lstGroupByDb.Exists(o => o.Id == taskGroupVO.Key))
                     {
                         await _taskGroupUpdate.RemoveAsync(taskGroupVO.Key);
+                    }
+                }
+                
+                // 取出当前所有任务列表，判断所属任务组是否存在
+                var lstTask = await _taskInfo.ToGroupListAsync();
+                foreach (var taskVO in lstTask)
+                {
+                    if (!lstGroupByDb.Exists(o => o.Id == taskVO.TaskGroupId))
+                    {
+                        await _taskUpdate.RemoveAsync(taskVO.TaskGroupId);
                     }
                 }
             }

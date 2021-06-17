@@ -20,5 +20,10 @@ namespace FSS.Abstract.Server.MetaInfo
         /// 保存Task
         /// </summary>
         Task SaveAsync(TaskVO task);
+
+        /// <summary>
+        /// 移除缓存的任务
+        /// </summary>
+        Task RemoveAsync(int taskGroupId);
     }
 }

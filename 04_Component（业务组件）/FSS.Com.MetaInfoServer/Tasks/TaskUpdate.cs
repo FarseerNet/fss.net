@@ -29,6 +29,13 @@ namespace FSS.Com.MetaInfoServer.Tasks
         {
             await RedisCacheManager.CacheManager.SaveAsync(TaskCache.Key, task, task.TaskGroupId, new CacheOption());
         }
+        /// <summary>
+        /// 移除缓存的任务
+        /// </summary>
+        public Task RemoveAsync(int taskGroupId)
+        {
+            return RedisCacheManager.Db.HashDeleteAsync(TaskCache.Key, taskGroupId);
+        }
 
         /// <summary>
         /// 保存Task
