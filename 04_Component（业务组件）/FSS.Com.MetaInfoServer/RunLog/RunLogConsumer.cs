@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using FS.Cache.Redis;
 using FS.DI;
@@ -6,6 +7,7 @@ using FS.MQ.RedisStream.Attr;
 using FSS.Com.MetaInfoServer.Abstract;
 using FSS.Com.MetaInfoServer.RunLog.Dal;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using StackExchange.Redis;
 
@@ -18,6 +20,7 @@ namespace FSS.Com.MetaInfoServer.RunLog
     public class RunLogConsumer : IListenerMessage
     {
         public          IRunLogAgent RunLogAgent { get; set; }
+        public          IIocManager  IocManager  { get; set; }
         static readonly bool         UseEs;
 
         static RunLogConsumer()
@@ -36,7 +39,11 @@ namespace FSS.Com.MetaInfoServer.RunLog
                 var runLogPO = JsonConvert.DeserializeObject<RunLogPO>(message.Values[0].Value.ToString());
                 if (UseEs)
                 {
-                    if (!await LogContext.Data.RunLog.InsertAsync(runLogPO)) return false;
+                    IocManager.Logger<RunLogConsumer>().LogWarning("runLogPO写入ES");
+                    if (!await LogContext.Data.RunLog.InsertAsync(runLogPO))
+                    {
+                        return false;
+                    }
                 }
                 else await RunLogAgent.AddAsync(runLogPO);
             }
