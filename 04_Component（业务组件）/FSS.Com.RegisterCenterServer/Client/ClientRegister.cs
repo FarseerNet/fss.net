@@ -178,7 +178,7 @@ namespace FSS.Com.RegisterCenterServer.Client
             {
                 var taskGroup = await TaskGroupInfo.ToInfoAsync(vo.TaskGroupId);
                 vo.Status = EumTaskType.Fail;
-                await TaskUpdate.SaveAsync(vo, taskGroup);
+                await TaskUpdate.SaveFinishAsync(vo, taskGroup);
             }
         }
     }

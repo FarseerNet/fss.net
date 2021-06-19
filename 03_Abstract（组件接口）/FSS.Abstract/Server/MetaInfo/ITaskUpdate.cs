@@ -14,7 +14,7 @@ namespace FSS.Abstract.Server.MetaInfo
         /// <summary>
         /// 保存Task
         /// </summary>
-        Task SaveAsync(TaskVO task, TaskGroupVO taskGroup);
+        Task SaveFinishAsync(TaskVO task, TaskGroupVO taskGroup);
 
         /// <summary>
         /// 保存Task

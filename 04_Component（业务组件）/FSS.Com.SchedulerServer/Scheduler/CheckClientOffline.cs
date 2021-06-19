@@ -37,7 +37,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                     
                     // 取最新的任务组（不能用本地缓存的）
                     taskGroup = await TaskGroupInfo.ToInfoAsync(task.TaskGroupId);
-                    await TaskUpdate.SaveAsync(task, taskGroup);
+                    await TaskUpdate.SaveFinishAsync(task, taskGroup);
                     return true;
                 }
 
@@ -60,7 +60,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 
                 // 取最新的任务组（不能用本地缓存的）
                 taskGroup = await TaskGroupInfo.ToInfoAsync(task.TaskGroupId);
-                await TaskUpdate.SaveAsync(task, taskGroup);
+                await TaskUpdate.SaveFinishAsync(task, taskGroup);
                 return true;
             }
 
@@ -72,7 +72,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 
                 // 取最新的任务组（不能用本地缓存的）
                 taskGroup = await TaskGroupInfo.ToInfoAsync(task.TaskGroupId);
-                await TaskUpdate.SaveAsync(task, taskGroup);
+                await TaskUpdate.SaveFinishAsync(task, taskGroup);
                 return true;
             }
 

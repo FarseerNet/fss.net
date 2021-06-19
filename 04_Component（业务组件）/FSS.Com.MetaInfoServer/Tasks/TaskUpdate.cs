@@ -50,53 +50,37 @@ namespace FSS.Com.MetaInfoServer.Tasks
         /// <summary>
         /// 保存Task（taskGroup必须是最新的）
         /// </summary>
-        public async Task SaveAsync(TaskVO task, TaskGroupVO taskGroup)
+        public async Task SaveFinishAsync(TaskVO task, TaskGroupVO taskGroup)
         {
-            switch (task.Status)
+            // 说明上一次任务，没有设置下一次的时间（动态设置）
+            // 本次的时间策略晚，则通过时间策略计算出来
+            if (DateTime.Now > taskGroup.NextAt)
             {
-                case EumTaskType.Fail:
-                case EumTaskType.Success:
-                case EumTaskType.ReScheduler:
+                var cron = new Cron();
+                // 时间间隔器
+                if (taskGroup.IntervalMs > 0) taskGroup.NextAt = DateTime.Now.AddMilliseconds(taskGroup.IntervalMs);
+                else if (string.IsNullOrWhiteSpace(taskGroup.Cron) is false && cron.Parse(taskGroup.Cron))
+                {
+                    taskGroup.NextAt = cron.GetNext(DateTime.Now);
+                }
+                else // 没有找到设置下一次时间的设置，则默认30S执行一次
+                {
+                    taskGroup.NextAt = DateTime.Now.AddSeconds(30);
+                }
+            }
 
-                    // 说明上一次任务，没有设置下一次的时间（动态设置）
-                    // 本次的时间策略晚，则通过时间策略计算出来
-                    if (DateTime.Now > taskGroup.NextAt)
-                    {
-                        var cron = new Cron();
-                        // 时间间隔器
-                        if (taskGroup.IntervalMs > 0) taskGroup.NextAt = DateTime.Now.AddMilliseconds(taskGroup.IntervalMs);
-                        else if (string.IsNullOrWhiteSpace(taskGroup.Cron) is false && cron.Parse(taskGroup.Cron))
-                        {
-                            taskGroup.NextAt = cron.GetNext(DateTime.Now);
-                        }
-                        else // 没有找到设置下一次时间的设置，则默认30S执行一次
-                        {
-                            taskGroup.NextAt = DateTime.Now.AddSeconds(30);
-                        }
-                    }
+            await TaskAgent.UpdateAsync(task.Id, task.Map<TaskPO>());
 
-                    await TaskAgent.UpdateAsync(task.Id, task.Map<TaskPO>());
-                    //await UpdateAsync(task); // 不需要更新缓存了，在创建新任务的时候，会更新缓存
-
-                    // 统计失败次数，按次数递增时间
-                    //await TaskGroupUpdate.StatFailAsync(task, taskGroup);
-                    if (taskGroup.IsEnable)
-                    {
-                        // 完成后，立即生成一个新的任务
-                        task = await TaskAdd.CreateAsync(taskGroup, task);
-                        await TaskGroupUpdate.UpdateAsync(taskGroup);
-                        await IocManager.Resolve<IRedisStreamProduct>("TaskScheduler").SendAsync(task.TaskGroupId.ToString());
-                    }
-                    else
-                    {
-                        await TaskGroupUpdate.UpdateAsync(taskGroup); // 这里不能合并优化。，任务组是开启状态，必须先更新，再发送消息
-                    }
-
-                    break;
-                default:
-                    await TaskAgent.UpdateAsync(task.Id, task.Map<TaskPO>());
-                    await UpdateAsync(task);
-                    break;
+            if (taskGroup.IsEnable)
+            {
+                // 完成后，立即生成一个新的任务
+                task = await TaskAdd.CreateAsync(taskGroup, task);
+                await TaskGroupUpdate.UpdateAsync(taskGroup);
+                await IocManager.Resolve<IRedisStreamProduct>("TaskScheduler").SendAsync(task.TaskGroupId.ToString());
+            }
+            else
+            {
+                await TaskGroupUpdate.UpdateAsync(taskGroup); // 这里不能合并优化。，任务组是开启状态，必须先更新，再发送消息
             }
         }
     }

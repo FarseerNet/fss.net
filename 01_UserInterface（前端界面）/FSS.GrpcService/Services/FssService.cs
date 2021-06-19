@@ -19,11 +19,13 @@ namespace FSS.GrpcService.Services
     {
         private readonly IIocManager     _ioc;
         private readonly IClientRegister _clientRegister;
+        private readonly ITaskGroupList  _taskGroupList;
 
         public FssService(IIocManager ioc)
         {
             _ioc            = ioc;
             _clientRegister = _ioc.Resolve<IClientRegister>();
+            _taskGroupList   = _ioc.Resolve<ITaskGroupList>();
         }
 
         /// <summary>
@@ -75,8 +77,11 @@ namespace FSS.GrpcService.Services
             var task      = await _ioc.Resolve<ITaskInfo>().ToInfoByGroupIdAsync(taskGroupId);
 
             if (!_clientRegister.IsExists(serverHost)) return null;
+
+            // 先读本地缓存
+            var lstGroup = await _taskGroupList.ToListByMemoryAsync();
+            lstGroup.TryGetValue(taskGroupId, out var taskGroup);
             
-            var taskGroup = await _ioc.Resolve<ITaskGroupInfo>().ToInfoAsync(taskGroupId);
             if (taskGroup == null)
             {
                 await runLogAdd.AddAsync(task.TaskGroupId, taskId, LogLevel.Warning, $"所属的任务组：{task.TaskGroupId} 不存在");
@@ -92,7 +97,6 @@ namespace FSS.GrpcService.Services
 
             var taskUpdate      = _ioc.Resolve<ITaskUpdate>();
             var clientResponse  = _ioc.Resolve<ClientResponse>();
-            var taskGroupUpdate = _ioc.Resolve<ITaskGroupUpdate>();
             var clientRegister  = _ioc.Resolve<IClientRegister>();
             
             try
@@ -114,14 +118,13 @@ namespace FSS.GrpcService.Services
                 }
                 
                 task.Status = EumTaskType.Working;
-                //await taskUpdate.UpdateAsync(task);
+                //await taskUpdate.UpdateAsync(task); // 先不用更新缓存，下面再更新
 
                 // 更新group元信息
+                taskGroup = await _ioc.Resolve<ITaskGroupInfo>().ToInfoAsync(taskGroupId);
                 taskGroup.RunCount++;
                 taskGroup.ActivateAt = DateTime.Now;
                 taskGroup.LastRunAt  = DateTime.Now;
-                
-                //await taskGroupUpdate.UpdateAsync(taskGroup);
 
                 // 实时同步JOB执行状态
                 await foreach (var jobRequest in requestStream.ReadAllAsync())
@@ -148,7 +151,7 @@ namespace FSS.GrpcService.Services
                             if (!string.IsNullOrWhiteSpace(jobRequest.Data)) taskGroup.Data = jobRequest.Data;
                             // 客户端设置了动态时间
                             if (jobRequest.NextTimespan > 0) taskGroup.NextAt = DateTime.Now.AddMilliseconds(jobRequest.NextTimespan);
-                            await taskUpdate.SaveAsync(task, taskGroup);
+                            await taskUpdate.SaveFinishAsync(task, taskGroup);
                             break;
                         default:
                             await taskUpdate.UpdateAsync(task);
@@ -158,22 +161,18 @@ namespace FSS.GrpcService.Services
                 
                 if (task.Status != EumTaskType.Success)
                 {
-                    var message = $"任务：{task.TaskGroupId}-{task.Id} 执行失败";
-                    await runLogAdd.AddAsync(taskGroup, taskId, LogLevel.Warning, message);
-                    return (CommandResponse) _ioc.Resolve<IClientResponse>().Print(message);
+                    return (CommandResponse) _ioc.Resolve<IClientResponse>().Print($"任务：{task.TaskGroupId}-{task.Id} 执行失败");
                 }
                 else
                 {
-                    var message = $"任务组：TaskGroupId={task.TaskGroupId}，Caption={taskGroup.Caption}，JobName={taskGroup.JobName}，TaskId={task.Id} 执行成功，耗时：{task.RunSpeed} ms";
-                    await runLogAdd.AddAsync(taskGroup, taskId, LogLevel.Information, message);
-                    return (CommandResponse) _ioc.Resolve<IClientResponse>().Print(message);
+                    return (CommandResponse) _ioc.Resolve<IClientResponse>().Print($"任务组：TaskGroupId={task.TaskGroupId}，Caption={taskGroup.Caption}，JobName={taskGroup.JobName}，TaskId={task.Id} 执行成功，耗时：{task.RunSpeed} ms");
                 }
             }
             catch (Exception e)
             {
                 if (e.InnerException != null) e = e.InnerException;
                 task.Status = EumTaskType.Fail;
-                await taskUpdate.SaveAsync(task, taskGroup);
+                await taskUpdate.SaveFinishAsync(task, taskGroup);
                 logger.LogError(e.Message);
                 return (CommandResponse) _ioc.Resolve<IClientResponse>().Print(e.Message);
             }

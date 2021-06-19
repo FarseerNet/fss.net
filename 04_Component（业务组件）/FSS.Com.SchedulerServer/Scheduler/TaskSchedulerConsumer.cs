@@ -24,7 +24,6 @@ namespace FSS.Com.SchedulerServer.Scheduler
         public IClientRegister ClientRegister { get; set; }
         public ITaskScheduler  TaskScheduler  { get; set; }
         public ITaskGroupList  TaskGroupList  { get; set; }
-        public ITaskGroupInfo  TaskGroupInfo  { get; set; }
         public ITaskInfo       TaskInfo       { get; set; }
         public IIocManager     IocManager     { get; set; }
 
@@ -52,9 +51,8 @@ namespace FSS.Com.SchedulerServer.Scheduler
                     continue;
                 }
                 
-                var       taskVO = await TaskInfo.ToInfoByGroupIdAsync(taskGroupId);
                 // 如果任务在当前节点没有客户端连接
-                if (!ClientRegister.Exists(taskVO.JobName))
+                if (!ClientRegister.Exists(dicTaskGroup[taskGroupId].JobName))
                 {
                     // 取出全局客户端，如果都没有，则返回true，删除消息
                     var lst = await ClientRegister.ToListByMemoryAsync();
@@ -66,7 +64,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                     }
 
                     // 没有相关的Job注册进来
-                    var result = lst.All(o => o.JobName != taskVO.JobName);
+                    var result = lst.All(o => o.JobName != dicTaskGroup[taskGroupId].JobName);
                     if (result)
                     {
                         await ea.Ack(message);
@@ -74,6 +72,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                     continue;
                 }
 
+                var taskVO = await TaskInfo.ToInfoByGroupIdAsync(taskGroupId);
                 if (taskVO.Status != EumTaskType.None)
                 {
                     await ea.Ack(message);
@@ -94,8 +93,6 @@ namespace FSS.Com.SchedulerServer.Scheduler
                     var getDateTime = sw.ElapsedMilliseconds;
                     sw.Restart();
                     
-                    // 取最新的任务组（不能用本地缓存的）
-                    dicTaskGroup[taskVO.TaskGroupId] = await TaskGroupInfo.ToInfoAsync(taskVO.TaskGroupId);
                     await TaskScheduler.Scheduler(dicTaskGroup[taskVO.TaskGroupId], taskVO);
                     logger.LogInformation($"调度：耗时 取数据：{getDateTime} ms Grpc：{sw.ElapsedMilliseconds} ms，【{taskVO.Caption} ({taskVO.JobName})】");
                     await ea.Ack(message);

@@ -24,6 +24,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
         public IClientResponse ClientResponse { get; set; }
         public ISchedulerLock  SchedulerLock  { get; set; }
         public ITaskInfo       TaskInfo       { get; set; }
+        public ITaskGroupInfo  TaskGroupInfo  { get; set; }
         ILogger                _logger;
 
         /// <summary>
@@ -77,7 +78,8 @@ namespace FSS.Com.SchedulerServer.Scheduler
 
                 // 通知失败，则把当前任务设为失败
                 task.Status = EumTaskType.Fail;
-                await TaskUpdate.SaveAsync(task, taskGroup);
+                taskGroup   = await TaskGroupInfo.ToInfoAsync(task.TaskGroupId);
+                await TaskUpdate.SaveFinishAsync(task, taskGroup);
                 await RunLogAdd.AddAsync(taskGroup, task.Id, LogLevel.Error, msg);
                 await SchedulerLock.ClearLock(task.Id);
                 _logger.LogError(msg);
