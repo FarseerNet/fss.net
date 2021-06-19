@@ -46,7 +46,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 if (SchedulerLock.TryLock(task.Id, clientVO.ServerHost))
                 {
                     //logger.LogDebug($"任务：GroupId={taskGroup.Id} TaskId={task.Id} {taskGroup.Caption} 调度给====>{clientVO.ClientIp}");
-                    await Schedule(taskGroup: taskGroup, task: task, clientVO: clientVO);
+                    await Schedule(taskGroup, task, clientVO);
                 }
                 else
                 {

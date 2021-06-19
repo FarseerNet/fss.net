@@ -18,12 +18,13 @@ namespace FSS.Com.SchedulerServer.Scheduler
     /// <summary>
     /// 新任务调度
     /// </summary>
-    [Consumer(Enable = true, RedisName = "default", QueueName = "TaskScheduler", PullCount = 5, ConsumeThreadNums = 1)]
+    [Consumer(Enable = true, RedisName = "default",QueueName = "TaskScheduler",GroupName = "TaskSchedulerGroup", PullCount = 1, ConsumeThreadNums = 8)]
     public class TaskSchedulerConsumer : IListenerMessage
     {
         public IClientRegister ClientRegister { get; set; }
         public ITaskScheduler  TaskScheduler  { get; set; }
         public ITaskGroupList  TaskGroupList  { get; set; }
+        public ITaskGroupInfo  TaskGroupInfo  { get; set; }
         public ITaskInfo       TaskInfo       { get; set; }
         public IIocManager     IocManager     { get; set; }
 
@@ -92,6 +93,9 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 {
                     var getDateTime = sw.ElapsedMilliseconds;
                     sw.Restart();
+                    
+                    // 取最新的任务组（不能用本地缓存的）
+                    dicTaskGroup[taskVO.TaskGroupId] = await TaskGroupInfo.ToInfoAsync(taskVO.TaskGroupId);
                     await TaskScheduler.Scheduler(dicTaskGroup[taskVO.TaskGroupId], taskVO);
                     logger.LogInformation($"调度：耗时 取数据：{getDateTime} ms Grpc：{sw.ElapsedMilliseconds} ms，【{taskVO.Caption} ({taskVO.JobName})】");
                     await ea.Ack(message);
@@ -102,8 +106,6 @@ namespace FSS.Com.SchedulerServer.Scheduler
                     return false;
                 }
             }
-
-            Console.WriteLine("\r\n");
             return false;
         }
 

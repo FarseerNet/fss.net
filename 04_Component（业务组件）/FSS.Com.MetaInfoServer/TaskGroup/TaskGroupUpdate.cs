@@ -2,8 +2,6 @@ using System;
 using System.Threading.Tasks;
 using FS.Cache.Redis;
 using FS.Extends;
-using FS.Utils.Common;
-using FS.Utils.Component;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
@@ -18,7 +16,6 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
     {
         public ITaskGroupCache    TaskGroupCache    { get; set; }
         public ITaskGroupAgent    TaskGroupAgent    { get; set; }
-        public ITaskGroupInfo     TaskGroupInfo     { get; set; }
         public IRedisCacheManager RedisCacheManager { get; set; }
 
         /// <summary>

@@ -34,6 +34,9 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 {
                     await RunLogAdd.AddAsync(taskGroup, task.Id, LogLevel.Warning, $"任务ID：{task.Id}，客户端断开连接，强制设为失败状态");
                     task.Status = EumTaskType.Fail;
+                    
+                    // 取最新的任务组（不能用本地缓存的）
+                    taskGroup = await TaskGroupInfo.ToInfoAsync(task.TaskGroupId);
                     await TaskUpdate.SaveAsync(task, taskGroup);
                     return true;
                 }
@@ -54,6 +57,9 @@ namespace FSS.Com.SchedulerServer.Scheduler
             {
                 await RunLogAdd.AddAsync(taskGroup, task.Id, LogLevel.Warning, $"任务ID：{task.Id}，服务端节点下线，强制设为失败状态");
                 task.Status = EumTaskType.Fail;
+                
+                // 取最新的任务组（不能用本地缓存的）
+                taskGroup = await TaskGroupInfo.ToInfoAsync(task.TaskGroupId);
                 await TaskUpdate.SaveAsync(task, taskGroup);
                 return true;
             }
@@ -63,6 +69,9 @@ namespace FSS.Com.SchedulerServer.Scheduler
             {
                 await RunLogAdd.AddAsync(taskGroup, task.Id, LogLevel.Warning, $"任务ID：{task.Id}，客户端假死状态，强制设为失败状态");
                 task.Status = EumTaskType.Fail;
+                
+                // 取最新的任务组（不能用本地缓存的）
+                taskGroup = await TaskGroupInfo.ToInfoAsync(task.TaskGroupId);
                 await TaskUpdate.SaveAsync(task, taskGroup);
                 return true;
             }

@@ -48,7 +48,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
         }
 
         /// <summary>
-        /// 保存Task
+        /// 保存Task（taskGroup必须是最新的）
         /// </summary>
         public async Task SaveAsync(TaskVO task, TaskGroupVO taskGroup)
         {
@@ -89,7 +89,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
                     }
                     else
                     {
-                        await TaskGroupUpdate.UpdateAsync(taskGroup); // 这里不能合并优化。
+                        await TaskGroupUpdate.UpdateAsync(taskGroup); // 这里不能合并优化。，任务组是开启状态，必须先更新，再发送消息
                     }
 
                     break;
