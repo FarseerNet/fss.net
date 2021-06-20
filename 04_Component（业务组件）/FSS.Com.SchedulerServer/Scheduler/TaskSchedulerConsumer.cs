@@ -18,7 +18,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
     /// <summary>
     /// 新任务调度
     /// </summary>
-    [Consumer(Enable = true, RedisName = "default",QueueName = "TaskScheduler",GroupName = "TaskSchedulerGroup", PullCount = 1, ConsumeThreadNums = 8)]
+    [Consumer(Enable = true, RedisName = "default",QueueName = "TaskScheduler", PullCount = 4, ConsumeThreadNums = 8)]
     public class TaskSchedulerConsumer : IListenerMessage
     {
         public IClientRegister ClientRegister { get; set; }
@@ -32,8 +32,16 @@ namespace FSS.Com.SchedulerServer.Scheduler
         /// </summary>
         public async Task<bool> Consumer(StreamEntry[] messages, ConsumeContext ea)
         {
+            // 当前没有客户端，休眠5S
+            if (ClientRegister.Count() == 0)
+            {
+                await Task.Delay(5000);
+                return false;
+            }
+            
             var       logger       = IocManager.Logger<TaskSchedulerConsumer>();
             var       dicTaskGroup = await TaskGroupList.ToListByMemoryAsync();
+
             foreach (var message in messages)
             {
                 Stopwatch sw          = Stopwatch.StartNew();
@@ -56,16 +64,10 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 {
                     // 取出全局客户端，如果都没有，则返回true，删除消息
                     var lst = await ClientRegister.ToListByMemoryAsync();
-                    // 没有客户端
-                    if (lst == null || lst.Count == 0)
-                    {
-                        await ea.Ack(message);
-                        continue;
-                    }
-
-                    // 没有相关的Job注册进来
-                    var result = lst.All(o => o.JobName != dicTaskGroup[taskGroupId].JobName);
-                    if (result)
+                    
+                    // 没有客户端、没有相关的Job注册进来
+                    if (lst == null || lst.Count == 0 || 
+                        lst.All(o => o.JobName != dicTaskGroup[taskGroupId].JobName))
                     {
                         await ea.Ack(message);
                     }
