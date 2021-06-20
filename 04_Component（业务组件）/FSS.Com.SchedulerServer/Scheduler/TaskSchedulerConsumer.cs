@@ -18,7 +18,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
     /// <summary>
     /// 新任务调度
     /// </summary>
-    [Consumer(Enable = true, RedisName = "default",QueueName = "TaskScheduler", PullCount = 4, ConsumeThreadNums = 8)]
+    [Consumer(Enable = true, RedisName = "default",QueueName = "TaskScheduler", PullCount = 4, ConsumeThreadNums = 1)]
     public class TaskSchedulerConsumer : IListenerMessage
     {
         public IClientRegister ClientRegister { get; set; }
@@ -105,7 +105,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                     return false;
                 }
             }
-            return false;
+            return true;
         }
 
         public Task<bool> FailureHandling(StreamEntry[] messages, ConsumeContext ea) => throw new System.NotImplementedException();
