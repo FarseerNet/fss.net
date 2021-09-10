@@ -24,8 +24,10 @@ namespace FSS.Com.SchedulerServer.Scheduler
         /// <summary>
         /// 检查客户端是否离线
         /// </summary>
-        public async Task<bool> Check(TaskVO task, TaskGroupVO taskGroup)
+        public async Task<bool> Check(TaskGroupVO taskGroup)
         {
+            var task = await TaskInfo.ToInfoByGroupIdAsync(taskGroup.Id);
+            
             // 如果 任务的运行节点是当前节点时，判断客户端是否在线
             if (task.ServerNode == IpHelper.GetIp)
             {
@@ -65,7 +67,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
             }
 
             // 客户端是否掉线（客户端的注册不在当前节点）
-            if ((DateTime.Now - task.StartAt).TotalMinutes >= 1 && ! await ClientRegister.IsExistsByRedis(task.ClientHost)) // 大于1分钟，才检查
+            if ((DateTime.Now - task.StartAt).TotalMinutes >= 1 && !await ClientRegister.IsExistsByRedis(task.ClientHost)) // 大于1分钟，才检查
             {
                 await RunLogAdd.AddAsync(taskGroup, task.Id, LogLevel.Warning, $"任务ID：{task.Id}，客户端假死状态，强制设为失败状态");
                 task.Status = EumTaskType.Fail;
