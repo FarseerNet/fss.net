@@ -4,11 +4,10 @@ using FS.Cache;
 using FS.Cache.Redis;
 using FS.DI;
 using FS.Extends;
-using FS.MQ.RedisStream;
 using FS.Utils.Component;
 using FSS.Abstract.Entity.MetaInfo;
-using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
+using FSS.Abstract.Server.Scheduler;
 using FSS.Com.MetaInfoServer.Abstract;
 using FSS.Com.MetaInfoServer.Tasks.Dal;
 
@@ -21,6 +20,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
         public ITaskAdd           TaskAdd           { get; set; }
         public ITaskGroupUpdate   TaskGroupUpdate   { get; set; }
         public IIocManager        IocManager        { get; set; }
+        public ITaskScheduler     TaskScheduler     { get; set; }
 
         /// <summary>
         /// 更新Task（如果状态是成功、失败、重新调度，则应该调Save）
@@ -76,7 +76,8 @@ namespace FSS.Com.MetaInfoServer.Tasks
                 // 完成后，立即生成一个新的任务
                 task = await TaskAdd.CreateAsync(taskGroup, task);
                 await TaskGroupUpdate.UpdateAsync(taskGroup);
-                await IocManager.Resolve<IRedisStreamProduct>("TaskScheduler").SendAsync(task.TaskGroupId.ToString());
+                var newTask = await TaskAdd.GetOrCreateAsync(task.TaskGroupId);
+                if ((newTask.StartAt - DateTime.Now).TotalMinutes <= 2) await TaskScheduler.Scheduler(taskGroup, task);
             }
             else
             {

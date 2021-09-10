@@ -35,6 +35,20 @@ namespace FSS.Com.SchedulerServer.Scheduler
             _logger = IocManager.Logger<TaskScheduler>();
             try
             {
+                // 任务组停止状态
+                if (!taskGroup.IsEnable)
+                {
+                    // 重新通过缓存取任务组
+                    task.Status = EumTaskType.Fail;
+                    await Task.WhenAll(
+                        RunLogAdd.AddAsync(taskGroup, task.Id, LogLevel.Information, $"任务ID：{task.Id}，任务组:{task.TaskGroupId}，当前任务组停止状态，强制设为失败状态"),
+                        TaskUpdate.SaveAsync(task));
+                    return;
+                }
+
+                if ((task.StartAt - DateTime.Now).TotalMinutes > 2) return;
+                if (task.Status != EumTaskType.None) return;
+
                 // 取出空闲客户端、开始调度执行
                 var clientVO = ClientSlb.Slb(taskGroup.JobName);
                 if (clientVO == null)
@@ -60,6 +74,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                         await Schedule(taskGroup: taskGroup, task: task, clientVO: clientVO);
                         return;
                     }
+
                     _logger.LogWarning($"任务：GroupId={taskGroup.Id} {taskGroup.Caption}-TaskId={task.Id} ，已被调度。");
                 }
             }
