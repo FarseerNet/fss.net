@@ -15,12 +15,11 @@ namespace FSS.Com.MetaInfoServer.Tasks
 {
     public class TaskUpdate : ITaskUpdate
     {
-        public IRedisCacheManager RedisCacheManager { get; set; }
-        public ITaskAgent         TaskAgent         { get; set; }
-        public ITaskAdd           TaskAdd           { get; set; }
-        public ITaskGroupUpdate   TaskGroupUpdate   { get; set; }
-        public IIocManager        IocManager        { get; set; }
-        public ITaskScheduler     TaskScheduler     { get; set; }
+        private IRedisCacheManager RedisCacheManager => IocManager.Resolve<IRedisCacheManager>();
+        public  ITaskAgent         TaskAgent         { get; set; }
+        public  ITaskAdd           TaskAdd           { get; set; }
+        public  ITaskGroupUpdate   TaskGroupUpdate   { get; set; }
+        public  IIocManager        IocManager        { get; set; }
 
         /// <summary>
         /// 更新Task（如果状态是成功、失败、重新调度，则应该调Save）
@@ -52,6 +51,8 @@ namespace FSS.Com.MetaInfoServer.Tasks
         /// </summary>
         public async Task SaveFinishAsync(TaskVO task, TaskGroupVO taskGroup)
         {
+            await TaskAgent.UpdateAsync(task.Id, task.Map<TaskPO>());
+            
             // 说明上一次任务，没有设置下一次的时间（动态设置）
             // 本次的时间策略晚，则通过时间策略计算出来
             if (DateTime.Now > taskGroup.NextAt)
@@ -69,18 +70,12 @@ namespace FSS.Com.MetaInfoServer.Tasks
                 }
             }
 
-            await TaskAgent.UpdateAsync(task.Id, task.Map<TaskPO>());
+            await TaskGroupUpdate.UpdateAsync(taskGroup);
 
             if (taskGroup.IsEnable)
             {
                 // 完成后，立即生成一个新的任务
-                task = await TaskAdd.GetOrCreateAsync(taskGroup.Id);
-                await TaskGroupUpdate.UpdateAsync(taskGroup);
-                await TaskScheduler.Scheduler(taskGroup, task);
-            }
-            else
-            {
-                await TaskGroupUpdate.UpdateAsync(taskGroup); // 这里不能合并优化。，任务组是开启状态，必须先更新，再发送消息
+                await TaskAdd.GetOrCreateAsync(taskGroup);
             }
         }
     }

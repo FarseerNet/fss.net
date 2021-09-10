@@ -5,7 +5,7 @@ using FS.DI;
 using FSS.Abstract.Server.MetaInfo;
 using Microsoft.Extensions.Hosting;
 
-namespace FSS.GrpcService.Background
+namespace FSS.Service.Background
 {
     /// <summary>
     /// 同步任务组信息数据库与缓存

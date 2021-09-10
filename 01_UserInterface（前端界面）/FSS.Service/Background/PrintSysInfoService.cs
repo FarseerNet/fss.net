@@ -1,4 +1,3 @@
-using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,7 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace FSS.GrpcService.Background
+namespace FSS.Service.Background
 {
     /// <summary>
     /// 打印系统信息
@@ -56,7 +55,6 @@ namespace FSS.GrpcService.Background
                 _logger.LogInformation($"【{taskGroupVo.IsEnable}】{taskGroupVo.Id}：{taskGroupVo.Caption}、{taskGroupVo.JobName}、{taskGroupVo.NextAt:yyyy-MM-dd:HH:mm:ss}");
             }
             
-            await _ioc.Resolve<IWhenTaskStatus>("None").Run();
             await _ioc.Resolve<IWhenTaskStatus>("Working").Run();
             await _ioc.Resolve<IWhenTaskStatus>("Finish").Run();
         }

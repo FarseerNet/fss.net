@@ -1,25 +1,26 @@
-﻿using System.Threading;
+using System.Threading;
+using FS;
 using FS.Cache.Redis;
 using FS.Core;
 using FS.Data;
-using FS.DI;
 using FS.ElasticSearch;
+using FS.LinkTrack;
 using FS.Mapper;
 using FS.Modules;
 using FS.MQ.RedisStream;
 using FSS.Com.MetaInfoServer;
 using FSS.Com.RegisterCenterServer;
-using FSS.Com.RemoteCallServer;
 using FSS.Com.SchedulerServer;
-using FSS.GrpcService.Background;
-using FSS.GrpcService.Services;
+using FSS.Service.Background;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 
-namespace FSS.GrpcService
+namespace FSS.Service
 {
     [DependsOn(
         typeof(FarseerCoreModule),
@@ -31,21 +32,33 @@ namespace FSS.GrpcService
         typeof(MetaInfoModule),
         typeof(SchedulerModule),
         typeof(RegisterCenterModule),
-        typeof(RemoteCallModule))]
+        typeof(LinkTrackModule)
+    )]
     public class Startup : FarseerModule
     {
+        public Startup()
+        {
+        }
+
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+
+        public IConfiguration Configuration { get; }
+
         // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddGrpc(options => { options.Interceptors.Add<AuthInterceptor>(); });
-            services.AddSingleton<IIocManager>(FS.DI.IocManager.Instance.Resolve<IIocManager>());
-            
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddControllers();
+            services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApplication", Version = "v1" }); });
+            services.AddFarseerControllers();
+
             // 开启任务组调度
-            services.AddHostedService<PrintSysInfoService>(); 
-            services.AddHostedService<SyncTaskGroupAvgSpeedService>(); 
-            services.AddHostedService<SyncTaskGroupService>(); 
-            services.AddHostedService<SyncServiceInfoService>();
+            services.AddHostedService<PrintSysInfoService>();
+            services.AddHostedService<SyncTaskGroupAvgSpeedService>();
+            services.AddHostedService<SyncTaskGroupService>();
             services.AddHostedService<AutoClearHisTaskRecordService>();
         }
 
@@ -54,21 +67,22 @@ namespace FSS.GrpcService
         {
             if (env.IsDevelopment())
             {
-                //app.UseDeveloperExceptionPage();
+                app.UseDeveloperExceptionPage();
+                app.UseSwagger();
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebApplication v1"));
             }
+            
+            app.UseMiddleware<LinkTrackMiddleware>();
+            app.UseMiddleware<CorsMiddleware>();
+            app.UseMiddleware<ExceptionMiddleware>();
 
             app.UseRouting();
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapGrpcService<FssService>();
-                endpoints.MapGet("/", async context => { await context.Response.WriteAsync("Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909"); });
-            });
+            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
-
 
         public override void PreInitialize()
         {
-            //ThreadPool.SetMinThreads(200, 200);
+            ThreadPool.SetMinThreads(200, 200);
         }
 
         public override void PostInitialize()

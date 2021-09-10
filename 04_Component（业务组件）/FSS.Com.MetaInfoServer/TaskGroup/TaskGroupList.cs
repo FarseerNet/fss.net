@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FS.Cache;
 using FS.Cache.Redis;
+using FS.DI;
 using FS.Extends;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Server.MetaInfo;
@@ -19,8 +20,8 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
     /// </summary>
     public class TaskGroupList : ITaskGroupList
     {
-        public ITaskGroupAgent    TaskGroupAgent    { get; set; }
-        public IRedisCacheManager RedisCacheManager { get; set; }
+        public  ITaskGroupAgent    TaskGroupAgent    { get; set; }
+        private IRedisCacheManager RedisCacheManager => IocManager.Instance.Resolve<IRedisCacheManager>();
 
         readonly MemoryCache memoryCache = new(new MemoryCacheOptions
         {

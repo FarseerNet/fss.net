@@ -11,8 +11,4 @@
         <ProjectReference Include="..\..\03_Abstract（组件接口）\FSS.Abstract\FSS.Abstract.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Abstract" />
-    </ItemGroup>
-
 </Project>

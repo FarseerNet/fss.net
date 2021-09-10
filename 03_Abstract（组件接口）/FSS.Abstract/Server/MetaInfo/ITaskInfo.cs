@@ -20,7 +20,7 @@ namespace FSS.Abstract.Server.MetaInfo
         /// <summary>
         /// 计算任务的平均运行速度
         /// </summary>
-        Task<int> StatAvgSpeedAsync(int taskGroupId);
+        Task<long> StatAvgSpeedAsync(int taskGroupId);
 
         /// <summary>
         /// 获取所有任务组

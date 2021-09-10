@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FS.Cache.Redis;
 using FS.Core;
+using FS.DI;
 using FS.Extends;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Server.MetaInfo;
@@ -14,10 +15,10 @@ namespace FSS.Com.MetaInfoServer.Tasks
 {
     public class TaskInfo : ITaskInfo
     {
-        public ITaskAgent         TaskAgent         { get; set; }
-        public IRedisCacheManager RedisCacheManager { get; set; }
-        public ITaskAdd           TaskAdd           { get; set; }
-        public ITaskGroupList     TaskGroupList     { get; set; }
+        public  ITaskAgent         TaskAgent         { get; set; }
+        private IRedisCacheManager RedisCacheManager => IocManager.Instance.Resolve<IRedisCacheManager>();
+        public  ITaskAdd           TaskAdd           { get; set; }
+        public  ITaskGroupList     TaskGroupList     { get; set; }
 
         /// <summary>
         /// 获取任务信息
@@ -57,7 +58,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
         /// <summary>
         /// 计算任务的平均运行速度
         /// </summary>
-        public async Task<int> StatAvgSpeedAsync(int taskGroupId)
+        public async Task<long> StatAvgSpeedAsync(int taskGroupId)
         {
             var speedList = await TaskAgent.ToSpeedListAsync(taskGroupId);
             if (speedList.Count == 0) return 0;

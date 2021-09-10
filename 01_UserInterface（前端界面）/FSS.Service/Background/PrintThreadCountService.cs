@@ -1,4 +1,3 @@
-using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -6,7 +5,7 @@ using FS.DI;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace FSS.GrpcService.Background
+namespace FSS.Service.Background
 {
     /// <summary>
     /// 打印当前线程数量

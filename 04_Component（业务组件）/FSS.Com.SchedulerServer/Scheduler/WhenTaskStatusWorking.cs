@@ -16,7 +16,6 @@ namespace FSS.Com.SchedulerServer.Scheduler
     public class WhenTaskStatusWorking : IWhenTaskStatus
     {
         public ITaskInfo           TaskInfo           { get; set; }
-        public IClientRegister     ClientRegister     { get; set; }
         public ITaskGroupList      TaskGroupList      { get; set; }
         public ILogger             Logger             { get; set; }
         public IIocManager         IocManager         { get; set; }
@@ -39,12 +38,16 @@ namespace FSS.Com.SchedulerServer.Scheduler
 
                         // 取出马上到时间要处理的
                         var lstStatusWorking = lstTask.FindAll(o =>
-                            (o.Status is EumTaskType.Working or EumTaskType.Scheduler) && // 状态必须是 EumTaskType.None
-                            (DateTime.Now - o.SchedulerAt).TotalMilliseconds >= 10000 &&  // 执行时间在10s后的
-                            dicTaskGroup[o.TaskGroupId].IsEnable);                        // 任务组必须是开启
+                            (o.Status is EumTaskType.Working or EumTaskType.Scheduler) &&                                        // 状态必须是 工作中或已调度
+                            (DateTime.Now - o.SchedulerAt).TotalMilliseconds >= dicTaskGroup[o.TaskGroupId].RunSpeedAvg * 1.3 && // 执行时间超出平均运行时间1.3倍
+                            dicTaskGroup[o.TaskGroupId].IsEnable);                                                               // 任务组必须是开启
 
                         // 检查是否离线
-                        await Task.WhenAll(lstStatusWorking.Select(o => o.TaskGroupId).Select(o => CheckClientOffline.Check(dicTaskGroup[o].Id)));
+                        foreach (var taskGroupId in lstStatusWorking.Select(o => o.TaskGroupId))
+                        {
+                            await CheckClientOffline.Check(taskGroupId);
+                            await Task.Delay(10);
+                        }
                     }
                     catch (Exception e)
                     {

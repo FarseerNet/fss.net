@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FS.Cache.Redis;
+using FS.DI;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Server.MetaInfo;
 using Newtonsoft.Json;
@@ -14,7 +15,7 @@ namespace FSS.Com.MetaInfoServer.TaskGroup.Dal
     // ReSharper disable once UnusedType.Global
     public class TaskGroupCache : ITaskGroupCache
     {
-        public IRedisCacheManager RedisCacheManager { get; set; }
+        private IRedisCacheManager RedisCacheManager => IocManager.Instance.Resolve<IRedisCacheManager>();
 
         public const string Key = "FSS_TaskGroup";
 

@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MySqlConnector" Version="1.3.11" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.AspNetCore\Farseer.Net.AspNetCore.csproj" />
+        <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.Cache.Redis\Farseer.Net.Cache.Redis.csproj" />
+        <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.Core\Farseer.Net.Core.csproj" />
+        <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.Data\Farseer.Net.Data.csproj" />
+        <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.ElasticSearch\Farseer.Net.ElasticSearch.csproj" />
+        <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.Mapper\Farseer.Net.Mapper.csproj" />
+        <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.MQ.RedisStream\Farseer.Net.MQ.RedisStream.csproj" />
+        <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net\Farseer.Net.csproj" />
+        <ProjectReference Include="..\..\04_Component（业务组件）\FSS.Com.MetaInfoServer\FSS.Com.MetaInfoServer.csproj" />
+        <ProjectReference Include="..\..\04_Component（业务组件）\FSS.Com.SchedulerServer\FSS.Com.SchedulerServer.csproj" />
+        <ProjectReference Include="..\..\04_Component（业务组件）\FSS.Com.RegisterCenterServer\FSS.Com.RegisterCenterServer.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="Dockerfile">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
+</Project>

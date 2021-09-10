@@ -20,9 +20,7 @@ namespace FSS.Com.MetaInfoServer.RunLog
     [Consumer(Enable = true, RedisName = "default", GroupName = "insert", QueueName = "RunLogQueue", PullCount = 10, ConsumeThreadNums = 4)]
     public class RunLogConsumer : IListenerMessage
     {
-        public          IRunLogAgent RunLogAgent { get; set; }
-        public          IIocManager  IocManager  { get; set; }
-        static readonly bool         UseEs;
+        static readonly bool UseEs;
 
         static RunLogConsumer()
         {
@@ -35,13 +33,13 @@ namespace FSS.Com.MetaInfoServer.RunLog
         /// </summary>
         public async Task<bool> Consumer(StreamEntry[] messages, ConsumeContext ea)
         {
-            var lstPo = messages.Select(message=>JsonConvert.DeserializeObject<RunLogPO>(message.Values[0].Value.ToString())).ToList();
+            var lstPo = messages.Select(message => JsonConvert.DeserializeObject<RunLogPO>(message.Values[0].Value.ToString())).ToList();
             if (UseEs)
             {
                 return await LogContext.Data.RunLog.InsertAsync(lstPo);
             }
+
             return await MetaInfoContext.Data.RunLog.InsertAsync(lstPo) > 0;
-            
         }
 
         public Task<bool> FailureHandling(StreamEntry[] messages, ConsumeContext ea) => throw new System.NotImplementedException();

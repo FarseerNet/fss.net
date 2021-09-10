@@ -30,7 +30,7 @@ namespace FSS.Com.MetaInfoServer.Abstract
         /// <summary>
         /// 取前100条的运行速度
         /// </summary>
-        Task<List<int>> ToSpeedListAsync(int groundId);
+        Task<List<long>> ToSpeedListAsync(int groundId);
 
         /// <summary>
         /// 获取指定任务组执行成功的任务列表
@@ -51,5 +51,10 @@ namespace FSS.Com.MetaInfoServer.Abstract
         /// 获取未执行的任务列表
         /// </summary>
         Task<List<TaskPO>> ToNoneListAsync();
+
+        /// <summary>
+        /// 获取未执行的任务列表
+        /// </summary>
+        Task<List<TaskPO>> ToNoneListAsync(int top);
     }
 }

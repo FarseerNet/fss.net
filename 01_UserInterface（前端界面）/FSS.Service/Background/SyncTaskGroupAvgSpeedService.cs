@@ -2,11 +2,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using FS.DI;
 using FSS.Abstract.Server.MetaInfo;
-using FSS.Abstract.Server.RegisterCenter;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace FSS.GrpcService.Background
+namespace FSS.Service.Background
 {
     /// <summary>
     /// 计算任务组的平均耗时

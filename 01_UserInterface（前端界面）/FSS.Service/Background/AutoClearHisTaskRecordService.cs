@@ -8,7 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace FSS.GrpcService.Background
+namespace FSS.Service.Background
 {
     /// <summary>
     /// 自动清除历史任务记录

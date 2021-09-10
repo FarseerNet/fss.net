@@ -65,7 +65,7 @@ namespace FSS.Abstract.Entity.MetaInfo
         /// <summary>
         /// 运行平均耗时
         /// </summary>
-        public int RunSpeedAvg { get; set; }
+        public long RunSpeedAvg { get; set; }
         
         /// <summary>
         /// 运行次数

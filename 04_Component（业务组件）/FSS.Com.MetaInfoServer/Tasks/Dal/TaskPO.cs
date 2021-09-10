@@ -48,22 +48,22 @@ namespace FSS.Com.MetaInfoServer.Tasks.Dal
         /// <summary>
         /// 运行耗时
         /// </summary>
-        [Field(Name = "run_speed")] public int? RunSpeed { get; set; }
+        [Field(Name = "run_speed")] public long? RunSpeed { get; set; }
 
         /// <summary>
-        /// 服务端节点
+        /// 客户端Id
         /// </summary>
-        [Field(Name = "server_node")] public string ServerNode { get; set; }
-
-        /// <summary>
-        /// 客户端
-        /// </summary>
-        [Field(Name = "client_host")] public string ClientHost { get; set; }
+        [Field(Name = "client_id")] public long ClientId { get; set; }
 
         /// <summary>
         /// 客户端IP
         /// </summary>
         [Field(Name = "client_ip")] public string ClientIp { get; set; }
+        
+        /// <summary>
+        /// 客户端名称
+        /// </summary>
+        [Field(Name = "client_name")] public string ClientName { get; set; }
 
         /// <summary>
         /// 进度0-100
@@ -79,5 +79,10 @@ namespace FSS.Com.MetaInfoServer.Tasks.Dal
         /// 任务创建时间
         /// </summary>
         [Field(Name = "create_at")] public DateTime? CreateAt { get; set; }
+
+        /// <summary>
+        /// 调度时间
+        /// </summary>
+        [Field(Name = "scheduler_at")] public DateTime? SchedulerAt { get; set; }
     }
 }

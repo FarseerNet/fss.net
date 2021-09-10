@@ -2,80 +2,35 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FS.DI;
-using FSS.Abstract.Entity.RegisterCenter;
+using FSS.Abstract.Entity;
 
 namespace FSS.Abstract.Server.RegisterCenter
 {
     public interface IClientRegister: ITransientDependency
     {
         /// <summary>
-        /// 取出客户端列表
-        /// </summary>
-        List<ClientConnectVO> ToList();
-
-        /// <summary>
         /// 更新客户端调用的使用时间
         /// </summary>
-        void UpdateUseAt(string serverHost, DateTime useAt);
-
-        /// <summary>
-        /// 更新客户端心跳时间
-        /// </summary>
-        void UpdateHeartbeatAt(string serverHost, DateTime heartbeatAt);
-
-        /// <summary>
-        /// 同步本地缓存到Redis
-        /// </summary>
-        void SyncCache();
-
-        /// <summary>
-        /// 注册
-        /// </summary>
-        void Register(ClientConnectVO client);
-
-        /// <summary>
-        /// 取出客户端
-        /// </summary>
-        ClientConnectVO ToInfo(string serverHost);
-
-        /// <summary>
-        /// 移除客户端
-        /// </summary>
-        Task RemoveAsync(string serverHost);
-
-        /// <summary>
-        /// 获取客户端数量
-        /// </summary>
-        bool Exists(string jobName);
-
-        /// <summary>
-        /// 获取客户端数量
-        /// </summary>
-        int Count();
-
-        /// <summary>
-        /// 客户端是否存在
-        /// </summary>
-        bool IsExists(string serverHost);
-
-        /// <summary>
-        /// 客户端是否存在
-        /// </summary>
-        Task<bool> IsExistsByRedis(string serverHost);
-
-        /// <summary>
-        /// 取出全局客户端数量
-        /// </summary>
-        Task<long> ToClientCountAsync();
-
-        /// <summary>
-        /// 取出全局客户端列表（本地缓存）
-        /// </summary>
-        Task<List<ClientConnectVO>> ToListByMemoryAsync();
+        void UpdateClient(ClientVO client);
 
         /// <summary>
         /// 取出全局客户端列表
         /// </summary>
-        Task<List<ClientConnectVO>> ToListByRedisAsync();
+        Task<List<ClientVO>> ToList();
+
+        /// <summary>
+        /// 客户端是否存在
+        /// </summary>
+        bool IsExists(long clientId);
+
+        /// <summary>
+        /// 移除客户端
+        /// </summary>
+        Task RemoveAsync(long clientId);
+
+        /// <summary>
+        /// 取出全局客户端
+        /// </summary>
+        Task<ClientVO> ToInfo(long clientId);
     }
 }
