@@ -74,7 +74,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
             if (taskGroup.IsEnable)
             {
                 // 完成后，立即生成一个新的任务
-                task = await TaskAdd.CreateAsync(taskGroup, task);
+                task = await TaskAdd.GetOrCreateAsync(taskGroup.Id);
                 await TaskGroupUpdate.UpdateAsync(taskGroup);
                 await TaskScheduler.Scheduler(taskGroup, task);
             }

@@ -71,7 +71,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                     if (task.Id == newTask.Id && newTask.Status == EumTaskType.None)
                     {
                         await SchedulerLock.ClearLock(newTask.Id);
-                        await Schedule(taskGroup: taskGroup, task: task, clientVO: clientVO);
+                        await Schedule(taskGroup, task, clientVO);
                         return;
                     }
 
