@@ -44,7 +44,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                             dicTaskGroup[o.TaskGroupId].IsEnable);                        // 任务组必须是开启
 
                         // 检查是否离线
-                        await Task.WhenAll(lstStatusWorking.Select(o => o.TaskGroupId).Select(o => CheckClientOffline.Check(dicTaskGroup[o])));
+                        await Task.WhenAll(lstStatusWorking.Select(o => o.TaskGroupId).Select(o => CheckClientOffline.Check(dicTaskGroup[o].Id)));
                     }
                     catch (Exception e)
                     {

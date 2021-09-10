@@ -44,7 +44,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
             taskGroup.TaskId = po.Id.GetValueOrDefault();
             var task             = po.Map<TaskVO>();
 
-            await RedisCacheManager.CacheManager.SaveAsync(TaskCache.Key, task, task.TaskGroupId);
+            await RedisCacheManager.CacheManager.SaveAsync(TaskCache.Key, task, taskGroup.Id);
             return task;
         }
 

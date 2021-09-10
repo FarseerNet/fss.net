@@ -9,6 +9,6 @@ namespace FSS.Com.SchedulerServer.Abstract
         /// <summary>
         /// 检查客户端是否离线
         /// </summary>
-        Task<bool> Check(TaskGroupVO taskGroupVO);
+        Task<bool> Check(int groupId);
     }
 }

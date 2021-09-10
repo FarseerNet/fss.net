@@ -24,10 +24,11 @@ namespace FSS.Com.SchedulerServer.Scheduler
         /// <summary>
         /// 检查客户端是否离线
         /// </summary>
-        public async Task<bool> Check(TaskGroupVO taskGroup)
+        public async Task<bool> Check(int groupId)
         {
-            var task = await TaskInfo.ToInfoByGroupIdAsync(taskGroup.Id);
-            
+            var taskGroup = await TaskGroupInfo.ToInfoAsync(groupId);
+            var task      = await TaskInfo.ToInfoByGroupIdAsync(groupId);
+
             // 如果 任务的运行节点是当前节点时，判断客户端是否在线
             if (task.ServerNode == IpHelper.GetIp)
             {
@@ -36,7 +37,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 {
                     await RunLogAdd.AddAsync(taskGroup, task.Id, LogLevel.Warning, $"任务ID：{task.Id}，客户端断开连接，强制设为失败状态");
                     task.Status = EumTaskType.Fail;
-                    
+
                     // 取最新的任务组（不能用本地缓存的）
                     taskGroup = await TaskGroupInfo.ToInfoAsync(task.TaskGroupId);
                     await TaskUpdate.SaveFinishAsync(task, taskGroup);
@@ -59,7 +60,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
             {
                 await RunLogAdd.AddAsync(taskGroup, task.Id, LogLevel.Warning, $"任务ID：{task.Id}，服务端节点下线，强制设为失败状态");
                 task.Status = EumTaskType.Fail;
-                
+
                 // 取最新的任务组（不能用本地缓存的）
                 taskGroup = await TaskGroupInfo.ToInfoAsync(task.TaskGroupId);
                 await TaskUpdate.SaveFinishAsync(task, taskGroup);
@@ -71,7 +72,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
             {
                 await RunLogAdd.AddAsync(taskGroup, task.Id, LogLevel.Warning, $"任务ID：{task.Id}，客户端假死状态，强制设为失败状态");
                 task.Status = EumTaskType.Fail;
-                
+
                 // 取最新的任务组（不能用本地缓存的）
                 taskGroup = await TaskGroupInfo.ToInfoAsync(task.TaskGroupId);
                 await TaskUpdate.SaveFinishAsync(task, taskGroup);

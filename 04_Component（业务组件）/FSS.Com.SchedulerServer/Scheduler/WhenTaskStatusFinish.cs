@@ -40,9 +40,10 @@ namespace FSS.Com.SchedulerServer.Scheduler
 
                         // 取出状态为None的，且马上到时间要处理的
                         var lstStatusFinish = lstTask.FindAll(o =>
-                            dicTaskGroup.ContainsKey(o.TaskGroupId) && ClientRegister.Exists(dicTaskGroup[o.TaskGroupId].JobName) && // 注册进来的客户端，必须是能处理的，否则退出线程
-                                o.Status is EumTaskType.Fail or EumTaskType.Success or EumTaskType.ReScheduler &&                    // 状态必须是 完成的
-                                dicTaskGroup[o.TaskGroupId].IsEnable)                                                                // 任务组必须是开启
+                                dicTaskGroup.ContainsKey(o.TaskGroupId) && ClientRegister.Exists(dicTaskGroup[o.TaskGroupId].JobName) && // 注册进来的客户端，必须是能处理的，否则退出线程
+                                o.Status is EumTaskType.Fail or EumTaskType.Success or EumTaskType.ReScheduler &&                        // 状态必须是 完成的
+                                (DateTime.Now - o.StartAt).TotalSeconds > 3 &&
+                                dicTaskGroup[o.TaskGroupId].IsEnable) // 任务组必须是开启
                             .OrderBy(o => o.StartAt).ToList();
 
                         foreach (var task in lstStatusFinish)
@@ -59,7 +60,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                     }
 
                     // 休眠下，防止CPU过高
-                    await Task.Delay(5000);
+                    await Task.Delay(TimeSpan.FromMinutes(1));
                 }
             }, TaskCreationOptions.LongRunning);
         }
