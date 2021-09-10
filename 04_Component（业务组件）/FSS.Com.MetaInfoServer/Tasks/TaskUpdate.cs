@@ -59,7 +59,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
                 var cron = new Cron();
                 // 时间间隔器
                 if (taskGroup.IntervalMs > 0) taskGroup.NextAt = DateTime.Now.AddMilliseconds(taskGroup.IntervalMs);
-                else if (string.IsNullOrWhiteSpace(taskGroup.Cron) is false && cron.Parse(taskGroup.Cron))
+                else if (!string.IsNullOrWhiteSpace(taskGroup.Cron) && cron.Parse(taskGroup.Cron))
                 {
                     taskGroup.NextAt = cron.GetNext(DateTime.Now);
                 }
@@ -76,8 +76,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
                 // 完成后，立即生成一个新的任务
                 task = await TaskAdd.CreateAsync(taskGroup, task);
                 await TaskGroupUpdate.UpdateAsync(taskGroup);
-                var newTask = await TaskAdd.GetOrCreateAsync(task.TaskGroupId);
-                if ((newTask.StartAt - DateTime.Now).TotalMinutes <= 2) await TaskScheduler.Scheduler(taskGroup, task);
+                await TaskScheduler.Scheduler(taskGroup, task);
             }
             else
             {
