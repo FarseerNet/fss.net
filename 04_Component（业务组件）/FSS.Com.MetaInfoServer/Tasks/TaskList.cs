@@ -44,7 +44,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
         {
             // 计算本次要拉取任务的数量
             var taskCount = 3;
-            var lstPo     = await TaskAgent.ToNoneListAsync(taskCount);
+            var lstPo     = await TaskAgent.ToNoneListAsync(taskCount, client.Jobs);
             if (lstPo.Count == 0) return null;
 
             // 更新任务状态

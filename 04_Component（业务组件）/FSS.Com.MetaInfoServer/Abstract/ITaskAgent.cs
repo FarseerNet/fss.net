@@ -55,6 +55,6 @@ namespace FSS.Com.MetaInfoServer.Abstract
         /// <summary>
         /// 获取未执行的任务列表
         /// </summary>
-        Task<List<TaskPO>> ToNoneListAsync(int top);
+        Task<List<TaskPO>> ToNoneListAsync(int top, string[] clientJobs);
     }
 }

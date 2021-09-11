@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FSS.Abstract.Enum;
 using FSS.Com.MetaInfoServer.Abstract;
@@ -29,7 +30,7 @@ namespace FSS.Com.MetaInfoServer.Tasks.Dal
         /// <summary>
         /// 拉取30秒内要执行的任务
         /// </summary>
-        public Task<List<TaskPO>> ToNoneListAsync(int top) => MetaInfoContext.Data.Task.Where(o => o.Status == EumTaskType.None && o.StartAt < DateTime.Now.AddSeconds(30)).Asc(o => o.StartAt).ToListAsync(top);
+        public Task<List<TaskPO>> ToNoneListAsync(int top, string[] clientJobs) => MetaInfoContext.Data.Task.Where(o => o.Status == EumTaskType.None && clientJobs.Contains(o.JobName) && o.StartAt < DateTime.Now.AddSeconds(30)).Asc(o => o.StartAt).ToListAsync(top);
 
         /// <summary>
         /// 清除成功的任务记录（1天前）
