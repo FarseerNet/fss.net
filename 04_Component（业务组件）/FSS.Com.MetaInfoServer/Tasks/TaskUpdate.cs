@@ -21,6 +21,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
         public  ITaskGroupUpdate   TaskGroupUpdate   { get; set; }
         public  IIocManager        IocManager        { get; set; }
         public  ITaskGroupInfo     TaskGroupInfo     { get; set; }
+        public  ITaskInfo          TaskInfo          { get; set; }
 
         /// <summary>
         /// 更新Task（如果状态是成功、失败、重新调度，则应该调Save）
@@ -36,6 +37,15 @@ namespace FSS.Com.MetaInfoServer.Tasks
         public Task RemoveAsync(int taskGroupId)
         {
             return RedisCacheManager.Db.HashDeleteAsync(TaskCache.Key, taskGroupId);
+        }
+
+        /// <summary>
+        /// 移除缓存
+        /// </summary>
+        public async Task ClearCacheAsync()
+        {
+            await RedisCacheManager.Db.KeyDeleteAsync(TaskCache.Key);
+            await TaskInfo.ToGroupListAsync();
         }
 
         /// <summary>
@@ -61,8 +71,6 @@ namespace FSS.Com.MetaInfoServer.Tasks
         /// </summary>
         public async Task SaveFinishAsync(TaskVO task, TaskGroupVO taskGroup)
         {
-            await TaskAgent.UpdateAsync(task.Id, task.Map<TaskPO>());
-
             // 说明上一次任务，没有设置下一次的时间（动态设置）
             // 本次的时间策略晚，则通过时间策略计算出来
             if (DateTime.Now > taskGroup.NextAt)
@@ -87,6 +95,8 @@ namespace FSS.Com.MetaInfoServer.Tasks
                 // 完成后，立即生成一个新的任务
                 await TaskAdd.GetOrCreateAsync(taskGroup);
             }
+
+            await SaveAsync(task);
         }
     }
 }

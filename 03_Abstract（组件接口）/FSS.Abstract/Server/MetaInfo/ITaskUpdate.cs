@@ -30,5 +30,10 @@ namespace FSS.Abstract.Server.MetaInfo
         /// 保存Task（taskGroup必须是最新的）
         /// </summary>
         Task SaveFinishAsync(TaskVO task);
+
+        /// <summary>
+        /// 移除缓存
+        /// </summary>
+        Task ClearCacheAsync();
     }
 }
