@@ -25,5 +25,10 @@ namespace FSS.Abstract.Server.MetaInfo
         /// 移除缓存的任务
         /// </summary>
         Task RemoveAsync(int taskGroupId);
+
+        /// <summary>
+        /// 保存Task（taskGroup必须是最新的）
+        /// </summary>
+        Task SaveFinishAsync(TaskVO task);
     }
 }

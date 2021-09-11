@@ -35,6 +35,8 @@ namespace FSS.Com.SchedulerServer.Scheduler
             {
                 await RunLogAdd.AddAsync(taskGroup, task.Id, LogLevel.Warning, $"检测到客户端的最后使用时间为：{client.ActivateAt:yyyy-MM-dd HH:mm:ss}，进入假死状态，强制下线客户端");
                 await ClientRegister.RemoveAsync(client.Id);
+                task.Status = EumTaskType.Fail;
+                await TaskUpdate.SaveFinishAsync(task, taskGroup);
                 return true;
             }
 
@@ -44,8 +46,6 @@ namespace FSS.Com.SchedulerServer.Scheduler
             {
                 await RunLogAdd.AddAsync(taskGroup, task.Id, LogLevel.Warning, $"任务ID：{task.Id}，客户端假死状态{taskGroup.ActivateAt:yyyy-MM-dd HH:mm:ss} {client.ActivateAt:yyyy-MM-dd HH:mm:ss}，强制设为失败状态");
                 task.Status = EumTaskType.Fail;
-                // 取最新的任务组（不能用本地缓存的）
-                taskGroup = await TaskGroupInfo.ToInfoAsync(task.TaskGroupId);
                 await TaskUpdate.SaveFinishAsync(task, taskGroup);
                 return true;
             }

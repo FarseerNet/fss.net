@@ -40,9 +40,10 @@ namespace FSS.Com.MetaInfoServer.Tasks
                     Status      = EumTaskType.None,
                     CreateAt    = DateTime.Now,
                     RunAt       = DateTime.Now,
+                    SchedulerAt = DateTime.Now,
                 };
                 await TaskAgent.AddAsync(po);
-                task             = po.Map<TaskVO>();
+                task = po.Map<TaskVO>();
             }
 
             await RedisCacheManager.CacheManager.SaveAsync(TaskCache.Key, task, task.TaskGroupId);
@@ -60,13 +61,13 @@ namespace FSS.Com.MetaInfoServer.Tasks
             await TaskGroupUpdate.UpdateAsync(taskGroup);
             return task;
         }
-        
+
         /// <summary>
         /// 创建Task，并更新到缓存
         /// </summary>
         public async Task<TaskVO> GetOrCreateAsync(TaskGroupVO taskGroup)
         {
-            var task      = await CreateAsync(taskGroup);
+            var task = await CreateAsync(taskGroup);
             taskGroup.TaskId = task.Id;
             await TaskGroupUpdate.SaveAsync(taskGroup);
             return task;

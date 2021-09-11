@@ -20,6 +20,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
         public  ITaskAdd           TaskAdd           { get; set; }
         public  ITaskGroupUpdate   TaskGroupUpdate   { get; set; }
         public  IIocManager        IocManager        { get; set; }
+        public  ITaskGroupInfo     TaskGroupInfo     { get; set; }
 
         /// <summary>
         /// 更新Task（如果状态是成功、失败、重新调度，则应该调Save）
@@ -49,10 +50,19 @@ namespace FSS.Com.MetaInfoServer.Tasks
         /// <summary>
         /// 保存Task（taskGroup必须是最新的）
         /// </summary>
+        public async Task SaveFinishAsync(TaskVO task)
+        {
+            var taskGroup = await TaskGroupInfo.ToInfoAsync(task.TaskGroupId);
+            await SaveFinishAsync(task, taskGroup);
+        }
+
+        /// <summary>
+        /// 保存Task（taskGroup必须是最新的）
+        /// </summary>
         public async Task SaveFinishAsync(TaskVO task, TaskGroupVO taskGroup)
         {
             await TaskAgent.UpdateAsync(task.Id, task.Map<TaskPO>());
-            
+
             // 说明上一次任务，没有设置下一次的时间（动态设置）
             // 本次的时间策略晚，则通过时间策略计算出来
             if (DateTime.Now > taskGroup.NextAt)
