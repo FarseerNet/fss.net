@@ -71,6 +71,9 @@ namespace FSS.Com.MetaInfoServer.Tasks
         /// </summary>
         public async Task SaveFinishAsync(TaskVO task, TaskGroupVO taskGroup)
         {
+            // 要先保存状态
+            await SaveAsync(task);
+            
             // 说明上一次任务，没有设置下一次的时间（动态设置）
             // 本次的时间策略晚，则通过时间策略计算出来
             if (DateTime.Now > taskGroup.NextAt)
@@ -95,8 +98,6 @@ namespace FSS.Com.MetaInfoServer.Tasks
                 // 完成后，立即生成一个新的任务
                 await TaskAdd.GetOrCreateAsync(taskGroup);
             }
-
-            await SaveAsync(task);
         }
     }
 }
