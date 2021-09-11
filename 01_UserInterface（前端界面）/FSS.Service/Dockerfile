@@ -11,4 +11,4 @@ COPY . ./
 #EXPOSE 80
 
 #容器中使用 ["dotnet","系统启动的dll"] 来运行应用程序
-ENTRYPOINT ["dotnet", "FSS.GrpcService.dll"]
+ENTRYPOINT ["dotnet", "FSS.Service.dll"]

@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: fss-grpc
+  name: fss
   labels:
-    app: fss-grpc
+    app: fss
     k8s.kuboard.cn/layer: cloud
 spec:
   replicas: 1
@@ -16,17 +16,17 @@ spec:
       maxUnavailable: 0   # 更新时允许最大 unavailable 容器数，默认 replicas 的 1/4 向下取整
   selector:
     matchLabels:
-      app: fss-grpc
+      app: fss
   template:
     metadata:
-      name: fss-grpc
+      name: fss
       labels:
-        app: fss-grpc
+        app: fss
     spec:
       nodeSelector:   #节点筛选器
         rt: middleware
       containers:
-        - name: fss-grpc
+        - name: fss
           image: farseernet/fss:latest
           imagePullPolicy: IfNotPresent
           imagePullSecrets:
@@ -71,10 +71,10 @@ type: Opaque
 apiVersion: v1
 kind: Service
 metadata:
-  name: fss-grpc
+  name: fss
 spec:
   selector:
-    app: fss-grpc
+    app: fss
   type: ClusterIP
   ports:
     - name: http # 请为所有端口指定名称
@@ -85,15 +85,14 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: fss-grpc
+  name: fss
   annotations:
-    nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
 spec:
   rules:
-    - host: fss.xxxxxxx # 内网则可以直接使用Service
+    - host: fss.abtest.ws # 内网则可以直接使用Service
       http:
         paths:
           - path: /
             backend:
-              serviceName: fss-grpc
+              serviceName: fss
               servicePort: 80
