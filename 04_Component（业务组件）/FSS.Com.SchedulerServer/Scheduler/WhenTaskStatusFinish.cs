@@ -36,7 +36,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                         var lstStatusFinish = lstTask.FindAll(o =>
                                 dicTaskGroup.ContainsKey(o.TaskGroupId) &&
                                 o.Status is EumTaskType.Fail or EumTaskType.Success or EumTaskType.ReScheduler && // 状态必须是 完成的
-                                (DateTime.Now - o.RunAt).TotalSeconds > 3 &&                                      // 加个时间，来限制并发
+                                (DateTime.Now - dicTaskGroup[o.TaskGroupId].ActivateAt).TotalSeconds > 3 &&       // 加个时间，来限制并发
                                 dicTaskGroup[o.TaskGroupId].IsEnable)                                             // 任务组必须是开启
                             .OrderBy(o => o.StartAt).ToList();
 
