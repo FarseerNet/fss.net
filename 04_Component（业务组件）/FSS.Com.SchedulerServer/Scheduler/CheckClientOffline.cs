@@ -27,8 +27,18 @@ namespace FSS.Com.SchedulerServer.Scheduler
         {
             var taskGroup = await TaskGroupInfo.ToInfoAsync(groupId);
             var task      = await TaskInfo.ToInfoByGroupIdAsync(groupId);
+
             // 客户端
             var client = await ClientRegister.ToInfo(task.ClientId) ?? new ClientVO();
+
+            // 客户端下线
+            if (client.Id == 0 || (DateTime.Now - client.ActivateAt).TotalMinutes >= 1)
+            {
+                await RunLogAdd.AddAsync(taskGroup, task.Id, LogLevel.Warning, $"任务ID：{task.Id}，客户端下线{taskGroup.ActivateAt:yyyy-MM-dd HH:mm:ss} {client.ActivateAt:yyyy-MM-dd HH:mm:ss}，强制设为失败状态");
+                task.Status = EumTaskType.Fail;
+                await TaskUpdate.SaveFinishAsync(task, taskGroup);
+                return true;
+            }
 
             // 测试客户端是否假死
             if (await CheckFeignDeath(client, taskGroup))
@@ -42,7 +52,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
 
 
             // 任务组活动时间大于1分钟、同时客户端活动时间大于1分钟，判定为客户端下线
-            if ((DateTime.Now - taskGroup.ActivateAt).TotalMinutes >= 1 && (client == null || client.Id == 0 || (DateTime.Now - client.ActivateAt).TotalMinutes >= 1)) // 大于1分钟，才检查
+            if ((DateTime.Now - taskGroup.ActivateAt).TotalMinutes >= 1) // 大于1分钟，才检查
             {
                 await RunLogAdd.AddAsync(taskGroup, task.Id, LogLevel.Warning, $"任务ID：{task.Id}，客户端假死状态{taskGroup.ActivateAt:yyyy-MM-dd HH:mm:ss} {client.ActivateAt:yyyy-MM-dd HH:mm:ss}，强制设为失败状态");
                 task.Status = EumTaskType.Fail;
