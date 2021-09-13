@@ -89,11 +89,11 @@ namespace FSS.Service.Controllers
                     // 更新group元信息
                     taskGroup = await TaskGroupInfo.ToInfoAsync(request.TaskGroupId);
                     taskGroup.RunCount++;
+                    taskGroup.LastRunAt = DateTime.Now;
                 }
 
                 // 更新Task
                 taskGroup.ActivateAt = DateTime.Now;
-                taskGroup.LastRunAt  = DateTime.Now;
                 task.Progress        = request.Progress;
                 task.Status          = request.Status;
                 task.RunSpeed        = request.RunSpeed;

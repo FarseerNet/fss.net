@@ -35,15 +35,12 @@ namespace FSS.Com.SchedulerServer.Scheduler
                     {
                         var dicTaskGroup = await TaskGroupList.ToListByMemoryAsync();
                         var lstTask      = await TaskInfo.ToGroupListAsync();
-
-                        // 取出马上到时间要处理的
-                        var lstStatusWorking = lstTask.FindAll(o =>
-                                (o.Status is EumTaskType.Working or EumTaskType.Scheduler) &&                                     // 状态必须是 工作中或已调度
-                                (DateTime.Now - o.SchedulerAt).TotalMilliseconds >= dicTaskGroup[o.TaskGroupId].RunSpeedAvg * 1.3 // 执行时间超出平均运行时间1.3倍
-                        );                                                                                                        // 任务组必须是开启
-
+                        lstTask.RemoveAll(o => o.Status is EumTaskType.None or EumTaskType.Fail or EumTaskType.Success or EumTaskType.ReScheduler);
+                        lstTask.RemoveAll(o => o.Status is EumTaskType.Scheduler && (DateTime.Now - o.StartAt).TotalSeconds < 5);                                               // 调度状态、且计划时间在5秒内还没执行的，暂停认为正常
+                        lstTask.RemoveAll(o => o.Status is EumTaskType.Working && (DateTime.Now - o.RunAt).TotalMilliseconds < dicTaskGroup[o.TaskGroupId].RunSpeedAvg * 1.3); // 执行时间还没有超出平均运行时间1.3倍
+                        
                         // 检查是否离线
-                        foreach (var taskGroupId in lstStatusWorking.Select(o => o.TaskGroupId))
+                        foreach (var taskGroupId in lstTask.Select(o => o.TaskGroupId))
                         {
                             await CheckClientOffline.Check(taskGroupId);
                             await Task.Delay(10);
