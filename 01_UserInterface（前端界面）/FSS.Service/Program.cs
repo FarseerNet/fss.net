@@ -8,7 +8,7 @@ namespace FSS.Service
 {
     public class Program
     {
-        public static int Port = 80;
+        public static int Port = 8880;
         public static void Main(string[] args)
         {
             FarseerApplication.Run<Startup>("FSS.Service").Initialize(Env.IsPro ? null : _ => _.AddConsole());

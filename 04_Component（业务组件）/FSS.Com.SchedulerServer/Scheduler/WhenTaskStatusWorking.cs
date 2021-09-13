@@ -1,12 +1,9 @@
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FS.DI;
-using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
-using FSS.Abstract.Server.RegisterCenter;
 using FSS.Abstract.Server.Scheduler;
 using FSS.Com.SchedulerServer.Abstract;
 using Microsoft.Extensions.Logging;
@@ -15,7 +12,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
 {
     public class WhenTaskStatusWorking : IWhenTaskStatus
     {
-        public ITaskInfo           TaskInfo           { get; set; }
+        public ITaskList           TaskList           { get; set; }
         public ITaskGroupList      TaskGroupList      { get; set; }
         public ILogger             Logger             { get; set; }
         public IIocManager         IocManager         { get; set; }
@@ -34,15 +31,14 @@ namespace FSS.Com.SchedulerServer.Scheduler
                     try
                     {
                         var dicTaskGroup = await TaskGroupList.ToListByMemoryAsync();
-                        var lstTask      = await TaskInfo.ToGroupListAsync();
-                        lstTask.RemoveAll(o => o.Status is EumTaskType.None or EumTaskType.Fail or EumTaskType.Success or EumTaskType.ReScheduler);
-                        lstTask.RemoveAll(o => o.Status is EumTaskType.Scheduler && (DateTime.Now - o.StartAt).TotalSeconds < 5);                                               // 调度状态、且计划时间在5秒内还没执行的，暂停认为正常
+                        var lstTask      = await TaskList.ToSchedulerWorkingListAsync();
+                        lstTask.RemoveAll(o => o.Status is EumTaskType.Scheduler && (DateTime.Now - o.StartAt).TotalSeconds < 5);                                              // 调度状态、且计划时间在5秒内还没执行的，暂停认为正常
                         lstTask.RemoveAll(o => o.Status is EumTaskType.Working && (DateTime.Now - o.RunAt).TotalMilliseconds < dicTaskGroup[o.TaskGroupId].RunSpeedAvg * 1.3); // 执行时间还没有超出平均运行时间1.3倍
-                        
+
                         // 检查是否离线
-                        foreach (var taskGroupId in lstTask.Select(o => o.TaskGroupId))
+                        foreach (var task in lstTask)
                         {
-                            await CheckClientOffline.Check(taskGroupId);
+                            await CheckClientOffline.Check(task);
                             await Task.Delay(10);
                         }
                     }

@@ -38,6 +38,14 @@ namespace FSS.Com.MetaInfoServer.Tasks
         public Task<List<TaskVO>> ToNoneListAsync() => TaskAgent.ToNoneListAsync().MapAsync<TaskVO, TaskPO>();
 
         /// <summary>
+        /// 获取执行中的任务
+        /// </summary>
+        public Task<List<TaskVO>> ToSchedulerWorkingListAsync()
+        {
+            return MetaInfoContext.Data.Task.Where(o => (o.Status == EumTaskType.Scheduler || o.Status == EumTaskType.Working)).ToListAsync().MapAsync<TaskVO, TaskPO>();
+        }
+
+        /// <summary>
         /// 拉取指定数量的任务，并将任务设为已调度状态
         /// </summary>
         public async Task<List<TaskVO>> PullTaskAsync(ClientVO client)

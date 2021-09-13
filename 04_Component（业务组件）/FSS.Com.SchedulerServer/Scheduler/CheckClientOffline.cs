@@ -23,10 +23,9 @@ namespace FSS.Com.SchedulerServer.Scheduler
         /// <summary>
         /// 检查客户端是否离线
         /// </summary>
-        public async Task<bool> Check(int groupId)
+        public async Task<bool> Check(TaskVO task)
         {
-            var taskGroup = await TaskGroupInfo.ToInfoAsync(groupId);
-            var task      = await TaskInfo.ToInfoByGroupIdAsync(groupId);
+            var taskGroup = await TaskGroupInfo.ToInfoAsync(task.TaskGroupId);
 
             // 客户端
             var client = await ClientRegister.ToInfo(task.ClientId) ?? new ClientVO();
