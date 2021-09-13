@@ -38,9 +38,9 @@ namespace FSS.Com.SchedulerServer.Scheduler
 
                         // 取出马上到时间要处理的
                         var lstStatusWorking = lstTask.FindAll(o =>
-                            (o.Status is EumTaskType.Working or EumTaskType.Scheduler) &&                                        // 状态必须是 工作中或已调度
-                            (DateTime.Now - o.SchedulerAt).TotalMilliseconds >= dicTaskGroup[o.TaskGroupId].RunSpeedAvg * 1.3 && // 执行时间超出平均运行时间1.3倍
-                            dicTaskGroup[o.TaskGroupId].IsEnable);                                                               // 任务组必须是开启
+                                (o.Status is EumTaskType.Working or EumTaskType.Scheduler) &&                                     // 状态必须是 工作中或已调度
+                                (DateTime.Now - o.SchedulerAt).TotalMilliseconds >= dicTaskGroup[o.TaskGroupId].RunSpeedAvg * 1.3 // 执行时间超出平均运行时间1.3倍
+                        );                                                                                                        // 任务组必须是开启
 
                         // 检查是否离线
                         foreach (var taskGroupId in lstStatusWorking.Select(o => o.TaskGroupId))
