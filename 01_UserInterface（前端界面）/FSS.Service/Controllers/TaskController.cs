@@ -39,10 +39,10 @@ namespace FSS.Service.Controllers
         /// </summary>
         [HttpPost]
         [Route("Pull")]
-        public async Task<ApiResponseJson<List<TaskVO>>> Pull()
+        public async Task<ApiResponseJson<List<TaskVO>>> Pull(PullRequest request)
         {
             // 拉取任务
-            var lstTask = await TaskList.PullTaskAsync(Client) ?? new List<TaskVO>();
+            var lstTask = await TaskList.PullTaskAsync(Client, request.TaskCount) ?? new List<TaskVO>();
             return await ApiResponseJson<List<TaskVO>>.SuccessAsync("默认", lstTask);
         }
 

@@ -48,11 +48,14 @@ namespace FSS.Com.MetaInfoServer.Tasks
         /// <summary>
         /// 拉取指定数量的任务，并将任务设为已调度状态
         /// </summary>
-        public async Task<List<TaskVO>> PullTaskAsync(ClientVO client)
+        public async Task<List<TaskVO>> PullTaskAsync(ClientVO client, int requestTaskCount)
         {
-            // 计算本次要拉取任务的数量
-            var taskCount = 3;
-            var lstPo     = await TaskAgent.ToNoneListAsync(taskCount, client.Jobs);
+            if (requestTaskCount == 0)
+            {
+                requestTaskCount = 3;
+            }
+
+            var lstPo = await TaskAgent.ToNoneListAsync(requestTaskCount, client.Jobs);
             if (lstPo.Count == 0) return null;
 
             // 更新任务状态

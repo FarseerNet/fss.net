@@ -26,7 +26,7 @@ namespace FSS.Abstract.Server.MetaInfo
         /// <summary>
         /// 拉取指定数量的任务，并将任务设为已调度状态
         /// </summary>
-        Task<List<TaskVO>> PullTaskAsync(ClientVO client);
+        Task<List<TaskVO>> PullTaskAsync(ClientVO client, int requestTaskCount);
 
         /// <summary>
         /// 获取执行中的任务
