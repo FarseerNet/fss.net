@@ -17,7 +17,6 @@ namespace FSS.Service
             CreateHostBuilder(args).Build().Run();
         }
 
-        
         public static IHostBuilder CreateHostBuilder(string[] args)
         {
             return Host.CreateDefaultBuilder(args).UseWindsorContainerServiceProvider().ConfigureWebHostDefaults(webBuilder =>
