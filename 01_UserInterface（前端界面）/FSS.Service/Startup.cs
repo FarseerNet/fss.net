@@ -15,6 +15,7 @@ using FSS.Service.Background;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -51,10 +52,9 @@ namespace FSS.Service
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            services.AddControllers();
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApplication", Version = "v1" }); });
             services.AddFarseerControllers();
-
+            
             // 开启任务组调度
             services.AddHostedService<PrintSysInfoService>();
             services.AddHostedService<SyncTaskGroupAvgSpeedService>();
