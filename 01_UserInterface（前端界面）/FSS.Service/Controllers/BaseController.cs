@@ -32,11 +32,6 @@ namespace FSS.Service.Controllers
         /// </summary>
         protected string Origin { get; }
 
-        /// <summary>
-        /// 识别会员、代理、管理
-        /// </summary>
-        private readonly string _type;
-
         public BaseController(IHttpContextAccessor httpContextAccessor)
         {
             HttpContextAccessor = httpContextAccessor;
@@ -48,7 +43,7 @@ namespace FSS.Service.Controllers
                 Jobs       = HttpContextAccessor.HttpContext.Request.Headers["ClientJobs"].ToString().Split(','),
                 ActivateAt = DateTime.Now
             };
-            
+
             // 更新客户端的使用时间
             IocManager.Instance.Resolve<IClientRegister>().UpdateClient(Client);
         }

@@ -19,11 +19,9 @@ namespace FSS.Com.RegisterCenterServer.Client
     // ReSharper disable once UnusedType.Global
     public class ClientRegister : IClientRegister
     {
-        private string             Key = "FSS_ClientList";
-        public  IRedisCacheManager RedisCacheManager { get; set; }
-        public  ITaskInfo          TaskInfo          { get; set; }
-        public  ITaskUpdate        TaskUpdate        { get; set; }
-        public  ITaskGroupInfo     TaskGroupInfo     { get; set; }
+        public ITaskInfo      TaskInfo      { get; set; }
+        public ITaskUpdate    TaskUpdate    { get; set; }
+        public ITaskGroupInfo TaskGroupInfo { get; set; }
 
         /// <summary>
         /// 更新客户端调用的使用时间
