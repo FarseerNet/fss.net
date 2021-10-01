@@ -7,7 +7,6 @@ using FSS.Abstract.Entity;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
-using FSS.Com.MetaInfoServer.Abstract;
 using FSS.Com.MetaInfoServer.Tasks.Dal;
 
 namespace FSS.Com.MetaInfoServer.Tasks
@@ -17,7 +16,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
     /// </summary>
     public class TaskList : ITaskList
     {
-        public TaskAgent       TaskAgent       { get; set; }
+        public TaskAgent        TaskAgent       { get; set; }
         public ITaskGroupInfo   TaskGroupInfo   { get; set; }
         public ITaskUpdate      TaskUpdate      { get; set; }
         public ITaskGroupUpdate TaskGroupUpdate { get; set; }

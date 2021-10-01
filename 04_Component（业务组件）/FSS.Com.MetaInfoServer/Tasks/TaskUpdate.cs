@@ -1,50 +1,35 @@
 using System;
 using System.Threading.Tasks;
-using FS.Cache;
 using FS.Cache.Redis;
-using FS.DI;
 using FS.Extends;
 using FS.Utils.Component;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Server.MetaInfo;
-using FSS.Abstract.Server.Scheduler;
-using FSS.Com.MetaInfoServer.Abstract;
 using FSS.Com.MetaInfoServer.Tasks.Dal;
+using FSS.Infrastructure.Repository;
 
 namespace FSS.Com.MetaInfoServer.Tasks
 {
     public class TaskUpdate : ITaskUpdate
     {
-        private IRedisCacheManager RedisCacheManager => IocManager.Resolve<IRedisCacheManager>();
-        public  TaskAgent          TaskAgent         { get; set; }
-        public  ITaskAdd           TaskAdd           { get; set; }
-        public  ITaskGroupUpdate   TaskGroupUpdate   { get; set; }
-        public  IIocManager        IocManager        { get; set; }
-        public  ITaskGroupInfo     TaskGroupInfo     { get; set; }
-        public  ITaskInfo          TaskInfo          { get; set; }
+        public TaskAgent        TaskAgent       { get; set; }
+        public ITaskAdd         TaskAdd         { get; set; }
+        public ITaskGroupUpdate TaskGroupUpdate { get; set; }
+        public ITaskGroupInfo   TaskGroupInfo   { get; set; }
+        public ITaskInfo        TaskInfo        { get; set; }
+        public TaskCache        TaskCache       { get; set; }
 
         /// <summary>
         /// 更新Task（如果状态是成功、失败、重新调度，则应该调Save）
         /// </summary>
-        public async Task UpdateAsync(TaskVO task)
-        {
-            await RedisCacheManager.CacheManager.SaveAsync(TaskCache.Key, task, task.TaskGroupId, new CacheOption());
-        }
-
-        /// <summary>
-        /// 移除缓存的任务
-        /// </summary>
-        public Task RemoveAsync(int taskGroupId)
-        {
-            return RedisCacheManager.Db.HashDeleteAsync(TaskCache.Key, taskGroupId);
-        }
+        public Task UpdateAsync(TaskVO task) => TaskCache.SaveAsync(task);
 
         /// <summary>
         /// 移除缓存
         /// </summary>
         public async Task ClearCacheAsync()
         {
-            await RedisCacheManager.Db.KeyDeleteAsync(TaskCache.Key);
+            await CacheKeys.TaskForGroupClear();
             await TaskInfo.ToGroupListAsync();
         }
 

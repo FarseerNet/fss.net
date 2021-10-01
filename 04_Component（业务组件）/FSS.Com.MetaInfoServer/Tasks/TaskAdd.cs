@@ -12,10 +12,10 @@ namespace FSS.Com.MetaInfoServer.Tasks
 {
     public class TaskAdd : ITaskAdd
     {
-        public  TaskAgent          TaskAgent         { get; set; }
-        private IRedisCacheManager RedisCacheManager => IocManager.Instance.Resolve<IRedisCacheManager>();
-        public  ITaskGroupInfo     TaskGroupInfo     { get; set; }
-        public  ITaskGroupUpdate   TaskGroupUpdate   { get; set; }
+        public TaskAgent        TaskAgent       { get; set; }
+        public TaskCache        TaskCache       { get; set; }
+        public ITaskGroupInfo   TaskGroupInfo   { get; set; }
+        public ITaskGroupUpdate TaskGroupUpdate { get; set; }
 
         /// <summary>
         /// 创建Task，并更新到缓存
@@ -45,7 +45,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
                 task = po.Map<TaskVO>();
             }
 
-            await RedisCacheManager.CacheManager.SaveAsync(TaskCache.Key, task, task.TaskGroupId);
+            await TaskCache.SaveAsync(task);
             return task;
         }
 

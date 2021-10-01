@@ -61,7 +61,7 @@ namespace FSS.Service.Background
                 {
                     if (!lstGroupByDb.Exists(o => o.Id == taskVO.TaskGroupId))
                     {
-                        await _taskUpdate.RemoveAsync(taskVO.TaskGroupId);
+                        await CacheKeys.TaskForGroupClear(taskVO.TaskGroupId);
                     }
                 }
             }
