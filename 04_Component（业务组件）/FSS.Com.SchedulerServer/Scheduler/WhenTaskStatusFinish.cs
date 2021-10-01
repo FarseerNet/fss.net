@@ -34,11 +34,11 @@ namespace FSS.Com.SchedulerServer.Scheduler
 
                         // 取出状态为None的，且马上到时间要处理的
                         var lstStatusFinish = lstTask.FindAll(o =>
-                                dicTaskGroup.ContainsKey(o.TaskGroupId) &&
-                                o.Status is EumTaskType.Fail or EumTaskType.Success or EumTaskType.ReScheduler && // 状态必须是 完成的
-                                (DateTime.Now - dicTaskGroup[o.TaskGroupId].ActivateAt).TotalSeconds > 3 &&       // 加个时间，来限制并发
-                                dicTaskGroup[o.TaskGroupId].IsEnable)                                             // 任务组必须是开启
-                            .OrderBy(o => o.StartAt).ToList();
+                                                              dicTaskGroup.ContainsKey(o.TaskGroupId)                                        &&
+                                                              o.Status is EumTaskType.Fail or EumTaskType.Success or EumTaskType.ReScheduler && // 状态必须是 完成的
+                                                              (DateTime.Now - dicTaskGroup[o.TaskGroupId].ActivateAt).TotalSeconds > 3       && // 加个时间，来限制并发
+                                                              dicTaskGroup[o.TaskGroupId].IsEnable)                                             // 任务组必须是开启
+                                                     .OrderBy(o => o.StartAt).ToList();
 
                         foreach (var task in lstStatusFinish)
                         {

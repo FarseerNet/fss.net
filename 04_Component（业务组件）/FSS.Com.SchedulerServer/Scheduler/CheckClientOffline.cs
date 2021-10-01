@@ -22,7 +22,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
         /// <summary>
         /// 检查客户端是否离线
         /// </summary>
-        public async Task<bool> Check(TaskVO task)
+        public async Task Check(TaskVO task)
         {
             var taskGroup = await TaskGroupInfo.ToInfoAsync(task.TaskGroupId);
 
@@ -35,7 +35,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 await RunLogAdd.AddAsync(taskGroup, task.Id, LogLevel.Warning, $"任务ID：{task.Id}，客户端下线{taskGroup.ActivateAt:yyyy-MM-dd HH:mm:ss} {client.ActivateAt:yyyy-MM-dd HH:mm:ss}，强制设为失败状态");
                 task.Status = EumTaskType.Fail;
                 await TaskUpdate.SaveFinishAsync(task, taskGroup);
-                return true;
+                return;
             }
 
             // 测试客户端是否假死
@@ -45,7 +45,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 await ClientRegister.RemoveAsync(client.Id);
                 task.Status = EumTaskType.Fail;
                 await TaskUpdate.SaveFinishAsync(task, taskGroup);
-                return true;
+                return;
             }
 
 
@@ -55,10 +55,9 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 await RunLogAdd.AddAsync(taskGroup, task.Id, LogLevel.Warning, $"任务ID：{task.Id}，客户端假死状态{taskGroup.ActivateAt:yyyy-MM-dd HH:mm:ss} {client.ActivateAt:yyyy-MM-dd HH:mm:ss}，强制设为失败状态");
                 task.Status = EumTaskType.Fail;
                 await TaskUpdate.SaveFinishAsync(task, taskGroup);
-                return true;
+                return;
             }
 
-            return false;
         }
 
         /// <summary>
