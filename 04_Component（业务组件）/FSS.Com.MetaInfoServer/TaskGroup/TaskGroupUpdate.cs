@@ -1,35 +1,25 @@
 using System;
 using System.Threading.Tasks;
-using FS.Cache.Redis;
-using FS.DI;
 using FS.Extends;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
 using FSS.Com.MetaInfoServer.TaskGroup.Dal;
 using FSS.Com.MetaInfoServer.Tasks.Dal;
+using FSS.Infrastructure.Repository;
 using Newtonsoft.Json;
 
 namespace FSS.Com.MetaInfoServer.TaskGroup
 {
     public class TaskGroupUpdate : ITaskGroupUpdate
     {
-        public  TaskGroupCache     TaskGroupCache    { get; set; }
-        public  TaskGroupAgent     TaskGroupAgent    { get; set; }
-        private IRedisCacheManager RedisCacheManager => IocManager.Instance.Resolve<IRedisCacheManager>();
+        public TaskGroupCache TaskGroupCache { get; set; }
+        public TaskGroupAgent TaskGroupAgent { get; set; }
 
         /// <summary>
         /// 更新TaskGroup
         /// </summary>
         public Task UpdateAsync(TaskGroupVO vo) => TaskGroupCache.SaveAsync(vo.Id, vo);
-
-        /// <summary>
-        /// 移除缓存任务组ID
-        /// </summary>
-        public Task RemoveAsync(int taskGroupId)
-        {
-            return TaskGroupCache.RemoveAsync(taskGroupId);
-        }
 
         /// <summary>
         /// 保存TaskGroup
@@ -52,10 +42,10 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
                 case EumTaskType.Fail:
                 case EumTaskType.ReScheduler:
                     // 失败时，要写入失败列表
-                    await RedisCacheManager.Db.ListLeftPushAsync(failKey, JsonConvert.SerializeObject(task));
+                    await RedisContext.Instance.Db.ListLeftPushAsync(failKey, JsonConvert.SerializeObject(task));
 
                     // 如果连接3次执行失败，则要把下次执行时间改为递增方式
-                    var failCount = await RedisCacheManager.Db.ListLengthAsync(failKey);
+                    var failCount = await RedisContext.Instance.Db.ListLengthAsync(failKey);
                     if (failCount >= 4)
                     {
                         // 从第4次开始递增时间，每失败1次 + 5分钟
@@ -72,7 +62,7 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
                     break;
                 case EumTaskType.Success:
                     // 一旦恢复成功，则清除失败列表
-                    await RedisCacheManager.Db.KeyDeleteAsync(failKey);
+                    await RedisContext.Instance.Db.KeyDeleteAsync(failKey);
                     break;
             }
         }

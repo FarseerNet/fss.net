@@ -12,8 +12,8 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
     public class TaskGroupAdd : ITaskGroupAdd
     {
         public TaskGroupAgent TaskGroupAgent { get; set; }
-        public ITaskGroupInfo  TaskGroupInfo { get; set; }
-        
+        public ITaskGroupInfo TaskGroupInfo  { get; set; }
+
         /// <summary>
         /// 添加任务信息
         /// </summary>
@@ -29,7 +29,7 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
             {
                 vo.IntervalMs = 0;
             }
-            else 
+            else
                 throw new Exception("Cron格式错误");
 
             var po = new TaskGroupPO

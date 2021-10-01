@@ -29,7 +29,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 {
                     try
                     {
-                        var dicTaskGroup = await TaskGroupList.ToListByMemoryAsync();
+                        var dicTaskGroup = await TaskGroupList.ToListInMemoryAsync();
                         var lstTask      = await TaskList.ToSchedulerWorkingListAsync();
                         lstTask.RemoveAll(o => o.Status is EumTaskType.Scheduler && (DateTime.Now - o.StartAt).TotalSeconds < 5);                                              // 调度状态、且计划时间在5秒内还没执行的，暂停认为正常
                         lstTask.RemoveAll(o => o.Status is EumTaskType.Working && (DateTime.Now - o.RunAt).TotalMilliseconds < dicTaskGroup[o.TaskGroupId].RunSpeedAvg * 1.3); // 执行时间还没有超出平均运行时间1.3倍

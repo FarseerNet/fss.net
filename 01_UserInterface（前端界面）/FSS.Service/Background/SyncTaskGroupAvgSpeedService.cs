@@ -34,7 +34,7 @@ namespace FSS.Service.Background
             while (true)
             {
                 await Task.Delay(5 * 60 * 1000, stoppingToken);
-                var taskGroupVos = await _taskGroupList.ToListAsync();
+                var taskGroupVos = await _taskGroupList.ToListInCacheAsync();
                 foreach (var taskGroupVo in taskGroupVos)
                 {
                     // 先计算在更新

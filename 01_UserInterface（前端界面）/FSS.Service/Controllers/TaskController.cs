@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FS.Cache;
 using FS.Core.Net;
 using FS.DI;
 using FSS.Abstract.Entity;
@@ -57,7 +58,7 @@ namespace FSS.Service.Controllers
             var task   = await TaskInfo.ToInfoByGroupIdAsync(request.TaskGroupId);
 
             // 先读本地缓存
-            var lstGroup = await TaskGroupList.ToListByMemoryAsync();
+            var lstGroup = await TaskGroupList.ToListInMemoryAsync();
             lstGroup.TryGetValue(request.TaskGroupId, out var taskGroup);
 
             if (taskGroup == null)

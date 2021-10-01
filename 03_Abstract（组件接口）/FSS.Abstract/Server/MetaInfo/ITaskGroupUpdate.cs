@@ -21,9 +21,5 @@ namespace FSS.Abstract.Server.MetaInfo
         /// </summary>
         Task StatFailAsync(TaskVO task, TaskGroupVO taskGroupVO);
 
-        /// <summary>
-        /// 移除缓存任务组ID
-        /// </summary>
-        Task RemoveAsync(int taskGroupId);
     }
 }

@@ -1,8 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
-        <LangVersion>latest</LangVersion>
+        <TargetFramework>net5.0</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
@@ -13,6 +12,7 @@
         <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.Utils\Farseer.Net.Utils.csproj" />
         <ProjectReference Include="..\..\03_Abstract（组件接口）\FSS.Abstract\FSS.Abstract.csproj" />
         <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.ElasticSearch\Farseer.Net.ElasticSearch.csproj" />
+        <ProjectReference Include="..\..\05_Infrastructure（基础设施）\FSS.Infrastructure.Repository\FSS.Infrastructure.Repository.csproj" />
     </ItemGroup>
 
 </Project>

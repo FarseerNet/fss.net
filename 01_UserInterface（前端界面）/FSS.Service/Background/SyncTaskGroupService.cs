@@ -1,8 +1,10 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using FS.Cache;
 using FS.DI;
 using FSS.Abstract.Server.MetaInfo;
+using FSS.Infrastructure.Repository;
 using Microsoft.Extensions.Hosting;
 
 namespace FSS.Service.Background
@@ -35,24 +37,24 @@ namespace FSS.Service.Background
             {
                 await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
                 // 数据库同步到缓存
-                var lstGroupByDb    = await _taskGroupList.ToListByDbAsync();
+                var lstGroupByDb = await _taskGroupList.ToListInDbAsync();
                 foreach (var taskGroupVo in lstGroupByDb)
                 {
                     // 强制从缓存中再读一次，可以实现当缓存丢失时，可以重新写入该条任务组到缓存
                     await _taskGroupInfo.ToInfoAsync(taskGroupVo.Id);
                 }
-                
+
                 // 缓存对比数据库
-                var lstGroupByCache = await _taskGroupList.ToListByMemoryAsync();
+                var lstGroupByCache = await _taskGroupList.ToListInMemoryAsync();
                 foreach (var taskGroupVO in lstGroupByCache)
                 {
                     // 数据库中没有找到，则要删除掉缓存的任务组数据
                     if (!lstGroupByDb.Exists(o => o.Id == taskGroupVO.Key))
                     {
-                        await _taskGroupUpdate.RemoveAsync(taskGroupVO.Key);
+                        await CacheKeys.TaskGroupClear(taskGroupVO.Key);
                     }
                 }
-                
+
                 // 取出当前所有任务列表，判断所属任务组是否存在
                 var lstTask = await _taskInfo.ToGroupListAsync();
                 foreach (var taskVO in lstTask)

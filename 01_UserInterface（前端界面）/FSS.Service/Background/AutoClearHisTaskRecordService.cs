@@ -34,7 +34,7 @@ namespace FSS.Service.Background
             while (true)
             {
                 await Task.Delay(1000 * 60 * 60, stoppingToken); // 1个小时执行一次
-                var lst = await _taskGroupList.ToListAsync();
+                var lst = await _taskGroupList.ToListInCacheAsync();
                 foreach (var taskGroupVO in lst)
                 {
                     var lstTask = await _taskList.ToSuccessListAsync(taskGroupVO.Id, reservedTaskCount);

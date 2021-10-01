@@ -29,7 +29,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 {
                     try
                     {
-                        var dicTaskGroup = await TaskGroupList.ToListByMemoryAsync();
+                        var dicTaskGroup = await TaskGroupList.ToListInMemoryAsync();
                         var lstTask      = await TaskInfo.ToGroupListAsync();
 
                         // 取出状态为None的，且马上到时间要处理的

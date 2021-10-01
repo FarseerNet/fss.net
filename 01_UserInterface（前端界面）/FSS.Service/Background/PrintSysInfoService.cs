@@ -1,6 +1,7 @@
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using FS.Cache;
 using FS.DI;
 using FS.Extends;
 using FS.Utils.Common;
@@ -44,8 +45,8 @@ namespace FSS.Service.Background
             _logger.LogInformation($"使用 [ {use} ] 作为日志保存记录");
 
             _logger.LogInformation($"正在读取所有任务组信息");
-            var lstGroupByDb = await _taskGroupList.ToListByDbAsync();
-            var lstGroupByCache = await _taskGroupList.ToListByMemoryAsync();
+            var lstGroupByDb = await _taskGroupList.ToListInDbAsync();
+            var lstGroupByCache = await _taskGroupList.ToListInMemoryAsync();
             _logger.LogInformation($"共获取到：{lstGroupByCache.Count} 条任务组信息");
 
             foreach (var taskGroupVo in lstGroupByDb)
