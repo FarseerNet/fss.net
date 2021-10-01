@@ -8,6 +8,7 @@
         <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.Cache.Redis\Farseer.Net.Cache.Redis.csproj" />
         <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.Utils\Farseer.Net.Utils.csproj" />
         <ProjectReference Include="..\..\03_Abstract（组件接口）\FSS.Abstract\FSS.Abstract.csproj" />
+        <ProjectReference Include="..\..\05_Infrastructure（基础设施）\FSS.Infrastructure.Repository\FSS.Infrastructure.Repository.csproj" />
     </ItemGroup>
 
 </Project>

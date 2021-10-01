@@ -26,10 +26,5 @@ namespace FSS.Abstract.Entity
         /// 活动时间
         /// </summary>
         public DateTime ActivateAt { get; set; }
-
-        /// <summary>
-        /// JSON
-        /// </summary>
-        public override string ToString() => JsonConvert.SerializeObject(this);
     }
 }

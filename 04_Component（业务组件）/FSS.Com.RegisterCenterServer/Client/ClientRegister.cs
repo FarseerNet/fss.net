@@ -8,6 +8,7 @@ using FSS.Abstract.Entity;
 using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
 using FSS.Abstract.Server.RegisterCenter;
+using FSS.Infrastructure.Repository;
 using Newtonsoft.Json;
 
 namespace FSS.Com.RegisterCenterServer.Client
@@ -29,16 +30,17 @@ namespace FSS.Com.RegisterCenterServer.Client
         /// </summary>
         public void UpdateClient(ClientVO client)
         {
-            RedisCacheManager.Db.HashSet(Key, client.Id, client.ToString());
+            var key = CacheKeys.ClientKey;
+            RedisContext.Instance.CacheManager.SaveItem(key, client, client.Id);
         }
 
         /// <summary>
         /// 取出全局客户端
         /// </summary>
-        public async Task<ClientVO> ToInfo(long clientId)
+        public Task<ClientVO> ToInfo(long clientId)
         {
-            var hashGetAsync = await RedisCacheManager.Db.HashGetAsync(Key, clientId);
-            return !hashGetAsync.HasValue ? null : Jsons.ToObject<ClientVO>(hashGetAsync.ToString());
+            var key = CacheKeys.ClientKey;
+            return RedisContext.Instance.CacheManager.GetItemAsync(key, clientId, () => new List<ClientVO>(), o => o.Id);
         }
 
         /// <summary>
@@ -46,15 +48,15 @@ namespace FSS.Com.RegisterCenterServer.Client
         /// </summary>
         public async Task<List<ClientVO>> ToList()
         {
-            var hashGetAll = await RedisCacheManager.Db.HashGetAllAsync(Key);
-            if (hashGetAll == null || hashGetAll.Length == 0) return null;
-            var lst = hashGetAll.Select(o => JsonConvert.DeserializeObject<ClientVO>(o.Value.ToString())).ToList();
+            var key = CacheKeys.ClientKey;
+            var lst = await RedisContext.Instance.CacheManager.GetListAsync(key, () => new List<ClientVO>(), o => o.Id);
+
             for (int i = 0; i < lst.Count; i++)
             {
                 // 心跳大于1秒中，任为已经下线了
                 if ((DateTime.Now - lst[i].ActivateAt).TotalMinutes >= 1)
                 {
-                    await RedisCacheManager.Db.HashDeleteAsync(Key, lst[i].Id);
+                    await CacheKeys.ClientClear(lst[i].Id);
                     lst.RemoveAt(i);
                     i--;
                 }
@@ -66,7 +68,11 @@ namespace FSS.Com.RegisterCenterServer.Client
         /// <summary>
         /// 客户端是否存在
         /// </summary>
-        public bool IsExists(long clientId) => RedisCacheManager.Db.HashExists(Key, clientId);
+        public bool IsExists(long clientId)
+        {
+            var key = CacheKeys.ClientKey;
+            return RedisContext.Instance.CacheManager.ExistsItem(key, clientId);
+        }
 
         /// <summary>
         /// 移除客户端
@@ -74,7 +80,8 @@ namespace FSS.Com.RegisterCenterServer.Client
         public async Task RemoveAsync(long clientId)
         {
             if (!IsExists(clientId)) return;
-            RedisCacheManager.Db.HashDelete(Key, clientId);
+
+            await CacheKeys.ClientClear(clientId);
 
             // 读取当前所有任务组的任务
             var groupListAsync = await TaskInfo.ToGroupListAsync();
