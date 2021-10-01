@@ -4,7 +4,7 @@ using FSS.Abstract.Entity.MetaInfo;
 
 namespace FSS.Abstract.Server.MetaInfo
 {
-    public interface ITaskGroupUpdate: ITransientDependency
+    public interface ITaskGroupUpdate: ISingletonDependency
     {
         /// <summary>
         /// 更新TaskGroup

@@ -17,7 +17,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
     /// </summary>
     public class TaskList : ITaskList
     {
-        public ITaskAgent       TaskAgent       { get; set; }
+        public TaskAgent       TaskAgent       { get; set; }
         public ITaskGroupInfo   TaskGroupInfo   { get; set; }
         public ITaskUpdate      TaskUpdate      { get; set; }
         public ITaskGroupUpdate TaskGroupUpdate { get; set; }

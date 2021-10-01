@@ -6,14 +6,13 @@ using FS.Extends;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
-using FSS.Com.MetaInfoServer.Abstract;
 using FSS.Com.MetaInfoServer.Tasks.Dal;
 
 namespace FSS.Com.MetaInfoServer.Tasks
 {
     public class TaskAdd : ITaskAdd
     {
-        public  ITaskAgent         TaskAgent         { get; set; }
+        public  TaskAgent          TaskAgent         { get; set; }
         private IRedisCacheManager RedisCacheManager => IocManager.Instance.Resolve<IRedisCacheManager>();
         public  ITaskGroupInfo     TaskGroupInfo     { get; set; }
         public  ITaskGroupUpdate   TaskGroupUpdate   { get; set; }

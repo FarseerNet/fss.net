@@ -13,7 +13,7 @@ namespace FSS.Com.MetaInfoServer.TaskGroup.Dal
     /// 任务组缓存
     /// </summary>
     // ReSharper disable once UnusedType.Global
-    public class TaskGroupCache : ITaskGroupCache
+    public class TaskGroupCache : ISingletonDependency
     {
         private IRedisCacheManager RedisCacheManager => IocManager.Instance.Resolve<IRedisCacheManager>();
 

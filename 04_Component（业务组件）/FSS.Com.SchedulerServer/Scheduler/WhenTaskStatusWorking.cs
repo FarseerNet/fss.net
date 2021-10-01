@@ -5,7 +5,6 @@ using FS.DI;
 using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
 using FSS.Abstract.Server.Scheduler;
-using FSS.Com.SchedulerServer.Abstract;
 using Microsoft.Extensions.Logging;
 
 namespace FSS.Com.SchedulerServer.Scheduler
@@ -16,7 +15,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
         public ITaskGroupList      TaskGroupList      { get; set; }
         public ILogger             Logger             { get; set; }
         public IIocManager         IocManager         { get; set; }
-        public ICheckClientOffline CheckClientOffline { get; set; }
+        public CheckClientOffline CheckClientOffline { get; set; }
 
         /// <summary>
         /// 运行当状态为Node的任务

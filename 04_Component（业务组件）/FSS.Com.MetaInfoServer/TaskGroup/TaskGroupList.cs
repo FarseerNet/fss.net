@@ -20,7 +20,7 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
     /// </summary>
     public class TaskGroupList : ITaskGroupList
     {
-        public  ITaskGroupAgent    TaskGroupAgent    { get; set; }
+        public  TaskGroupAgent     TaskGroupAgent    { get; set; }
         private IRedisCacheManager RedisCacheManager => IocManager.Instance.Resolve<IRedisCacheManager>();
 
         readonly MemoryCache memoryCache = new(new MemoryCacheOptions
@@ -51,8 +51,8 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
         public Task<List<TaskGroupVO>> ToListAsync()
         {
             return RedisCacheManager.CacheManager.GetListAsync(TaskGroupCache.Key,
-                _ => TaskGroupAgent.ToListAsync().MapAsync<TaskGroupVO, TaskGroupPO>()
-                , o => o.Id);
+                                                               _ => TaskGroupAgent.ToListAsync().MapAsync<TaskGroupVO, TaskGroupPO>()
+                                                             , o => o.Id);
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
             return memoryCache.GetOrCreate(TaskGroupCache.Key, async o =>
             {
                 o.AbsoluteExpiration = DateTimeOffset.Now.AddMinutes(1);
-                var lst= await ToListAsync();
+                var lst = await ToListAsync();
                 return lst.ToDictionary(o => o.Id, o => o);
             });
         }

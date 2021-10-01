@@ -6,7 +6,7 @@ using FSS.Abstract.Entity;
 
 namespace FSS.Abstract.Server.RegisterCenter
 {
-    public interface IClientRegister: ITransientDependency
+    public interface IClientRegister: ISingletonDependency
     {
         /// <summary>
         /// 更新客户端调用的使用时间

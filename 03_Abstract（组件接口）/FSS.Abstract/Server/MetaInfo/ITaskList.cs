@@ -6,7 +6,7 @@ using FSS.Abstract.Entity.MetaInfo;
 
 namespace FSS.Abstract.Server.MetaInfo
 {
-    public interface ITaskList: ITransientDependency
+    public interface ITaskList: ISingletonDependency
     {
         /// <summary>
         /// 获取指定任务组执行成功的任务列表

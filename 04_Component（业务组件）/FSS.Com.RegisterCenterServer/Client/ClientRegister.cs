@@ -75,7 +75,7 @@ namespace FSS.Com.RegisterCenterServer.Client
         {
             if (!IsExists(clientId)) return;
             RedisCacheManager.Db.HashDelete(Key, clientId);
-            
+
             // 读取当前所有任务组的任务
             var groupListAsync = await TaskInfo.ToGroupListAsync();
             var findAll        = groupListAsync.FindAll(o => o.ClientId == clientId && o.Status is EumTaskType.Scheduler or EumTaskType.Working or EumTaskType.ReScheduler);

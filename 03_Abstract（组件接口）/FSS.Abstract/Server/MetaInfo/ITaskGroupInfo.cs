@@ -4,7 +4,7 @@ using FSS.Abstract.Entity.MetaInfo;
 
 namespace FSS.Abstract.Server.MetaInfo
 {
-    public interface ITaskGroupInfo: ITransientDependency
+    public interface ITaskGroupInfo: ISingletonDependency
     {
         /// <summary>
         /// 获取任务信息

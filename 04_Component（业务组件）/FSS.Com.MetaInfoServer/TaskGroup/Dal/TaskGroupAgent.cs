@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using FSS.Com.MetaInfoServer.Abstract;
+using FS.DI;
 
 namespace FSS.Com.MetaInfoServer.TaskGroup.Dal
 {
     /// <summary>
     /// 任务组数据库层
     /// </summary>
-    public class TaskGroupAgent : ITaskGroupAgent
+    public class TaskGroupAgent : ISingletonDependency
     {
         /// <summary>
         /// 获取所有任务组列表

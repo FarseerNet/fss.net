@@ -58,6 +58,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Farseer.Net.LinkTrack", "..
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Farseer.Net.Job", "..\Farseer.Net\Framework\Farseer.Net.Job\Farseer.Net.Job.csproj", "{BD58FC5E-693E-44BE-AE18-BA94F85DF258}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FSS.Infrastructure.Repository", "05_Infrastructure（基础设施）\FSS.Infrastructure.Repository\FSS.Infrastructure.Repository.csproj", "{84F8DE30-3C99-44BA-8D1D-102E28CE3006}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -84,6 +86,7 @@ Global
 		{3299C628-47B6-4CD1-B9AA-60C8DC263F31} = {006D1F16-0D6D-47C1-90B6-10B934ABB579}
 		{E49CEDE4-6130-4621-BAEA-C037B88C7BFD} = {1684AFF4-C227-4EAD-A272-CE78CFB8AB8A}
 		{BD58FC5E-693E-44BE-AE18-BA94F85DF258} = {1684AFF4-C227-4EAD-A272-CE78CFB8AB8A}
+		{84F8DE30-3C99-44BA-8D1D-102E28CE3006} = {EEEE309A-3C36-48C6-8396-FD7E1F9603F5}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{4831230E-2AA0-426D-A7A6-13BC59345ACC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -166,5 +169,9 @@ Global
 		{BD58FC5E-693E-44BE-AE18-BA94F85DF258}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BD58FC5E-693E-44BE-AE18-BA94F85DF258}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BD58FC5E-693E-44BE-AE18-BA94F85DF258}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84F8DE30-3C99-44BA-8D1D-102E28CE3006}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84F8DE30-3C99-44BA-8D1D-102E28CE3006}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84F8DE30-3C99-44BA-8D1D-102E28CE3006}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84F8DE30-3C99-44BA-8D1D-102E28CE3006}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

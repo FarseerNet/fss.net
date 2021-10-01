@@ -1,4 +1,4 @@
-using FSS.Abstract.Server.MetaInfo;
+using FS.DI;
 
 namespace FSS.Com.MetaInfoServer.Tasks.Dal
 {
@@ -6,7 +6,7 @@ namespace FSS.Com.MetaInfoServer.Tasks.Dal
     /// 任务缓存
     /// </summary>
     // ReSharper disable once UnusedType.Global
-    public class TaskCache : ITaskCache
+    public class TaskCache : ISingletonDependency
     {
         public const string Key = "FSS_Task_All";
         public static string FailKey(int groupId) => $"FSS_Task_Fail:{groupId}";

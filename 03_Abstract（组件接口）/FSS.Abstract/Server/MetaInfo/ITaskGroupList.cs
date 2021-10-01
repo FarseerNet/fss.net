@@ -5,7 +5,7 @@ using FSS.Abstract.Entity.MetaInfo;
 
 namespace FSS.Abstract.Server.MetaInfo
 {
-    public interface ITaskGroupList: ITransientDependency
+    public interface ITaskGroupList: ISingletonDependency
     {
         /// <summary>
         /// 获取全部任务列表

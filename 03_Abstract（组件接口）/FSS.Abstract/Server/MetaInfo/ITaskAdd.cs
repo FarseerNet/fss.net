@@ -4,7 +4,7 @@ using FSS.Abstract.Entity.MetaInfo;
 
 namespace FSS.Abstract.Server.MetaInfo
 {
-    public interface ITaskAdd: ITransientDependency
+    public interface ITaskAdd: ISingletonDependency
     {
         /// <summary>
         /// 创建Task，并更新到缓存

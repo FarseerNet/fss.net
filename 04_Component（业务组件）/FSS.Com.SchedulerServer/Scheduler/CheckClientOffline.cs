@@ -1,18 +1,17 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using FS.Utils.Common;
+using FS.DI;
 using FSS.Abstract.Entity;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
 using FSS.Abstract.Server.RegisterCenter;
-using FSS.Com.SchedulerServer.Abstract;
 using Microsoft.Extensions.Logging;
 
 namespace FSS.Com.SchedulerServer.Scheduler
 {
-    public class CheckClientOffline : ICheckClientOffline
+    public class CheckClientOffline : ISingletonDependency
     {
         public IClientRegister ClientRegister { get; set; }
         public ITaskUpdate     TaskUpdate     { get; set; }

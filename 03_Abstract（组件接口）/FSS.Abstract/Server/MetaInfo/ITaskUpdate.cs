@@ -4,7 +4,7 @@ using FSS.Abstract.Entity.MetaInfo;
 
 namespace FSS.Abstract.Server.MetaInfo
 {
-    public interface ITaskUpdate: ITransientDependency
+    public interface ITaskUpdate: ISingletonDependency
     {
         /// <summary>
         /// 更新Task（如果状态是成功、失败、重新调度，则应该调Save）

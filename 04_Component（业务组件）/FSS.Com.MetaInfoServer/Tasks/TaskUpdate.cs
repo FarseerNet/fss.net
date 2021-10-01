@@ -16,7 +16,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
     public class TaskUpdate : ITaskUpdate
     {
         private IRedisCacheManager RedisCacheManager => IocManager.Resolve<IRedisCacheManager>();
-        public  ITaskAgent         TaskAgent         { get; set; }
+        public  TaskAgent          TaskAgent         { get; set; }
         public  ITaskAdd           TaskAdd           { get; set; }
         public  ITaskGroupUpdate   TaskGroupUpdate   { get; set; }
         public  IIocManager        IocManager        { get; set; }
@@ -73,7 +73,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
         {
             // 要先保存状态
             await SaveAsync(task);
-            
+
             // 说明上一次任务，没有设置下一次的时间（动态设置）
             // 本次的时间策略晚，则通过时间策略计算出来
             if (DateTime.Now > taskGroup.NextAt)

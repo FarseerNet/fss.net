@@ -6,7 +6,6 @@ using FS.Extends;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
-using FSS.Com.MetaInfoServer.Abstract;
 using FSS.Com.MetaInfoServer.TaskGroup.Dal;
 using FSS.Com.MetaInfoServer.Tasks.Dal;
 using Newtonsoft.Json;
@@ -15,8 +14,8 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
 {
     public class TaskGroupUpdate : ITaskGroupUpdate
     {
-        public  ITaskGroupCache    TaskGroupCache    { get; set; }
-        public  ITaskGroupAgent    TaskGroupAgent    { get; set; }
+        public  TaskGroupCache     TaskGroupCache    { get; set; }
+        public  TaskGroupAgent     TaskGroupAgent    { get; set; }
         private IRedisCacheManager RedisCacheManager => IocManager.Instance.Resolve<IRedisCacheManager>();
 
         /// <summary>

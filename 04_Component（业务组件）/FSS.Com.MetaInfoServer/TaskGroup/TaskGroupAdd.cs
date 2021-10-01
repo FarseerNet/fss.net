@@ -5,14 +5,13 @@ using FS.Utils.Common;
 using FS.Utils.Component;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Server.MetaInfo;
-using FSS.Com.MetaInfoServer.Abstract;
 using FSS.Com.MetaInfoServer.TaskGroup.Dal;
 
 namespace FSS.Com.MetaInfoServer.TaskGroup
 {
     public class TaskGroupAdd : ITaskGroupAdd
     {
-        public ITaskGroupAgent TaskGroupAgent { get; set; }
+        public TaskGroupAgent TaskGroupAgent { get; set; }
         public ITaskGroupInfo  TaskGroupInfo { get; set; }
         
         /// <summary>

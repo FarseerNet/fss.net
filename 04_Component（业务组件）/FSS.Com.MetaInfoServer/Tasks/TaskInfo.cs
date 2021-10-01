@@ -15,7 +15,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
 {
     public class TaskInfo : ITaskInfo
     {
-        public  ITaskAgent         TaskAgent         { get; set; }
+        public  TaskAgent         TaskAgent         { get; set; }
         private IRedisCacheManager RedisCacheManager => IocManager.Instance.Resolve<IRedisCacheManager>();
         public  ITaskAdd           TaskAdd           { get; set; }
         public  ITaskGroupList     TaskGroupList     { get; set; }

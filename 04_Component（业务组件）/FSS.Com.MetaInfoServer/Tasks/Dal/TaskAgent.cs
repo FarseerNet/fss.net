@@ -2,15 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FS.DI;
 using FSS.Abstract.Enum;
-using FSS.Com.MetaInfoServer.Abstract;
 
 namespace FSS.Com.MetaInfoServer.Tasks.Dal
 {
     /// <summary>
     /// 任务数据库层
     /// </summary>
-    public class TaskAgent : ITaskAgent
+    public class TaskAgent : ISingletonDependency
     {
         /// <summary>
         /// 获取所有任务列表

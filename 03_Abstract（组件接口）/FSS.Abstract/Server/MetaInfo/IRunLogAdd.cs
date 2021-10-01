@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace FSS.Abstract.Server.MetaInfo
 {
-    public interface IRunLogAdd : ITransientDependency
+    public interface IRunLogAdd : ISingletonDependency
     {
         /// <summary>
         /// 添加日志记录
