@@ -27,5 +27,13 @@ namespace FSS.Abstract.Server.MetaInfo
         /// 获取全部任务列表（数据库）
         /// </summary>
         Task<List<TaskGroupVO>> ToListInDbAsync();
+        /// <summary>
+        /// 获取任务组数量
+        /// </summary>
+        Task<long> Count();
+        /// <summary>
+        /// 获取未执行的任务列表(FOPS)
+        /// </summary>
+        Task<int> ToUnRunCountAsync();
     }
 }

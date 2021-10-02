@@ -16,7 +16,7 @@ namespace FSS.Abstract.Server.RegisterCenter
         /// <summary>
         /// 取出全局客户端列表
         /// </summary>
-        Task<List<ClientVO>> ToList();
+        Task<List<ClientVO>> ToListAsync();
 
         /// <summary>
         /// 客户端是否存在
@@ -31,6 +31,6 @@ namespace FSS.Abstract.Server.RegisterCenter
         /// <summary>
         /// 取出全局客户端
         /// </summary>
-        Task<ClientVO> ToInfo(long clientId);
+        Task<ClientVO> ToInfoAsync(long clientId);
     }
 }

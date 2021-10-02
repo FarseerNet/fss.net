@@ -34,6 +34,17 @@ namespace FSS.Com.MetaInfoServer.Tasks
         }
 
         /// <summary>
+        /// 任务组修改时，需要同步JobName（FOPS）
+        /// </summary>
+        public async Task UpdateJobName(int taskId, string jobName)
+        {
+            await MetaInfoContext.Data.Task.Where(o => o.Id == taskId).UpdateAsync(new TaskPO() { JobName = jobName });
+            var task = await TaskInfo.ToInfoByDbAsync(taskId);
+            if (task == null) return;
+            await TaskCache.SaveAsync(task);
+        }
+
+        /// <summary>
         /// 保存Task
         /// </summary>
         public async Task SaveAsync(TaskVO task)

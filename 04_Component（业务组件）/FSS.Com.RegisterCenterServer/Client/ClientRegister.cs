@@ -35,7 +35,7 @@ namespace FSS.Com.RegisterCenterServer.Client
         /// <summary>
         /// 取出全局客户端
         /// </summary>
-        public Task<ClientVO> ToInfo(long clientId)
+        public Task<ClientVO> ToInfoAsync(long clientId)
         {
             var key = CacheKeys.ClientKey;
             return RedisContext.Instance.CacheManager.GetItemAsync(key, clientId, () => new List<ClientVO>(), o => o.Id);
@@ -44,7 +44,7 @@ namespace FSS.Com.RegisterCenterServer.Client
         /// <summary>
         /// 取出全局客户端列表
         /// </summary>
-        public async Task<List<ClientVO>> ToList()
+        public async Task<List<ClientVO>> ToListAsync()
         {
             var key = CacheKeys.ClientKey;
             var lst = await RedisContext.Instance.CacheManager.GetListAsync(key, () => new List<ClientVO>(), o => o.Id);
@@ -90,6 +90,15 @@ namespace FSS.Com.RegisterCenterServer.Client
                 vo.Status = EumTaskType.Fail;
                 await TaskUpdate.SaveFinishAsync(vo, taskGroup);
             }
+        }
+
+        /// <summary>
+        /// 取出全局客户端数量（fops在用）
+        /// </summary>
+        public Task<long> ToClientCountAsync()
+        {
+            var key = CacheKeys.ClientKey;
+            return RedisContext.Instance.CacheManager.GetCountAsync(key);
         }
     }
 }

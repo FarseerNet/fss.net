@@ -9,7 +9,9 @@ using FS.Extends;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Server.MetaInfo;
 using FSS.Com.MetaInfoServer.TaskGroup.Dal;
+using FSS.Infrastructure.Repository;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 
 namespace FSS.Com.MetaInfoServer.TaskGroup
@@ -49,6 +51,33 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
         {
             var lst = await ToListInCacheAsync(EumCacheStoreType.MemoryAndRedis);
             return lst.ToDictionary(o => o.Id, o => o);
+        }
+
+        /// <summary>
+        /// 获取任务组数量
+        /// </summary>
+        public Task<long> Count()
+        {
+            var key = CacheKeys.TaskGroupKey(EumCacheStoreType.Redis);
+            return RedisContext.Instance.CacheManager.GetCountAsync(key);
+        }
+
+        /// <summary>
+        /// 获取未执行的任务列表(FOPS)
+        /// </summary>
+        public async Task<int> ToUnRunCountAsync()
+        {
+            try
+            {
+                var now = DateTime.Now.AddMilliseconds(-500);
+                var lst = await ToListAndSaveAsync();
+                return lst.Count(o => o.NextAt < now && o.IsEnable);
+            }
+            catch (Exception e)
+            {
+                IocManager.Instance.Logger<TaskGroupList>().LogError(e, e.Message);
+                return 0;
+            }
         }
     }
 }

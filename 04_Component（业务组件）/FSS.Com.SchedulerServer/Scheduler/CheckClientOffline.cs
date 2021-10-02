@@ -27,7 +27,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
             var taskGroup = await TaskGroupInfo.ToInfoAsync(task.TaskGroupId);
 
             // 客户端
-            var client = await ClientRegister.ToInfo(task.ClientId) ?? new ClientVO();
+            var client = await ClientRegister.ToInfoAsync(task.ClientId) ?? new ClientVO();
 
             // 客户端下线
             if (client.Id == 0 || (DateTime.Now - client.ActivateAt).TotalMinutes >= 1)

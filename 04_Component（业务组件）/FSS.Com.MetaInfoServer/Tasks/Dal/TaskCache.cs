@@ -11,7 +11,7 @@ namespace FSS.Com.MetaInfoServer.Tasks.Dal
     // ReSharper disable once UnusedType.Global
     public class TaskCache : ISingletonDependency
     {
-        public static string         FailKey(int groupId) => $"FSS_Task_Fail:{groupId}";
+        public static string FailKey(int groupId) => $"FSS_Task_Fail:{groupId}";
 
         /// <summary>
         /// 保存任务信息
