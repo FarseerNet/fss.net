@@ -8,6 +8,6 @@ namespace FSS.Infrastructure.Repository
         /// <summary>
         ///     平台缓存
         /// </summary>
-        public static IRedisCacheManager Instance => IocManager.Instance.Resolve<RedisCacheManager>();
+        public static IRedisCacheManager Instance => IocManager.Instance.Resolve<IRedisCacheManager>();
     }
 }

@@ -18,12 +18,10 @@ namespace FSS.Service.Background
         private readonly IIocManager    _ioc;
         private readonly ITaskGroupList _taskGroupList;
         private readonly ITaskList      _taskList;
-        readonly         ILogger        _logger;
 
         public AutoClearHisTaskRecordService(IIocManager ioc)
         {
             _ioc           = ioc;
-            _logger        = _ioc.Logger<Startup>();
             _taskGroupList = _ioc.Resolve<ITaskGroupList>();
             _taskList      = _ioc.Resolve<ITaskList>();
         }
@@ -38,8 +36,8 @@ namespace FSS.Service.Background
                 foreach (var taskGroupVO in lst)
                 {
                     var lstTask = await _taskList.ToSuccessListAsync(taskGroupVO.Id, reservedTaskCount);
-                    var taskId = lstTask.Min(o => o.Id);
-                    
+                    var taskId  = lstTask.Min(o => o.Id);
+
                     // 清除历史记录
                     await _taskList.ClearSuccessAsync(taskGroupVO.Id, taskId);
                     Thread.Sleep(1000);

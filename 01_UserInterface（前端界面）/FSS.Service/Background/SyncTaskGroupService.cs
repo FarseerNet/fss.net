@@ -14,21 +14,17 @@ namespace FSS.Service.Background
     /// </summary>
     public class SyncTaskGroupService : BackgroundService
     {
-        private readonly IIocManager      _ioc;
-        readonly         ITaskGroupList   _taskGroupList;
-        readonly         ITaskGroupInfo   _taskGroupInfo;
-        readonly         ITaskGroupUpdate _taskGroupUpdate;
-        readonly         ITaskInfo        _taskInfo;
-        readonly         ITaskUpdate      _taskUpdate;
+        private readonly IIocManager    _ioc;
+        readonly         ITaskGroupList _taskGroupList;
+        readonly         ITaskGroupInfo _taskGroupInfo;
+        readonly         ITaskInfo      _taskInfo;
 
         public SyncTaskGroupService(IIocManager ioc)
         {
-            _ioc             = ioc;
-            _taskGroupList   = _ioc.Resolve<ITaskGroupList>();
-            _taskGroupInfo   = _ioc.Resolve<ITaskGroupInfo>();
-            _taskGroupUpdate = _ioc.Resolve<ITaskGroupUpdate>();
-            _taskInfo        = _ioc.Resolve<ITaskInfo>();
-            _taskUpdate      = _ioc.Resolve<ITaskUpdate>();
+            _ioc           = ioc;
+            _taskGroupList = _ioc.Resolve<ITaskGroupList>();
+            _taskGroupInfo = _ioc.Resolve<ITaskGroupInfo>();
+            _taskInfo      = _ioc.Resolve<ITaskInfo>();
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
