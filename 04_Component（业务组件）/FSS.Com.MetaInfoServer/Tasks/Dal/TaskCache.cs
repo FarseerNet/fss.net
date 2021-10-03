@@ -19,7 +19,7 @@ namespace FSS.Com.MetaInfoServer.Tasks.Dal
         public Task SaveAsync(TaskVO task)
         {
             var key = CacheKeys.TaskForGroupKey;
-            return RedisContext.Instance.CacheManager.SaveItemAsync(key, task, task.TaskGroupId);
+            return RedisContext.Instance.CacheManager.SaveItemAsync(key, task);
         }
     }
 }

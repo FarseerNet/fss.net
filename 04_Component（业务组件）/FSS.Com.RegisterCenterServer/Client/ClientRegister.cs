@@ -29,7 +29,7 @@ namespace FSS.Com.RegisterCenterServer.Client
         public void UpdateClient(ClientVO client)
         {
             var key = CacheKeys.ClientKey;
-            RedisContext.Instance.CacheManager.SaveItem(key, client, client.Id);
+            RedisContext.Instance.CacheManager.SaveItem(key, client);
         }
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace FSS.Com.RegisterCenterServer.Client
         public Task<ClientVO> ToInfoAsync(long clientId)
         {
             var key = CacheKeys.ClientKey;
-            return RedisContext.Instance.CacheManager.GetItemAsync(key, clientId, () => new List<ClientVO>(), o => o.Id);
+            return RedisContext.Instance.CacheManager.GetItemAsync(key, clientId, () => new List<ClientVO>());
         }
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace FSS.Com.RegisterCenterServer.Client
         public async Task<List<ClientVO>> ToListAsync()
         {
             var key = CacheKeys.ClientKey;
-            var lst = await RedisContext.Instance.CacheManager.GetListAsync(key, () => new List<ClientVO>(), o => o.Id);
+            var lst = await RedisContext.Instance.CacheManager.GetListAsync(key, () => new List<ClientVO>());
 
             for (int i = 0; i < lst.Count; i++)
             {

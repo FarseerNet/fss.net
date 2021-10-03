@@ -22,7 +22,7 @@ namespace FSS.Com.MetaInfoServer.TaskGroup.Dal
         public Task SaveAsync(int taskGroupId, TaskGroupVO taskGroup)
         {
             var key = CacheKeys.TaskGroupKey(EumCacheStoreType.Redis);
-            return RedisContext.Instance.CacheManager.SaveItemAsync(key, taskGroup, taskGroupId);
+            return RedisContext.Instance.CacheManager.SaveItemAsync(key, taskGroup);
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace FSS.Com.MetaInfoServer.TaskGroup.Dal
         public Task SaveAsync(List<TaskGroupVO> lstTaskGroup)
         {
             var key = CacheKeys.TaskGroupKey(EumCacheStoreType.MemoryAndRedis);
-            return RedisContext.Instance.CacheManager.SaveListAsync(key, lstTaskGroup, o => o.Id);
+            return RedisContext.Instance.CacheManager.SaveListAsync(key, lstTaskGroup);
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace FSS.Com.MetaInfoServer.TaskGroup.Dal
         public Task<List<TaskGroupVO>> ToListAsync(EumCacheStoreType cacheStoreType)
         {
             var key = CacheKeys.TaskGroupKey(cacheStoreType);
-            return RedisContext.Instance.CacheManager.GetListAsync(key, () => TaskGroupAgent.ToListAsync().MapAsync<TaskGroupVO, TaskGroupPO>(), o => o.Id);
+            return RedisContext.Instance.CacheManager.GetListAsync(key, () => TaskGroupAgent.ToListAsync().MapAsync<TaskGroupVO, TaskGroupPO>());
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace FSS.Com.MetaInfoServer.TaskGroup.Dal
         public Task<TaskGroupVO> ToEntityAsync(int taskGroupId)
         {
             var key = CacheKeys.TaskGroupKey(EumCacheStoreType.Redis);
-            return RedisContext.Instance.CacheManager.GetItemAsync<TaskGroupVO, int>(key, taskGroupId, () => TaskGroupAgent.ToListAsync().MapAsync<TaskGroupVO, TaskGroupPO>(), o => o.Id);
+            return RedisContext.Instance.CacheManager.GetItemAsync(key, taskGroupId, () => TaskGroupAgent.ToListAsync().MapAsync<TaskGroupVO, TaskGroupPO>());
         }
     }
 }

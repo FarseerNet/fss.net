@@ -27,7 +27,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
         public Task<TaskVO> ToInfoByGroupIdAsync(int taskGroupId)
         {
             var key = CacheKeys.TaskForGroupKey;
-            return RedisContext.Instance.CacheManager.GetItemAsync(key, taskGroupId, () => TaskAdd.GetOrCreateAsync(taskGroupId), o => o.TaskGroupId);
+            return RedisContext.Instance.CacheManager.GetItemAsync(key, taskGroupId, () => TaskAdd.GetOrCreateAsync(taskGroupId));
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
                 }
 
                 return lst;
-            }, o => o.TaskGroupId);
+            });
         }
 
         /// <summary>
