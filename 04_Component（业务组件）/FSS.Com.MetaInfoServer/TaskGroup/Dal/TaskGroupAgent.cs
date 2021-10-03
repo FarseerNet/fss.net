@@ -34,5 +34,10 @@ namespace FSS.Com.MetaInfoServer.TaskGroup.Dal
         /// 更新任务时间
         /// </summary>
         public Task UpdateNextAtAsync(int taskGroupId, DateTime nextAt) => MetaInfoContext.Data.TaskGroup.Where(o => o.Id == taskGroupId).UpdateAsync(new TaskGroupPO {NextAt = nextAt});
+        
+        /// <summary>
+        /// 删除当前任务组下的所有
+        /// </summary>
+        public Task<int> DeleteAsync(int taskGroupId) => MetaInfoContext.Data.TaskGroup.Where(o => o.Id == taskGroupId).DeleteAsync();
     }
 }
