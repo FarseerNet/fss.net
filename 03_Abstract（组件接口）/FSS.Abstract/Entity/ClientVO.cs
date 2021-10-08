@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 
 namespace FSS.Abstract.Entity
 {
+    [Serializable]
     public class ClientVO
     {
         /// <summary>

@@ -7,6 +7,7 @@ namespace FSS.Abstract.Entity.MetaInfo
     /// <summary>
     /// 任务记录
     /// </summary>
+    [Serializable]
     public class TaskVO
     {
         /// <summary>

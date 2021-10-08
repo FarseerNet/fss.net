@@ -5,6 +5,7 @@ namespace FSS.Abstract.Entity.MetaInfo
     /// <summary>
     /// 任务组记录
     /// </summary>
+    [Serializable]
     public class TaskGroupVO
     {
         /// <summary>
