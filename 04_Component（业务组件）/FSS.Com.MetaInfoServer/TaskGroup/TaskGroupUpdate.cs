@@ -19,7 +19,7 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
         /// <summary>
         /// 更新TaskGroup
         /// </summary>
-        public Task UpdateAsync(TaskGroupVO vo) => TaskGroupCache.SaveAsync(vo.Id, vo);
+        public Task UpdateAsync(TaskGroupVO vo) => TaskGroupCache.SaveAsync(vo);
 
         /// <summary>
         /// 保存TaskGroup

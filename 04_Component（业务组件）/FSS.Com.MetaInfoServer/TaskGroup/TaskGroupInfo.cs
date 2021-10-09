@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using FS.Cache;
 using FS.Extends;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Server.MetaInfo;
@@ -14,7 +15,7 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
         /// <summary>
         /// 获取任务信息
         /// </summary>
-        public Task<TaskGroupVO> ToInfoAsync(int id) => TaskGroupCache.ToEntityAsync(id);
+        public Task<TaskGroupVO> ToInfoAsync(int id) => TaskGroupCache.ToEntityAsync(EumCacheStoreType.Redis, id);
 
         /// <summary>
         /// 从数据库中取出并保存
@@ -22,7 +23,7 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
         public async Task<TaskGroupVO> ToInfoByDbAsync(int id)
         {
             var entity = await TaskGroupAgent.ToEntityAsync(id).MapAsync<TaskGroupVO, TaskGroupPO>();
-            await TaskGroupCache.SaveAsync(id, entity);
+            await TaskGroupCache.SaveAsync(entity);
             return entity;
         }
     }

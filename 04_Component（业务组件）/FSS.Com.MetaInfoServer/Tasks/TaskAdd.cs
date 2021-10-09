@@ -55,10 +55,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
         public async Task<TaskVO> GetOrCreateAsync(int taskGroupId)
         {
             var taskGroup = await TaskGroupInfo.ToInfoAsync(taskGroupId);
-            var task      = await CreateAsync(taskGroup);
-            taskGroup.TaskId = task.Id;
-            await TaskGroupUpdate.UpdateAsync(taskGroup);
-            return task;
+            return await GetOrCreateAsync(taskGroup);
         }
 
         /// <summary>

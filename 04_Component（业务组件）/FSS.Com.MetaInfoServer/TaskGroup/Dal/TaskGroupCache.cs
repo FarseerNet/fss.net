@@ -19,9 +19,9 @@ namespace FSS.Com.MetaInfoServer.TaskGroup.Dal
         /// <summary>
         /// 保存任务组信息
         /// </summary>
-        public Task SaveAsync(int taskGroupId, TaskGroupVO taskGroup)
+        public Task SaveAsync(TaskGroupVO taskGroup)
         {
-            var key = CacheKeys.TaskGroupKey(EumCacheStoreType.Redis);
+            var key = CacheKeys.TaskGroupKey(EumCacheStoreType.MemoryAndRedis);
             return RedisContext.Instance.CacheManager.SaveItemAsync(key, taskGroup);
         }
 
@@ -46,9 +46,9 @@ namespace FSS.Com.MetaInfoServer.TaskGroup.Dal
         /// <summary>
         /// 获取任务组
         /// </summary>
-        public Task<TaskGroupVO> ToEntityAsync(int taskGroupId)
+        public Task<TaskGroupVO> ToEntityAsync(EumCacheStoreType cacheStoreType, int taskGroupId)
         {
-            var key = CacheKeys.TaskGroupKey(EumCacheStoreType.Redis);
+            var key = CacheKeys.TaskGroupKey(cacheStoreType);
             return RedisContext.Instance.CacheManager.GetItemAsync(key, taskGroupId, () => TaskGroupAgent.ToListAsync().MapAsync<TaskGroupVO, TaskGroupPO>());
         }
     }

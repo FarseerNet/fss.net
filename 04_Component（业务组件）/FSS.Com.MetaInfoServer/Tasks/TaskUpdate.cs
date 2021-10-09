@@ -87,12 +87,15 @@ namespace FSS.Com.MetaInfoServer.Tasks
                 }
             }
 
-            await TaskGroupUpdate.UpdateAsync(taskGroup);
-
+            // 创建任务时，会同时保存任务组信息，所以这里外面不需要再保存任务组了
             if (taskGroup.IsEnable)
             {
                 // 完成后，立即生成一个新的任务
                 await TaskAdd.GetOrCreateAsync(taskGroup);
+            }
+            else
+            {
+                await TaskGroupUpdate.SaveAsync(taskGroup);
             }
         }
     }
