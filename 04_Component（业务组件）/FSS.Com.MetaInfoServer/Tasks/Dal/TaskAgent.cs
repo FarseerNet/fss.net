@@ -28,9 +28,9 @@ namespace FSS.Com.MetaInfoServer.Tasks.Dal
         public Task<List<TaskPO>> ToNoneListAsync() => MetaInfoContext.Data.Task.Where(o => o.Status == EumTaskType.None).Asc(o => o.CreateAt).ToListAsync();
 
         /// <summary>
-        /// 拉取30秒内要执行的任务
+        /// 拉取3分钟内要执行的任务
         /// </summary>
-        public Task<List<TaskPO>> ToNoneListAsync(int top, string[] clientJobs) => MetaInfoContext.Data.Task.Where(o => o.Status == EumTaskType.None && clientJobs.Contains(o.JobName) && o.StartAt < DateTime.Now.AddSeconds(30)).Asc(o => o.StartAt).ToListAsync(top);
+        public Task<List<TaskPO>> ToNoneListAsync(int top, string[] clientJobs) => MetaInfoContext.Data.Task.Where(o => o.Status == EumTaskType.None && clientJobs.Contains(o.JobName) && o.StartAt < DateTime.Now.AddMinutes(3)).Asc(o => o.StartAt).ToListAsync(top);
 
         /// <summary>
         /// 清除成功的任务记录（1天前）
