@@ -48,7 +48,7 @@ namespace FSS.Service.Controllers
         }
 
         /// <summary>
-        /// 客户端拉取任务
+        /// 客户端执行任务
         /// </summary>
         [HttpPost]
         [Route("JobInvoke")]
@@ -83,12 +83,12 @@ namespace FSS.Service.Controllers
                     return await ApiResponseJson.ErrorAsync($"任务ID： {taskGroup.Caption}（{taskGroup.JobName}） ，{task.ClientId}与本次请求{Client.Id} 不一致，忽略本次请求");
                 }
 
+                taskGroup = await TaskGroupInfo.ToInfoAsync(request.TaskGroupId);
                 // 更新Task元信息
                 if (task.Status == EumTaskType.Scheduler)
                 {
                     task.RunAt = DateTime.Now; // 首次执行，记录时间
                     // 更新group元信息
-                    taskGroup = await TaskGroupInfo.ToInfoAsync(request.TaskGroupId);
                     taskGroup.RunCount++;
                     taskGroup.LastRunAt = DateTime.Now;
                 }
