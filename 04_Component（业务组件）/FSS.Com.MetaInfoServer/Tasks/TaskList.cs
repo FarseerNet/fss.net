@@ -92,7 +92,6 @@ namespace FSS.Com.MetaInfoServer.Tasks
 
             var lstPo = await TaskAgent.ToNoneListAsync(requestTaskCount, client.Jobs);
             if (lstPo.Count == 0) return null;
-
             // 更新任务状态
             using (var db = new MetaInfoContext())
             {

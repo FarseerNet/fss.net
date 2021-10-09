@@ -30,7 +30,11 @@ namespace FSS.Com.MetaInfoServer.Tasks.Dal
         /// <summary>
         /// 拉取3分钟内要执行的任务
         /// </summary>
-        public Task<List<TaskPO>> ToNoneListAsync(int top, string[] clientJobs) => MetaInfoContext.Data.Task.Where(o => o.Status == EumTaskType.None && clientJobs.Contains(o.JobName) && o.StartAt < DateTime.Now.AddMinutes(3)).Asc(o => o.StartAt).ToListAsync(top);
+        public Task<List<TaskPO>> ToNoneListAsync(int top, string[] clientJobs)
+        {
+            var minutes = DateTime.Now.AddMinutes(3);
+            return MetaInfoContext.Data.Task.Where(o => o.Status == EumTaskType.None && clientJobs.ToList().Contains(o.JobName) && o.StartAt < minutes).Asc(o => o.StartAt).ToListAsync(top);
+        }
 
         /// <summary>
         /// 清除成功的任务记录（1天前）
