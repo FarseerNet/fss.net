@@ -32,5 +32,9 @@ namespace FSS.Abstract.Server.RegisterCenter
         /// 取出全局客户端
         /// </summary>
         Task<ClientVO> ToInfoAsync(long clientId);
+        /// <summary>
+        /// 取出全局客户端数量（fops在用）
+        /// </summary>
+        Task<long> GetClientCountAsync();
     }
 }

@@ -4,6 +4,7 @@ using FS.Cache.Redis;
 using FS.Extends;
 using FS.Utils.Component;
 using FSS.Abstract.Entity.MetaInfo;
+using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
 using FSS.Com.MetaInfoServer.Tasks.Dal;
 using FSS.Infrastructure.Repository;
@@ -97,6 +98,20 @@ namespace FSS.Com.MetaInfoServer.Tasks
             {
                 await TaskGroupUpdate.SaveAsync(taskGroup);
             }
+        }
+
+        /// <summary>
+        /// 取消任务
+        /// </summary>
+        public async Task CancelTask(int taskId)
+        {
+            var info = await TaskInfo.ToInfoByDbAsync(taskId);
+            info.Status = EumTaskType.Fail;
+
+            var taskGroup = await TaskGroupInfo.ToInfoAsync(info.TaskGroupId);
+            // 这里不设置的话，下次执行时间，有可能还是将来的，导致如果设置错了时间的话，会一直等待原来设置错的时间
+            taskGroup.NextAt = taskGroup.LastRunAt;
+            await SaveFinishAsync(info, taskGroup);
         }
     }
 }

@@ -37,7 +37,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
         }
 
         /// <summary>
-        /// 获取失败的任务数量（FOPS）
+        /// 获取失败的任务（FOPS）
         /// </summary>
         public Task<List<TaskVO>> ToFailListAsync(int pageSize, int pageIndex, out int totalCount)
         {

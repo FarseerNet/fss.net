@@ -30,5 +30,13 @@ namespace FSS.Abstract.Server.MetaInfo
         /// 移除缓存
         /// </summary>
         Task ClearCacheAsync();
+        /// <summary>
+        /// 任务组修改时，需要同步JobName（FOPS）
+        /// </summary>
+        Task UpdateJobName(int taskId, string jobName);
+        /// <summary>
+        /// 取消任务
+        /// </summary>
+        Task CancelTask(int taskId);
     }
 }

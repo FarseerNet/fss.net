@@ -63,7 +63,7 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
         }
 
         /// <summary>
-        /// 获取未执行的任务列表(FOPS)
+        /// 获取未执行的任务数量
         /// </summary>
         public async Task<int> ToUnRunCountAsync()
         {

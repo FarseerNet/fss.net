@@ -32,7 +32,7 @@ namespace FSS.Abstract.Server.MetaInfo
         /// </summary>
         Task<long> Count();
         /// <summary>
-        /// 获取未执行的任务列表(FOPS)
+        /// 获取未执行的任务数量
         /// </summary>
         Task<int> ToUnRunCountAsync();
     }

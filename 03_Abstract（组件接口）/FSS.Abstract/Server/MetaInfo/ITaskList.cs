@@ -32,5 +32,21 @@ namespace FSS.Abstract.Server.MetaInfo
         /// 获取执行中的任务
         /// </summary>
         Task<List<TaskVO>> ToSchedulerWorkingListAsync();
+        /// <summary>
+        /// 获取全部任务列表（FOPS）
+        /// </summary>
+        Task<List<TaskVO>> ToTopListAsync(int top);
+        /// <summary>
+        /// 获取指定任务组的任务列表（FOPS）
+        /// </summary>
+        Task<List<TaskVO>> ToListAsync(int groupId, int pageSize, int pageIndex, out int totalCount);
+        /// <summary>
+        /// 获取失败的任务（FOPS）
+        /// </summary>
+        Task<List<TaskVO>> ToFailListAsync(int pageSize, int pageIndex, out int totalCount);
+        /// <summary>
+        /// 获取未执行的任务列表（FOPS）
+        /// </summary>
+        Task<List<TaskVO>> ToUnRunListAsync(int pageSize, int pageIndex, out int totalCount);
     }
 }

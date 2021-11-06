@@ -95,7 +95,7 @@ namespace FSS.Com.RegisterCenterServer.Client
         /// <summary>
         /// 取出全局客户端数量（fops在用）
         /// </summary>
-        public Task<long> ToClientCountAsync()
+        public Task<long> GetClientCountAsync()
         {
             var key = CacheKeys.ClientKey;
             return RedisContext.Instance.CacheManager.GetCountAsync(key);
