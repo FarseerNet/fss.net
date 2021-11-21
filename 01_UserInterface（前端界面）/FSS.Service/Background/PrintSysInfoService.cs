@@ -2,6 +2,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using FS.Cache;
+using FS.Core.LinkTrack;
 using FS.DI;
 using FS.Extends;
 using FS.Utils.Common;
@@ -16,7 +17,7 @@ namespace FSS.Service.Background
     /// <summary>
     /// 打印系统信息
     /// </summary>
-    public class PrintSysInfoService : BackgroundService
+    public class PrintSysInfoService : BackgroundServiceTrace
     {
         private readonly IIocManager    _ioc;
         readonly         ILogger        _logger;
@@ -31,7 +32,7 @@ namespace FSS.Service.Background
             _taskGroupInfo = _ioc.Resolve<ITaskGroupInfo>();
         }
 
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override async Task ExecuteJobAsync(CancellationToken stoppingToken)
         {
             var ip = IpHelper.GetIps()[0].Address.MapToIPv4().ToString();
             
