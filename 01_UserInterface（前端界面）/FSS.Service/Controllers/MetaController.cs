@@ -211,7 +211,34 @@ namespace FSS.Service.Controllers
         }
 
         /// <summary>
-        /// 获取全部任务列表
+        /// 获取进行中的任务
+        /// </summary>
+        [HttpPost]
+        [Route("GetTaskUnFinishList")]
+        public async Task<ApiResponseJson<List<TaskVO>>> GetTaskUnFinishList(OnlyTopRequest request)
+        {
+            var lst = await TaskList.ToGroupListAsync();
+            lst = lst.Where(o => o.Status != EumTaskType.Success && o.Status != EumTaskType.Fail).OrderBy(o => o.StartAt).Take(request.Top).ToList();
+            return await ApiResponseJson<List<TaskVO>>.SuccessAsync(lst);
+        }
+
+        /// <summary>
+        /// 获取所有任务
+        /// </summary>
+        [HttpPost]
+        [Route("GetAllTaskList")]
+        public async Task<ApiResponseJson<DataSplitList<TaskVO>>> GetAllTaskList(GetAllTaskListRequest request)
+        {
+            var lst                          = await TaskList.ToGroupListAsync();
+            if (request.Status.HasValue) lst = lst.Where(o => o.Status == request.Status.GetValueOrDefault()).ToList();
+
+            var totalCount = lst.Count;
+            lst = lst.OrderBy(o => o.JobName).ToList(request.PageSize, request.PageIndex);
+            return await ApiResponseJson<DataSplitList<TaskVO>>.SuccessAsync(new DataSplitList<TaskVO>(lst, totalCount));
+        }
+
+        /// <summary>
+        /// 获取进行中的任务
         /// </summary>
         [HttpPost]
         [Route("GetTopTaskList")]

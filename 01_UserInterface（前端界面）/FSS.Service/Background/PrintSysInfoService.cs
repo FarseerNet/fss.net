@@ -12,8 +12,6 @@ using FS.Job.Entity;
 using FS.Utils.Common;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Server.MetaInfo;
-using FSS.Com.MetaInfoServer.TaskGroup;
-using FSS.Service.Job;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -61,8 +59,6 @@ namespace FSS.Service.Background
             var lstTaskGroup = await _taskGroupList.ToListInCacheAsync();
 
             // 检查是否存在系统任务组
-            await CreateSysJob(lstTaskGroup, "FSS.CheckFinishStatus", "检测完成状态的任务", TimeSpan.FromMinutes(1));
-            await CreateSysJob(lstTaskGroup, "FSS.CheckWorkStatus", "检测进行中状态的任务", TimeSpan.FromSeconds(30));
             await CreateSysJob(lstTaskGroup, "FSS.ClearHisTask", "清除历史任务", TimeSpan.FromMinutes(1));
             await CreateSysJob(lstTaskGroup, "FSS.SyncTaskGroupAvgSpeed", "计算任务平均耗时", TimeSpan.FromHours(1));
             await CreateSysJob(lstTaskGroup, "FSS.SyncTaskGroup", "同步任务组缓存", TimeSpan.FromMinutes(1));
@@ -76,9 +72,6 @@ namespace FSS.Service.Background
                 await _taskGroupInfo.ToInfoAsync(taskGroupVo.Id);
                 _logger.LogInformation($"【{taskGroupVo.IsEnable}】{taskGroupVo.Id}：{taskGroupVo.Caption}、{taskGroupVo.JobName}、{taskGroupVo.NextAt:yyyy-MM-dd:HH:mm:ss}");
             }
-
-            await IocManager.GetService<IFssJob>("fss_job_FSS.CheckFinishStatus").Execute(new ReceiveContext(new(), Stopwatch.StartNew()));
-            await IocManager.GetService<IFssJob>("fss_job_FSS.CheckWorkStatus").Execute(new ReceiveContext(new(), Stopwatch.StartNew()));
         }
 
         private async Task CreateSysJob(List<TaskGroupVO> lstTaskGroup, string jobName, string caption, TimeSpan intervalMs, string data = null)

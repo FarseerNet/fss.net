@@ -1,17 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using FS.Cache;
 using FS.Core.Net;
 using FS.DI;
+using FS.Extends;
+using FS.Job;
+using FS.Job.Entity;
 using FSS.Abstract.Entity;
-using FSS.Abstract.Entity.MetaInfo;
-using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using EumTaskType = FSS.Abstract.Enum.EumTaskType;
+using JobInvokeRequest = FSS.Abstract.Entity.JobInvokeRequest;
+using TaskVO = FSS.Abstract.Entity.MetaInfo.TaskVO;
 
 namespace FSS.Service.Controllers
 {
@@ -53,7 +58,7 @@ namespace FSS.Service.Controllers
         [Route("JobInvoke")]
         public async Task<ApiResponseJson> JobInvoke(JobInvokeRequest request)
         {
-            var logger    = IocManager.Logger<TaskController>();
+            var logger        = IocManager.Logger<TaskController>();
             var taskTask      = TaskInfo.ToInfoByGroupIdAsync(request.TaskGroupId);
             var taskGroupTask = TaskGroupInfo.ToInfoAsync(request.TaskGroupId);
             await Task.WhenAll(taskTask, taskGroupTask);
@@ -87,6 +92,12 @@ namespace FSS.Service.Controllers
                 // 更新Task
                 taskGroup.ActivateAt = DateTime.Now;
                 taskGroup.Data       = JsonConvert.SerializeObject(request.Data);
+                // 客户端设置了动态时间
+                if (request.NextTimespan > 0)
+                {
+                    taskGroup.NextAt = request.NextTimespan.ToTimestamps();
+                }
+                
                 task.Progress        = request.Progress;
                 task.Status          = request.Status;
                 task.RunSpeed        = request.RunSpeed;
@@ -102,11 +113,6 @@ namespace FSS.Service.Controllers
                 {
                     case EumTaskType.Fail:
                     case EumTaskType.Success:
-                        // 客户端设置了动态时间
-                        if (request.NextTimespan > 0)
-                        {
-                            taskGroup.NextAt = DateTime.Now.AddMilliseconds(request.NextTimespan);
-                        }
                         await TaskUpdate.SaveFinishAsync(task, taskGroup);
                         break;
                     default:
