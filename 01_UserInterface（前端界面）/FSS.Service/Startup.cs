@@ -4,10 +4,10 @@ using FS.Cache.Redis;
 using FS.Core;
 using FS.Data;
 using FS.ElasticSearch;
+using FS.Job;
 using FS.LinkTrack;
 using FS.Mapper;
 using FS.Modules;
-using FS.MQ.RedisStream;
 using FSS.Com.MetaInfoServer;
 using FSS.Com.RegisterCenterServer;
 using FSS.Com.SchedulerServer;
@@ -15,7 +15,6 @@ using FSS.Service.Background;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -27,13 +26,13 @@ namespace FSS.Service
         typeof(FarseerCoreModule),
         typeof(MapperModule),
         typeof(RedisModule),
-        typeof(RedisStreamModule),
         typeof(DataModule),
         typeof(ElasticSearchModule),
         typeof(MetaInfoModule),
         typeof(SchedulerModule),
         typeof(RegisterCenterModule),
-        typeof(LinkTrackModule)
+        typeof(LinkTrackModule),
+        typeof(JobModule)
     )]
     public class Startup : FarseerModule
     {
@@ -57,9 +56,6 @@ namespace FSS.Service
             
             // 开启任务组调度
             services.AddHostedService<PrintSysInfoService>();
-            services.AddHostedService<SyncTaskGroupAvgSpeedService>();
-            services.AddHostedService<SyncTaskGroupService>();
-            services.AddHostedService<AutoClearHisTaskRecordService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FS.DI;
-using FS.Extends;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Server.MetaInfo;
 using FSS.Com.MetaInfoServer.Tasks.Dal;
@@ -14,11 +13,6 @@ namespace FSS.Com.MetaInfoServer.Tasks
     {
         public TaskAgent      TaskAgent     { get; set; }
         public ITaskAdd       TaskAdd       { get; set; }
-
-        /// <summary>
-        /// 获取任务信息
-        /// </summary>
-        public Task<TaskVO> ToInfoByDbAsync(int id) => TaskAgent.ToEntityAsync(id).MapAsync<TaskVO, TaskPO>();
 
         /// <summary>
         /// 获取当前任务组的任务

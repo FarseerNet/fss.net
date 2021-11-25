@@ -1,10 +1,12 @@
 using FS;
+using FS.Job;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace FSS.Service
 {
+    [Fss]
     public class Program
     {
         public static void Main(string[] args)

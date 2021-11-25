@@ -13,10 +13,10 @@ namespace FSS.Abstract.Entity.MetaInfo
         /// </summary>
         public int Id { get; set; }
         
-        /// <summary>
-        /// 任务ID
-        /// </summary>
-        public int TaskId { get; set; }
+        // /// <summary>
+        // /// 任务ID
+        // /// </summary>
+        // public int TaskId { get; set; }
         
         /// <summary>
         /// 任务组标题

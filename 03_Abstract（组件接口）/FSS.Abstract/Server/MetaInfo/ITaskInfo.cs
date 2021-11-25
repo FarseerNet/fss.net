@@ -8,11 +8,6 @@ namespace FSS.Abstract.Server.MetaInfo
     public interface ITaskInfo: ISingletonDependency
     {
         /// <summary>
-        /// 获取任务信息
-        /// </summary>
-        Task<TaskVO> ToInfoByDbAsync(int id);
-
-        /// <summary>
         /// 获取当前任务组的任务
         /// </summary>
         Task<TaskVO> ToInfoByGroupIdAsync(int taskGroupId);

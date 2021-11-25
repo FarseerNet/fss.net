@@ -10,11 +10,15 @@ namespace FSS.Abstract.Server.MetaInfo
         /// <summary>
         /// 添加日志记录
         /// </summary>
-        Task AddAsync(int taskGroupId, int taskId, LogLevel logLevel, string content);
+        Task AddAsync(int taskGroupId, LogLevel logLevel, string content);
 
         /// <summary>
         /// 添加日志记录
         /// </summary>
-        Task AddAsync(TaskGroupVO groupInfo, int taskId, LogLevel logLevel, string content);
+        Task AddAsync(TaskGroupVO groupInfo, LogLevel logLevel, string content);
+        /// <summary>
+        /// 将日志写入ES或数据库
+        /// </summary>
+        Task<int> AddToDbAsync(int top);
     }
 }

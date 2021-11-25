@@ -13,43 +13,34 @@ namespace FSS.Com.MetaInfoServer.Tasks
 {
     public class TaskAdd : ITaskAdd
     {
-        public TaskAgent        TaskAgent       { get; set; }
-        public TaskCache        TaskCache       { get; set; }
-        public ITaskGroupInfo   TaskGroupInfo   { get; set; }
-        public ITaskGroupUpdate TaskGroupUpdate { get; set; }
+        public TaskCache      TaskCache     { get; set; }
+        public ITaskGroupInfo TaskGroupInfo { get; set; }
 
         /// <summary>
-        /// 创建Task，并更新到缓存
+        /// 将任务暂时写入redis集合，再通过job集中写入数据库
         /// </summary>
-        public async Task<TaskVO> CreateAsync(TaskGroupVO taskGroup)
+        public Task AddToQueueAsync(TaskVO task) => TaskCache.AddQueueAsync(task);
+
+        /// <summary>
+        /// 将任务暂时写入redis集合，再通过job集中写入数据库
+        /// </summary>
+        public async Task<int> AddToDbAsync(int top)
         {
-            //var key = CacheKeys.TaskForGroupKey;
-            //var task = await RedisContext.Instance.CacheManager.GetItemAsync(key, taskGroup.Id);
-            //if (task != null && task.Status != EumTaskType.Fail && task.Status != EumTaskType.Success) return task;
-            var task = await TaskAgent.ToUnExecutedTaskAsync(taskGroup.Id).MapAsync<TaskVO, TaskPO>();
-            if (task == null)
+            var lstTask = await TaskCache.GetFinishTaskListAsync(top);
+            if (lstTask.Count == 0) return 0;
+            var lstPO = lstTask.Map<TaskPO>();
+
+            using (var db = new MetaInfoContext())
             {
-                // 没查到时，自动创建一条对应的Task
-                var po = new TaskPO
+                foreach (var taskPO in lstPO)
                 {
-                    TaskGroupId = taskGroup.Id,
-                    StartAt     = taskGroup.NextAt,
-                    Caption     = taskGroup.Caption,
-                    JobName     = taskGroup.JobName,
-                    RunSpeed    = 0,
-                    ClientId    = 0,
-                    ClientIp    = "",
-                    Progress    = 0,
-                    Status      = EumTaskType.None,
-                    CreateAt    = DateTime.Now,
-                    RunAt       = DateTime.Now,
-                    SchedulerAt = DateTime.Now,
-                };
-                await TaskAgent.AddAsync(po);
-                task = po.Map<TaskVO>();
+                    taskPO.Id = null;
+                    await db.Task.InsertAsync(taskPO);
+                }
+                db.SaveChanges();
             }
-            await TaskCache.SaveAsync(task);
-            return task;
+
+            return lstTask.Count;
         }
 
         /// <summary>
@@ -64,12 +55,37 @@ namespace FSS.Com.MetaInfoServer.Tasks
         /// <summary>
         /// 创建Task，并更新到缓存
         /// </summary>
-        public async Task<TaskVO> GetOrCreateAsync(TaskGroupVO taskGroup)
+        public Task<TaskVO> GetOrCreateAsync(TaskGroupVO taskGroup)
         {
             if (!taskGroup.IsEnable) return null;
-            var task = await CreateAsync(taskGroup);
-            taskGroup.TaskId = task.Id;
-            await TaskGroupUpdate.SaveAsync(taskGroup);
+            return CreateAsync(taskGroup);
+        }
+
+        /// <summary>
+        /// 创建新的Task缓存
+        /// </summary>
+        private async Task<TaskVO> CreateAsync(TaskGroupVO taskGroup)
+        {
+            var key  = CacheKeys.TaskForGroupKey;
+            var task = await RedisContext.Instance.CacheManager.GetItemAsync(key, taskGroup.Id);
+            if (task != null && task.Status != EumTaskType.Fail && task.Status != EumTaskType.Success) return task;
+            // 没查到时，自动创建一条对应的Task
+            task = new TaskVO
+            {
+                TaskGroupId = taskGroup.Id,
+                StartAt     = taskGroup.NextAt,
+                Caption     = taskGroup.Caption,
+                JobName     = taskGroup.JobName,
+                RunSpeed    = 0,
+                ClientId    = 0,
+                ClientIp    = "",
+                Progress    = 0,
+                Status      = EumTaskType.None,
+                CreateAt    = DateTime.Now,
+                RunAt       = DateTime.Now,
+                SchedulerAt = DateTime.Now,
+            };
+            await TaskCache.SaveAsync(task);
             return task;
         }
     }

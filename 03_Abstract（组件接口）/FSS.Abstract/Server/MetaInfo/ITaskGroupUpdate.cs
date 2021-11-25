@@ -16,5 +16,9 @@ namespace FSS.Abstract.Server.MetaInfo
         /// </summary>
         Task SaveAsync(TaskGroupVO taskGroup);
 
+        /// <summary>
+        /// 同步缓存到数据库
+        /// </summary>
+        Task SyncCacheToDb();
     }
 }

@@ -1,19 +1,15 @@
-using System;
 using System.Threading.Tasks;
 using FS.Extends;
 using FSS.Abstract.Entity.MetaInfo;
-using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
 using FSS.Com.MetaInfoServer.TaskGroup.Dal;
-using FSS.Com.MetaInfoServer.Tasks.Dal;
-using FSS.Infrastructure.Repository;
-using Newtonsoft.Json;
 
 namespace FSS.Com.MetaInfoServer.TaskGroup
 {
     public class TaskGroupUpdate : ITaskGroupUpdate
     {
         public TaskGroupCache TaskGroupCache { get; set; }
+        public ITaskGroupList  TaskGroupList  { get; set; }
         public TaskGroupAgent TaskGroupAgent { get; set; }
 
         /// <summary>
@@ -28,6 +24,18 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
         {
             await UpdateAsync(vo);
             await TaskGroupAgent.UpdateAsync(vo.Id, vo.Map<TaskGroupPO>());
+        }
+
+        /// <summary>
+        /// 同步缓存到数据库
+        /// </summary>
+        public async Task SyncCacheToDb()
+        {
+            var lstTaskGroup = await TaskGroupList.ToListInCacheAsync();
+            foreach (var taskGroupVO in lstTaskGroup)
+            {
+                await TaskGroupAgent.UpdateAsync(taskGroupVO.Id, taskGroupVO.Map<TaskGroupPO>());
+            }
         }
     }
 }

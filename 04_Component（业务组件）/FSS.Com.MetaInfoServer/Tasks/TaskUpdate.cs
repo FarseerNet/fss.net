@@ -7,18 +7,15 @@ using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
 using FSS.Com.MetaInfoServer.Tasks.Dal;
-using FSS.Infrastructure.Repository;
 
 namespace FSS.Com.MetaInfoServer.Tasks
 {
     public class TaskUpdate : ITaskUpdate
     {
-        public TaskAgent        TaskAgent       { get; set; }
         public ITaskAdd         TaskAdd         { get; set; }
         public ITaskGroupUpdate TaskGroupUpdate { get; set; }
         public ITaskGroupInfo   TaskGroupInfo   { get; set; }
         public ITaskInfo        TaskInfo        { get; set; }
-        public ITaskList        TaskList        { get; set; }
         public TaskCache        TaskCache       { get; set; }
 
         /// <summary>
@@ -27,32 +24,18 @@ namespace FSS.Com.MetaInfoServer.Tasks
         public Task UpdateAsync(TaskVO task) => TaskCache.SaveAsync(task);
 
         /// <summary>
-        /// 移除缓存
+        /// 取消任务
         /// </summary>
-        public async Task ClearCacheAsync()
+        public async Task CancelTask(int groupId)
         {
-            await CacheKeys.TaskForGroupClear();
-            await TaskList.ToGroupListAsync();
-        }
+            var task                      = await TaskInfo.ToInfoByGroupIdAsync(groupId);
+            if (task != null) task.Status = EumTaskType.Fail;
 
-        /// <summary>
-        /// 任务组修改时，需要同步JobName（FOPS）
-        /// </summary>
-        public async Task UpdateJobName(int taskId, string jobName)
-        {
-            await MetaInfoContext.Data.Task.Where(o => o.Id == taskId).UpdateAsync(new TaskPO() { JobName = jobName });
-            var task = await TaskInfo.ToInfoByDbAsync(taskId);
-            if (task == null) return;
-            await TaskCache.SaveAsync(task);
-        }
+            var taskGroup = await TaskGroupInfo.ToInfoAsync(groupId);
+            // 这里不设置的话，下次执行时间，有可能还是将来的，导致如果设置错了时间的话，会一直等待原来设置错的时间
+            taskGroup.NextAt = taskGroup.LastRunAt;
 
-        /// <summary>
-        /// 保存Task
-        /// </summary>
-        public async Task SaveAsync(TaskVO task)
-        {
-            await UpdateAsync(task);
-            await TaskAgent.UpdateAsync(task.Id, task.Map<TaskPO>());
+            await SaveFinishAsync(task, taskGroup);
         }
 
         /// <summary>
@@ -60,11 +43,6 @@ namespace FSS.Com.MetaInfoServer.Tasks
         /// </summary>
         public async Task SaveFinishAsync(TaskVO task, TaskGroupVO taskGroup)
         {
-            // 要先保存状态
-            await UpdateAsync(task);
-            await TaskAgent.UpdateAsync(task.Id, task.Map<TaskPO>());
-
-            // 说明上一次任务，没有设置下一次的时间（动态设置）
             // 本次的时间策略晚，则通过时间策略计算出来
             if (DateTime.Now > taskGroup.NextAt)
             {
@@ -81,30 +59,15 @@ namespace FSS.Com.MetaInfoServer.Tasks
                 }
             }
 
-            // 创建任务时，会同时保存任务组信息，所以这里外面不需要再保存任务组了
+            // 将当前的Task写入Redis队列
+            if (task != null) await TaskAdd.AddToQueueAsync(task);
+            await TaskGroupUpdate.UpdateAsync(taskGroup);
+
+            // 完成后，立即生成一个新的任务
             if (taskGroup.IsEnable)
             {
-                // 完成后，立即生成一个新的任务
                 await TaskAdd.GetOrCreateAsync(taskGroup);
             }
-            else
-            {
-                await TaskGroupUpdate.SaveAsync(taskGroup);
-            }
-        }
-
-        /// <summary>
-        /// 取消任务
-        /// </summary>
-        public async Task CancelTask(int taskId)
-        {
-            var info = await TaskInfo.ToInfoByDbAsync(taskId);
-            info.Status = EumTaskType.Fail;
-
-            var taskGroup = await TaskGroupInfo.ToInfoAsync(info.TaskGroupId);
-            // 这里不设置的话，下次执行时间，有可能还是将来的，导致如果设置错了时间的话，会一直等待原来设置错的时间
-            taskGroup.NextAt = taskGroup.LastRunAt;
-            await SaveFinishAsync(info, taskGroup);
         }
     }
 }

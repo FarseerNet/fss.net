@@ -1,7 +1,14 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using FS.Core;
 using FS.DI;
+using FS.Extends;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Infrastructure.Repository;
+using Nest;
+using Newtonsoft.Json;
 
 namespace FSS.Com.MetaInfoServer.Tasks.Dal
 {
@@ -11,7 +18,7 @@ namespace FSS.Com.MetaInfoServer.Tasks.Dal
     // ReSharper disable once UnusedType.Global
     public class TaskCache : ISingletonDependency
     {
-        public static string FailKey(int groupId) => $"FSS_Task_Fail:{groupId}";
+        private const string FinishTaskQueueKey = "FSS_FinishTaskQueue";
 
         /// <summary>
         /// 保存任务信息
@@ -20,6 +27,24 @@ namespace FSS.Com.MetaInfoServer.Tasks.Dal
         {
             var key = CacheKeys.TaskForGroupKey;
             return RedisContext.Instance.CacheManager.SaveItemAsync(key, task);
+        }
+
+        /// <summary>
+        /// 将Task写入队列中
+        /// </summary>
+        public Task AddQueueAsync(TaskVO task)
+        {
+            return Task.WhenAll(SaveAsync(task),
+                                RedisContext.Instance.Db.SortedSetAddAsync(FinishTaskQueueKey, JsonConvert.SerializeObject(task),DateTime.Now.ToTimestamps()));
+        }
+
+        /// <summary>
+        /// 队列中取出已完成的任务
+        /// </summary>
+        public async Task<List<TaskVO>> GetFinishTaskListAsync(int top)
+        {
+            var sortedSetEntries = await RedisContext.Instance.Db.SortedSetPopAsync(FinishTaskQueueKey,top);
+            return sortedSetEntries.Select(s => Jsons.ToObject<TaskVO>(s.Element)).ToList();
         }
     }
 }

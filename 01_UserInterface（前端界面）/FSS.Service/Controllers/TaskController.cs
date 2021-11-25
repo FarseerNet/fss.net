@@ -53,21 +53,17 @@ namespace FSS.Service.Controllers
         [Route("JobInvoke")]
         public async Task<ApiResponseJson> JobInvoke(JobInvokeRequest request)
         {
-            var logger = IocManager.Logger<TaskController>();
-            var task   = await TaskInfo.ToInfoByGroupIdAsync(request.TaskGroupId);
+            var logger    = IocManager.Logger<TaskController>();
+            var taskTask      = TaskInfo.ToInfoByGroupIdAsync(request.TaskGroupId);
+            var taskGroupTask = TaskGroupInfo.ToInfoAsync(request.TaskGroupId);
+            await Task.WhenAll(taskTask, taskGroupTask);
 
-            var taskGroup = await TaskGroupInfo.ToInfoAsync(request.TaskGroupId);
+            var task      = await taskTask;
+            var taskGroup = await taskGroupTask;
             if (taskGroup == null)
             {
-                await RunLogAdd.AddAsync(task.TaskGroupId, request.Id, LogLevel.Warning, $"指定的TaskId：{request.Id} 所属的任务组：{task.TaskGroupId} 不存在");
-                return await ApiResponseJson.ErrorAsync($"指定的TaskId：{request.Id} 所属的任务组：{task.TaskGroupId} 不存在");
-            }
-
-            // 服务端当前任务ID与客户端请求的任务ID不一致
-            if (task.Id > request.Id)
-            {
-                await RunLogAdd.AddAsync(taskGroup, request.Id, LogLevel.Warning, $"指定的TaskId：{request.Id} {taskGroup.Caption}（{taskGroup.JobName}） 与服务端正在处理的Task：{task.Id} 不一致");
-                return await ApiResponseJson.ErrorAsync($"指定的TaskId：{request.Id} {taskGroup.Caption}（{taskGroup.JobName}） 与服务端正在处理的Task：{task.Id} 不一致");
+                await RunLogAdd.AddAsync(task.TaskGroupId, LogLevel.Warning, $"所属的任务组：{task.TaskGroupId} 不存在");
+                return await ApiResponseJson.ErrorAsync($"所属的任务组：{task.TaskGroupId} 不存在");
             }
 
             try
@@ -75,8 +71,8 @@ namespace FSS.Service.Controllers
                 // 不相等，说明被覆盖了（JOB请求慢了。被调度重新执行了）
                 if (task.ClientId != Client.Id)
                 {
-                    await RunLogAdd.AddAsync(taskGroup, request.Id, LogLevel.Warning, $"任务ID： {taskGroup.Caption}（{taskGroup.JobName}） ，{task.ClientId}与本次请求{Client.Id} 不一致，忽略本次请求");
-                    return await ApiResponseJson.ErrorAsync($"任务ID： {taskGroup.Caption}（{taskGroup.JobName}） ，{task.ClientId}与本次请求{Client.Id} 不一致，忽略本次请求");
+                    await RunLogAdd.AddAsync(taskGroup, LogLevel.Warning, $"任务： {taskGroup.Caption}（{taskGroup.JobName}） ，{task.ClientId}与本次请求的客户端{Client.Id} 不一致，忽略本次请求");
+                    return await ApiResponseJson.ErrorAsync($"任务： {taskGroup.Caption}（{taskGroup.JobName}） ，{task.ClientId}与本次请求的客户端{Client.Id} 不一致，忽略本次请求");
                 }
 
                 // 更新Task元信息
@@ -98,7 +94,7 @@ namespace FSS.Service.Controllers
                 // 如果有日志
                 if (request.Log != null && !string.IsNullOrWhiteSpace(request.Log.Log))
                 {
-                    await RunLogAdd.AddAsync(taskGroup, task.Id, request.Log.LogLevel, request.Log.Log);
+                    await RunLogAdd.AddAsync(taskGroup, request.Log.LogLevel, request.Log.Log);
                 }
 
                 // 如果是成功、错误状态，则要立即更新数据库
@@ -106,7 +102,6 @@ namespace FSS.Service.Controllers
                 {
                     case EumTaskType.Fail:
                     case EumTaskType.Success:
-                    //case EumTaskType.ReScheduler:
                         // 客户端设置了动态时间
                         if (request.NextTimespan > 0)
                         {

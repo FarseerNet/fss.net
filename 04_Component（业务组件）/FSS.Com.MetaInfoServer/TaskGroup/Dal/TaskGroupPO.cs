@@ -16,13 +16,7 @@ namespace FSS.Com.MetaInfoServer.TaskGroup.Dal
         /// </summary>
         [Field(Name = "id",IsPrimaryKey = true,IsDbGenerated = true)]
         public int? Id { get; set; }
-        
-        /// <summary>
-        /// 任务ID
-        /// </summary>
-        [Field(Name = "task_id")]
-        public int TaskId { get; set; }
-        
+
         /// <summary>
         /// 任务组标题
         /// </summary>
