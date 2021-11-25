@@ -15,13 +15,13 @@ namespace FSS.Service.Background
     {
         readonly ITaskGroupList _taskGroupList;
         readonly ITaskGroupInfo _taskGroupInfo;
-        readonly ITaskInfo      _taskInfo;
+        readonly ITaskList      _taskList;
 
         public SyncTaskGroupService(IIocManager ioc)
         {
             _taskGroupList = ioc.Resolve<ITaskGroupList>();
             _taskGroupInfo = ioc.Resolve<ITaskGroupInfo>();
-            _taskInfo      = ioc.Resolve<ITaskInfo>();
+            _taskList      = ioc.Resolve<ITaskList>();
         }
 
         protected override TimeSpan SleepMs { get; set; } = TimeSpan.FromMinutes(1);
@@ -47,7 +47,7 @@ namespace FSS.Service.Background
             }
 
             // 取出当前所有任务列表，判断所属任务组是否存在
-            var lstTask = await _taskInfo.ToGroupListAsync();
+            var lstTask = await _taskList.ToGroupListAsync();
             foreach (var taskVO in lstTask)
             {
                 if (!lstGroupByDb.Exists(o => o.Id == taskVO.TaskGroupId))

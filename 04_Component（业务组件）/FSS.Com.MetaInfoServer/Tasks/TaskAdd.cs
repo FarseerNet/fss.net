@@ -7,6 +7,7 @@ using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
 using FSS.Com.MetaInfoServer.Tasks.Dal;
+using FSS.Infrastructure.Repository;
 
 namespace FSS.Com.MetaInfoServer.Tasks
 {
@@ -22,6 +23,9 @@ namespace FSS.Com.MetaInfoServer.Tasks
         /// </summary>
         public async Task<TaskVO> CreateAsync(TaskGroupVO taskGroup)
         {
+            //var key = CacheKeys.TaskForGroupKey;
+            //var task = await RedisContext.Instance.CacheManager.GetItemAsync(key, taskGroup.Id);
+            //if (task != null && task.Status != EumTaskType.Fail && task.Status != EumTaskType.Success) return task;
             var task = await TaskAgent.ToUnExecutedTaskAsync(taskGroup.Id).MapAsync<TaskVO, TaskPO>();
             if (task == null)
             {
@@ -44,7 +48,6 @@ namespace FSS.Com.MetaInfoServer.Tasks
                 await TaskAgent.AddAsync(po);
                 task = po.Map<TaskVO>();
             }
-
             await TaskCache.SaveAsync(task);
             return task;
         }
@@ -63,6 +66,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
         /// </summary>
         public async Task<TaskVO> GetOrCreateAsync(TaskGroupVO taskGroup)
         {
+            if (!taskGroup.IsEnable) return null;
             var task = await CreateAsync(taskGroup);
             taskGroup.TaskId = task.Id;
             await TaskGroupUpdate.SaveAsync(taskGroup);

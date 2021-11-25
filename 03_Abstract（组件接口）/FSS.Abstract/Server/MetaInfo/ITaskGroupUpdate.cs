@@ -16,10 +16,5 @@ namespace FSS.Abstract.Server.MetaInfo
         /// </summary>
         Task SaveAsync(TaskGroupVO taskGroup);
 
-        /// <summary>
-        /// 统计失败次数，按次数递增时间
-        /// </summary>
-        Task StatFailAsync(TaskVO task, TaskGroupVO taskGroupVO);
-
     }
 }

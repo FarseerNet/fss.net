@@ -15,7 +15,7 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
         public ITaskGroupInfo TaskGroupInfo  { get; set; }
 
         /// <summary>
-        /// 添加任务信息
+        /// 添加任务组信息
         /// </summary>
         public async Task<int> AddAsync(TaskGroupVO vo)
         {

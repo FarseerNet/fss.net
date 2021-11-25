@@ -14,7 +14,6 @@ namespace FSS.Com.MetaInfoServer.Tasks
     {
         public TaskAgent      TaskAgent     { get; set; }
         public ITaskAdd       TaskAdd       { get; set; }
-        public ITaskGroupList TaskGroupList { get; set; }
 
         /// <summary>
         /// 获取任务信息
@@ -34,25 +33,6 @@ namespace FSS.Com.MetaInfoServer.Tasks
         /// 今日执行失败数量
         /// </summary>
         public Task<int> TodayFailCountAsync() => TaskAgent.TodayFailCountAsync();
-        
-        /// <summary>
-        /// 获取所有任务组
-        /// </summary>
-        public Task<List<TaskVO>> ToGroupListAsync()
-        {
-            var key = CacheKeys.TaskForGroupKey;
-            return RedisContext.Instance.CacheManager.GetListAsync(key, async () =>
-            {
-                var taskGroupVos = await TaskGroupList.ToListInCacheAsync();
-                var lst          = new List<TaskVO>();
-                foreach (var taskGroupVo in taskGroupVos)
-                {
-                    lst.Add(await TaskAdd.GetOrCreateAsync(taskGroupVo.Id));
-                }
-
-                return lst;
-            });
-        }
 
         /// <summary>
         /// 计算任务的平均运行速度

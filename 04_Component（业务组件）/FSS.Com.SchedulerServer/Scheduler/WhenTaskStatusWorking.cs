@@ -11,6 +11,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
 {
     public class WhenTaskStatusWorking : IWhenTaskStatus
     {
+        public ITaskInfo          TaskInfo           { get; set; }
         public ITaskList          TaskList           { get; set; }
         public ITaskGroupList     TaskGroupList      { get; set; }
         public ILogger            Logger             { get; set; }
@@ -29,16 +30,21 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 {
                     try
                     {
-                        var dicTaskGroup = await TaskGroupList.ToListInMemoryAsync();
-                        var lstTask      = await TaskList.ToSchedulerWorkingListAsync();
-                        lstTask.RemoveAll(o => o.Status is EumTaskType.Scheduler && (DateTime.Now - o.StartAt).TotalSeconds    < 5);                                             // 调度状态、且计划时间在5秒内还没执行的，暂停认为正常
-                        lstTask.RemoveAll(o => o.Status is EumTaskType.Working   && (DateTime.Now - o.RunAt).TotalMilliseconds < dicTaskGroup[o.TaskGroupId].RunSpeedAvg * 1.3); // 执行时间还没有超出平均运行时间1.3倍
-
-                        // 检查是否离线
+                        var lstTask = await TaskList.ToSchedulerWorkingListAsync();
                         foreach (var task in lstTask)
                         {
-                            await CheckClientOffline.Check(task);
-                            await Task.Delay(10);
+                            if (task != null)
+                            {
+                                // 状态必须是 完成的
+                                if (task.Status != EumTaskType.Scheduler && task.Status != EumTaskType.Working) continue;
+                                // 加个时间，来限制并发
+                                if (task.Status == EumTaskType.Scheduler && (DateTime.Now - task.StartAt).TotalSeconds < 5) continue;
+                                if (task.Status == EumTaskType.Working   && (DateTime.Now - task.RunAt).TotalSeconds   < 5) continue;
+
+                                // 检查是否离线
+                                await CheckClientOffline.Check(task);
+                                await Task.Delay(200);
+                            }
                         }
                     }
                     catch (Exception e)
@@ -47,7 +53,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
                     }
 
                     // 休眠下，防止CPU过高
-                    await Task.Delay(5000);
+                    await Task.Delay(TimeSpan.FromSeconds(30));
                 }
             });
             return Task.FromResult(0);

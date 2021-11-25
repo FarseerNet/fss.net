@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FS.Core;
 using FS.Extends;
@@ -7,7 +8,9 @@ using FSS.Abstract.Entity;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
+using FSS.Com.MetaInfoServer.TaskGroup;
 using FSS.Com.MetaInfoServer.Tasks.Dal;
+using FSS.Infrastructure.Repository;
 
 namespace FSS.Com.MetaInfoServer.Tasks
 {
@@ -20,6 +23,28 @@ namespace FSS.Com.MetaInfoServer.Tasks
         public ITaskGroupInfo   TaskGroupInfo   { get; set; }
         public ITaskUpdate      TaskUpdate      { get; set; }
         public ITaskGroupUpdate TaskGroupUpdate { get; set; }
+        public ITaskGroupList   TaskGroupList   { get; set; }
+        public ITaskAdd         TaskAdd         { get; set; }
+
+
+        /// <summary>
+        /// 获取所有任务组中的任务
+        /// </summary>
+        public Task<List<TaskVO>> ToGroupListAsync()
+        {
+            var key = CacheKeys.TaskForGroupKey;
+            return RedisContext.Instance.CacheManager.GetListAsync(key, async () =>
+            {
+                var taskGroupVos = await TaskGroupList.ToListInCacheAsync();
+                var lst          = new List<TaskVO>();
+                foreach (var taskGroupVo in taskGroupVos)
+                {
+                    lst.Add(await TaskAdd.GetOrCreateAsync(taskGroupVo.Id));
+                }
+
+                return lst;
+            });
+        }
 
         /// <summary>
         /// 获取全部任务列表（FOPS）
@@ -41,7 +66,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
         /// </summary>
         public Task<List<TaskVO>> ToFailListAsync(int pageSize, int pageIndex, out int totalCount)
         {
-            return MetaInfoContext.Data.Task.Where(o => o.Status == EumTaskType.Fail)
+            return MetaInfoContext.Data.Task.Where(o => o.Status == EumTaskType.Fail && o.CreateAt >= DateTime.Now.AddDays(-1))
                                   .Select(o => new { o.Id, o.Caption, o.Progress, o.Status, o.StartAt, o.CreateAt, o.ClientIp, o.RunSpeed, o.RunAt })
                                   .Desc(o => o.CreateAt).ToListAsync(pageSize, pageIndex, out totalCount).MapAsync<TaskVO, TaskPO>();
         }
@@ -51,8 +76,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
         /// </summary>
         public Task<List<TaskVO>> ToUnRunListAsync(int pageSize, int pageIndex, out int totalCount)
         {
-            var now = DateTime.Now.AddMilliseconds(-500);
-            return MetaInfoContext.Data.Task.Where(o => o.StartAt < now && o.Status == EumTaskType.None)
+            return MetaInfoContext.Data.Task.Where(o => o.Status == EumTaskType.None)
                                   .Select(o => new { o.Id, o.TaskGroupId, o.JobName, o.Caption, o.Progress, o.Status, o.StartAt, o.CreateAt, o.ClientIp, o.RunSpeed, o.RunAt })
                                   .Asc(o => o.StartAt).ToListAsync(pageSize, pageIndex, out totalCount).MapAsync<TaskVO, TaskPO>();
         }
@@ -90,42 +114,42 @@ namespace FSS.Com.MetaInfoServer.Tasks
                 requestTaskCount = 3;
             }
 
-            var lstPo = await TaskAgent.ToNoneListAsync(requestTaskCount, client.Jobs);
-            if (lstPo.Count == 0) return null;
+            var lstTask = await ToGroupListAsync();
+            lstTask = lstTask.Where(o => o.Status == EumTaskType.None && client.Jobs.Contains(o.JobName) && o.StartAt < DateTime.Now.AddMinutes(3)).OrderBy(o => o.StartAt).Take(requestTaskCount).ToList();
+            if (lstTask == null || !lstTask.Any()) return null;
+            
             // 更新任务状态
             using (var db = new MetaInfoContext())
             {
                 // 更新任务为已调度
-                foreach (var task in lstPo)
+                foreach (var task in lstTask)
                 {
+                    var taskGroup = await TaskGroupInfo.ToInfoAsync(task.TaskGroupId);
+                    
                     task.Status      = EumTaskType.Scheduler;
                     task.ClientIp    = client.ClientIp;
                     task.ClientName  = client.ClientName;
                     task.ClientId    = client.Id;
                     task.SchedulerAt = DateTime.Now;
+                    task.Data        = Jsons.ToObject<Dictionary<string, string>>(taskGroup.Data);
                     // 更新任务状态
-                    var result = await db.Task.Where(o => o.Id == task.Id && o.Status == EumTaskType.None).UpdateAsync(task);
+                    var result = await db.Task.Where(o => o.Id == task.Id && o.Status == EumTaskType.None).UpdateAsync(task.Map<TaskPO>());
                     // 被其它客户端抢了任务，回滚本次任务
                     if (result == 0)
                     {
                         db.Rollback();
                         return null;
                     }
+                    db.AddCallback(() =>
+                    {
+                        TaskUpdate.UpdateAsync(task);
+                    });
                 }
 
                 db.SaveChanges();
             }
 
-            var lstVo = lstPo.Map<TaskVO>();
-            foreach (var task in lstVo)
-            {
-                var taskGroup = await TaskGroupInfo.ToInfoAsync(task.TaskGroupId);
-                task.Data        = Jsons.ToObject<Dictionary<string, string>>(taskGroup.Data);
-                taskGroup.TaskId = task.Id;
-                await Task.WhenAll(TaskUpdate.UpdateAsync(task), TaskGroupUpdate.UpdateAsync(taskGroup));
-            }
-
-            return lstVo;
+            return lstTask;
         }
     }
 }

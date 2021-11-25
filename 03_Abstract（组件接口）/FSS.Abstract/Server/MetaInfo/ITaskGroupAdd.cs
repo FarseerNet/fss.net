@@ -7,7 +7,7 @@ namespace FSS.Abstract.Server.MetaInfo
     public interface ITaskGroupAdd: ISingletonDependency
     {
         /// <summary>
-        /// 添加任务信息
+        /// 添加任务组信息
         /// </summary>
         Task<int> AddAsync(TaskGroupVO vo);
     }

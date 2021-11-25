@@ -18,6 +18,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
         public ITaskGroupUpdate TaskGroupUpdate { get; set; }
         public ITaskGroupInfo   TaskGroupInfo   { get; set; }
         public ITaskInfo        TaskInfo        { get; set; }
+        public ITaskList        TaskList        { get; set; }
         public TaskCache        TaskCache       { get; set; }
 
         /// <summary>
@@ -31,7 +32,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
         public async Task ClearCacheAsync()
         {
             await CacheKeys.TaskForGroupClear();
-            await TaskInfo.ToGroupListAsync();
+            await TaskList.ToGroupListAsync();
         }
 
         /// <summary>
@@ -57,19 +58,11 @@ namespace FSS.Com.MetaInfoServer.Tasks
         /// <summary>
         /// 保存Task（taskGroup必须是最新的）
         /// </summary>
-        public async Task SaveFinishAsync(TaskVO task)
-        {
-            var taskGroup = await TaskGroupInfo.ToInfoAsync(task.TaskGroupId);
-            await SaveFinishAsync(task, taskGroup);
-        }
-
-        /// <summary>
-        /// 保存Task（taskGroup必须是最新的）
-        /// </summary>
         public async Task SaveFinishAsync(TaskVO task, TaskGroupVO taskGroup)
         {
             // 要先保存状态
-            await SaveAsync(task);
+            await UpdateAsync(task);
+            await TaskAgent.UpdateAsync(task.Id, task.Map<TaskPO>());
 
             // 说明上一次任务，没有设置下一次的时间（动态设置）
             // 本次的时间策略晚，则通过时间策略计算出来

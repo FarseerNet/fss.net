@@ -1,11 +1,11 @@
 # 添加基础镜像
-FROM mcr.microsoft.com/dotnet/aspnet:6.0
+FROM mcr.microsoft.com/dotnet/aspnet:5.0
 WORKDIR /app
 COPY . ./
 
 #设置时区
-#RUN cp /usr/share/zoneinfo/GMT /etc/localtime
-#RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai    /etc/localtime
+RUN cp /usr/share/zoneinfo/GMT /etc/localtime
+RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai    /etc/localtime
 
 #设置Docker容器对外暴露的端口
 #EXPOSE 80

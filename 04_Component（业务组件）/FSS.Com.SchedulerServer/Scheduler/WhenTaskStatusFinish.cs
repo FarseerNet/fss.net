@@ -29,22 +29,22 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 {
                     try
                     {
-                        var dicTaskGroup = await TaskGroupList.ToListInMemoryAsync();
-                        var lstTask      = await TaskInfo.ToGroupListAsync();
+                        var dicTaskGroup = await TaskGroupList.ToListInCacheAsync();
 
-                        // 取出状态为None的，且马上到时间要处理的
-                        var lstStatusFinish = lstTask.FindAll(o =>
-                                                              dicTaskGroup.ContainsKey(o.TaskGroupId)                                        &&
-                                                              o.Status is EumTaskType.Fail or EumTaskType.Success or EumTaskType.ReScheduler && // 状态必须是 完成的
-                                                              (DateTime.Now - dicTaskGroup[o.TaskGroupId].ActivateAt).TotalSeconds > 3       && // 加个时间，来限制并发
-                                                              dicTaskGroup[o.TaskGroupId].IsEnable)                                             // 任务组必须是开启
-                                                     .OrderBy(o => o.StartAt).ToList();
-
-                        foreach (var task in lstStatusFinish)
+                        foreach (var taskGroupVO in dicTaskGroup.Where(o=>o.IsEnable))
                         {
-                            var newTask = await TaskAdd.GetOrCreateAsync(task.TaskGroupId);
+                            var task = await TaskInfo.ToInfoByGroupIdAsync(taskGroupVO.Id);
+                            if (task != null)
+                            {
+                                // 状态必须是 完成的
+                                if (task.Status != EumTaskType.Fail && task.Status != EumTaskType.Success) continue;
+                                // 加个时间，来限制并发
+                                if ((DateTime.Now - task.RunAt).TotalSeconds < 3) continue;
+                            }
+                                
+                            var newTask = await TaskAdd.GetOrCreateAsync(taskGroupVO.Id);
                             Logger.LogDebug($"\t1、新建任务: GroupId={newTask.TaskGroupId} TaskId={newTask.Id}");
-                            await Task.Delay(10);
+                            await Task.Delay(200);
                         }
                     }
                     catch (Exception e)

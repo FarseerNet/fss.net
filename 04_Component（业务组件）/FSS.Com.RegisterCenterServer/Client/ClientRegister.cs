@@ -19,7 +19,7 @@ namespace FSS.Com.RegisterCenterServer.Client
     // ReSharper disable once UnusedType.Global
     public class ClientRegister : IClientRegister
     {
-        public ITaskInfo      TaskInfo      { get; set; }
+        public ITaskList      TaskList      { get; set; }
         public ITaskUpdate    TaskUpdate    { get; set; }
         public ITaskGroupInfo TaskGroupInfo { get; set; }
 
@@ -82,8 +82,8 @@ namespace FSS.Com.RegisterCenterServer.Client
             await CacheKeys.ClientClear(clientId);
 
             // 读取当前所有任务组的任务
-            var groupListAsync = await TaskInfo.ToGroupListAsync();
-            var findAll        = groupListAsync.FindAll(o => o.ClientId == clientId && o.Status is EumTaskType.Scheduler or EumTaskType.Working or EumTaskType.ReScheduler);
+            var groupListAsync = await TaskList.ToGroupListAsync();
+            var findAll        = groupListAsync.FindAll(o => o.ClientId == clientId && o.Status is EumTaskType.Scheduler or EumTaskType.Working); // or EumTaskType.ReScheduler
             foreach (var vo in findAll)
             {
                 var taskGroup = await TaskGroupInfo.ToInfoAsync(vo.TaskGroupId);
