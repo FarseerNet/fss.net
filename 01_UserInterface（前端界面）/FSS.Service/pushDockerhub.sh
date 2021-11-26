@@ -1,4 +1,4 @@
-ver='1.1.1'
+ver='2.0.0'
 dotnet publish -c release
 cd bin/release/net6.0
 docker build -t farseernet/fss:${ver} --network=host .
