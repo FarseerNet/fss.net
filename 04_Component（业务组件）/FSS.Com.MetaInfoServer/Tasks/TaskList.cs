@@ -115,7 +115,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
             }
 
             var lstTask = await ToGroupListAsync();
-            lstTask = lstTask.Where(o => o.Status == EumTaskType.None && client.Jobs.Contains(o.JobName) && o.StartAt < DateTime.Now.AddMinutes(3)).OrderBy(o => o.StartAt).Take(requestTaskCount).ToList();
+            lstTask = lstTask.Where(o => o.Status == EumTaskType.None && client.Jobs.Contains(o.JobName) && o.StartAt < DateTime.Now.AddSeconds(15)).OrderBy(o => o.StartAt).Take(requestTaskCount).ToList();
             if (lstTask == null || !lstTask.Any()) return null;
 
             // 更新任务状态
