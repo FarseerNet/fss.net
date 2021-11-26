@@ -59,11 +59,11 @@ namespace FSS.Service.Background
             var lstTaskGroup = await _taskGroupList.ToListInCacheAsync();
 
             // 检查是否存在系统任务组
-            await CreateSysJob(lstTaskGroup, "FSS.ClearHisTask", "清除历史任务", TimeSpan.FromMinutes(1));
+            await CreateSysJob(lstTaskGroup, "FSS.ClearHisTask", "清除历史任务", TimeSpan.FromHours(1));
             await CreateSysJob(lstTaskGroup, "FSS.SyncTaskGroupAvgSpeed", "计算任务平均耗时", TimeSpan.FromHours(1));
             await CreateSysJob(lstTaskGroup, "FSS.SyncTaskGroup", "同步任务组缓存", TimeSpan.FromMinutes(1));
             await CreateSysJob(lstTaskGroup, "FSS.AddTaskToDb", "任务写入数据库", TimeSpan.FromMinutes(1), JsonConvert.SerializeObject(new { DataCount = 100 }));
-            await CreateSysJob(lstTaskGroup, "FSS.AddRunLogToDb", "日志写入数据库", TimeSpan.FromMinutes(1), JsonConvert.SerializeObject(new { DataCount = 100 }));
+            await CreateSysJob(lstTaskGroup, "FSS.AddRunLogToDb", "日志写入数据库", TimeSpan.FromSeconds(10), JsonConvert.SerializeObject(new { DataCount = 100 }));
 
             _logger.LogInformation($"共获取到：{lstTaskGroup.Count} 条任务组信息");
             foreach (var taskGroupVo in lstTaskGroup)
