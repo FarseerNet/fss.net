@@ -223,13 +223,20 @@ namespace FSS.Service.Controllers
         }
 
         /// <summary>
-        /// 获取所有任务
+        /// 获取在用的任务
         /// </summary>
         [HttpPost]
-        [Route("GetAllTaskList")]
-        public async Task<ApiResponseJson<DataSplitList<TaskVO>>> GetAllTaskList(GetAllTaskListRequest request)
+        [Route("GetEnableTaskList")]
+        public async Task<ApiResponseJson<DataSplitList<TaskVO>>> GetEnableTaskList(GetAllTaskListRequest request)
         {
-            var lst                          = await TaskList.ToGroupListAsync();
+            var lst          = await TaskList.ToGroupListAsync();
+            // 移除被禁用的任务组
+            var lstTaskGroup = await TaskGroupList.ToListInCacheAsync();
+            foreach (var taskGroupVO in lstTaskGroup.Where(o => !o.IsEnable))
+            {
+                lst.RemoveAll(o => o.TaskGroupId == taskGroupVO.Id);
+            }
+
             if (request.Status.HasValue) lst = lst.Where(o => o.Status == request.Status.GetValueOrDefault()).ToList();
 
             var totalCount = lst.Count;
@@ -261,27 +268,13 @@ namespace FSS.Service.Controllers
         }
 
         /// <summary>
-        /// 获取失败的任务数量
+        /// 获取已完成的任务列表
         /// </summary>
         [HttpPost]
-        [Route("GetTaskFailList")]
-        public async Task<ApiResponseJson<DataSplitList<TaskVO>>> GetTaskFailList(PageSizeRequest request)
+        [Route("GetTaskFinishList")]
+        public async Task<ApiResponseJson<DataSplitList<TaskVO>>> GetTaskFinishList(PageSizeRequest request)
         {
-            var lst = await TaskList.ToFailListAsync(request.PageSize, request.PageIndex, out var totalCount);
-            return await ApiResponseJson<DataSplitList<TaskVO>>.SuccessAsync(new DataSplitList<TaskVO>(lst, totalCount));
-        }
-
-        /// <summary>
-        /// 获取未执行的任务列表
-        /// </summary>
-        [HttpPost]
-        [Route("GetTaskUnRunList")]
-        public async Task<ApiResponseJson<DataSplitList<TaskVO>>> GetTaskUnRunList(PageSizeRequest request)
-        {
-            var lst = await TaskList.ToGroupListAsync();
-            lst = lst.Where(o => o.Status == EumTaskType.None).OrderBy(o => o.StartAt).ToList() ?? new List<TaskVO>();
-            var totalCount = lst.Count;
-            lst = lst.ToList(request.PageSize, request.PageIndex);
+            var lst = await TaskList.ToFinishListAsync(request.PageSize, request.PageIndex, out var totalCount);
             return await ApiResponseJson<DataSplitList<TaskVO>>.SuccessAsync(new DataSplitList<TaskVO>(lst, totalCount));
         }
 

@@ -58,13 +58,13 @@ namespace FSS.Com.MetaInfoServer.Tasks
         }
 
         /// <summary>
-        /// 获取失败的任务（FOPS）
+        /// 获取已完成的任务列表
         /// </summary>
-        public Task<List<TaskVO>> ToFailListAsync(int pageSize, int pageIndex, out int totalCount)
+        public Task<List<TaskVO>> ToFinishListAsync(int pageSize, int pageIndex, out int totalCount)
         {
-            return MetaInfoContext.Data.Task.Where(o => o.Status == EumTaskType.Fail && o.CreateAt >= DateTime.Now.AddDays(-1))
+            return MetaInfoContext.Data.Task.Where(o => (o.Status == EumTaskType.Fail || o.Status == EumTaskType.Success) && o.CreateAt >= DateTime.Now.AddDays(-1))
                                   .Select(o => new { o.Id, o.Caption, o.Progress, o.Status, o.StartAt, o.CreateAt, o.ClientIp, o.RunSpeed, o.RunAt, o.JobName })
-                                  .Desc(o => o.CreateAt).ToListAsync(pageSize, pageIndex, out totalCount).MapAsync<TaskVO, TaskPO>();
+                                  .Desc(o => o.RunAt).ToListAsync(pageSize, pageIndex, out totalCount).MapAsync<TaskVO, TaskPO>();
         }
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
                 return 0;
             }
         }
-        
+
         /// <summary>
         /// 获取执行中的任务
         /// </summary>

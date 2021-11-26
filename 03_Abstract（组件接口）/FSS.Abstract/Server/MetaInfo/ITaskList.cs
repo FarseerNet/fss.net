@@ -32,9 +32,9 @@ namespace FSS.Abstract.Server.MetaInfo
         /// </summary>
         Task<List<TaskVO>> ToListAsync(int groupId, int pageSize, int pageIndex, out int totalCount);
         /// <summary>
-        /// 获取失败的任务（FOPS）
+        /// 获取已完成的任务列表
         /// </summary>
-        Task<List<TaskVO>> ToFailListAsync(int pageSize, int pageIndex, out int totalCount);
+        Task<List<TaskVO>> ToFinishListAsync(int pageSize, int pageIndex, out int totalCount);
         /// <summary>
         /// 获取所有任务组中的任务
         /// </summary>
