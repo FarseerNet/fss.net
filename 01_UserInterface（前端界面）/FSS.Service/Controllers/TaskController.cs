@@ -126,13 +126,11 @@ namespace FSS.Service.Controllers
                 {
                     case EumTaskType.Working:
                         return await ApiResponseJson.SuccessAsync($"任务组：TaskGroupId={task.TaskGroupId}，Caption={taskGroup.Caption}，JobName={taskGroup.JobName}，TaskId={task.Id} 更新成功");
-                    case EumTaskType.Fail:
-                        IocManager.Logger<TaskController>().LogInformation(message);
-                        return await ApiResponseJson.ErrorAsync(message);
                     case EumTaskType.Success:
                         return await ApiResponseJson.SuccessAsync($"任务组：TaskGroupId={task.TaskGroupId}，Caption={taskGroup.Caption}，JobName={taskGroup.JobName}，TaskId={task.Id} 执行成功，耗时：{task.RunSpeed} ms");
+                    case EumTaskType.Fail:
                     default:
-                        IocManager.Logger<TaskController>().LogInformation(message);
+                        await RunLogAdd.AddAsync(taskGroup, LogLevel.Warning, message);
                         return await ApiResponseJson.ErrorAsync(message);
                 }
             }
@@ -141,7 +139,7 @@ namespace FSS.Service.Controllers
                 if (e.InnerException != null) e = e.InnerException;
                 task.Status = EumTaskType.Fail;
                 await TaskUpdate.SaveFinishAsync(task, taskGroup);
-                logger.LogError(e, e.Message);
+                await RunLogAdd.AddAsync(taskGroup, LogLevel.Error, e.Message);
                 return await ApiResponseJson.ErrorAsync(e.Message);
             }
         }
