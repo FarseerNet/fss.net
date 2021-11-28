@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,16 +28,19 @@ namespace FSS.Service.Job
 
         public async Task<bool> Execute(ReceiveContext context)
         {
-            var lst = await TaskGroupList.ToListInCacheAsync();
+            var lst      = await TaskGroupList.ToListInCacheAsync();
+            var curIndex = 0;
             foreach (var taskGroupVO in lst)
             {
+                curIndex++;
                 var lstTask = await TaskList.ToSuccessListAsync(taskGroupVO.Id, _reservedTaskCount);
                 if (lstTask == null || lstTask.Count == 0) continue;
-                var taskId  = lstTask.Min(o => o.Id);
+                var taskId = lstTask.Min(o => o.Id);
 
                 // 清除历史记录
                 await TaskList.ClearSuccessAsync(taskGroupVO.Id, taskId);
-                Thread.Sleep(1000);
+                await context.SetProgressAsync(curIndex / lst.Count * 100);
+                Thread.Sleep(100);
             }
             return true;
         }
