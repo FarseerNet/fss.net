@@ -43,7 +43,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
             // 客户端下线
             if (client.Id == 0 || (DateTime.Now - client.ActivateAt).TotalMinutes >= 1)
             {
-                await RunLogAdd.AddAsync(taskGroup, LogLevel.Warning, $"任务：{taskGroup.Id} {taskGroup.Caption} {taskGroup.JobName}，客户端下线{taskGroup.ActivateAt:yyyy-MM-dd HH:mm:ss} {client.ActivateAt:yyyy-MM-dd HH:mm:ss}，强制设为失败状态");
+                await RunLogAdd.AddAsync(taskGroup, LogLevel.Warning, $"【客户端下线】{client.ActivateAt:yyyy-MM-dd HH:mm:ss}，任务：【{taskGroup.JobName}】 {taskGroup.Id} {taskGroup.Caption} ，强制设为失败状态");
                 task.Status = EumTaskType.Fail;
                 await TaskUpdate.SaveFinishAsync(task, taskGroup);
                 return;
@@ -56,7 +56,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
             // 测试客户端是否假死
             if (await CheckFeignDeath(client, taskGroup))
             {
-                await RunLogAdd.AddAsync(taskGroup, LogLevel.Warning, $"检测到客户端的最后使用时间为：{client.ActivateAt:yyyy-MM-dd HH:mm:ss}，进入假死状态，强制下线客户端");
+                await RunLogAdd.AddAsync(taskGroup, LogLevel.Warning, $"【客户端假死】{client.ActivateAt:yyyy-MM-dd HH:mm:ss}，强制下线客户端");
                 await ClientRegister.RemoveAsync(client.Id);
                 task.Status = EumTaskType.Fail;
                 await TaskUpdate.SaveFinishAsync(task, taskGroup);
@@ -67,7 +67,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
             // 任务组活动时间大于1分钟、同时客户端活动时间大于1分钟，判定为客户端下线
             if ((DateTime.Now - taskGroup.ActivateAt).TotalMinutes >= 1) // 大于1分钟，才检查
             {
-                await RunLogAdd.AddAsync(taskGroup, LogLevel.Warning, $"任务：{taskGroup.Id} {taskGroup.Caption} {taskGroup.JobName}，客户端假死状态{taskGroup.ActivateAt:yyyy-MM-dd HH:mm:ss} {client.ActivateAt:yyyy-MM-dd HH:mm:ss}，强制设为失败状态");
+                await RunLogAdd.AddAsync(taskGroup, LogLevel.Warning, $"【客户端假死】{client.ActivateAt:yyyy-MM-dd HH:mm:ss}，任务：【{taskGroup.JobName}】 {taskGroup.Id} {taskGroup.Caption} ，强制设为失败状态");
                 task.Status = EumTaskType.Fail;
                 await TaskUpdate.SaveFinishAsync(task, taskGroup);
                 return;
