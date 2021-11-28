@@ -26,7 +26,7 @@ namespace FSS.Service.Job
                 var count = await RunLogAdd.AddToDbAsync(dataCount);
                 result += count;
                 if (count != dataCount) break;
-                context.SetProgressAsync(progress += 10);
+                await context.SetProgressAsync(progress += 10);
             }
 
             return true;
