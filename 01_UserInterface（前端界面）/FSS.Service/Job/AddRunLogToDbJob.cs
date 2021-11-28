@@ -20,11 +20,13 @@ namespace FSS.Service.Job
             var dataCount                = top.ConvertType(1000);
             if (dataCount < 1) dataCount = 1000;
             int result                   = 0;
+            var progress                 = 10;
             while (true)
             {
                 var count = await RunLogAdd.AddToDbAsync(dataCount);
                 result += count;
                 if (count != dataCount) break;
+                context.SetProgressAsync(progress += 10);
             }
 
             return true;
