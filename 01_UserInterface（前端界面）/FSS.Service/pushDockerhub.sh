@@ -1,6 +1,6 @@
 ver='2.0.0'
 dotnet publish -c release
-cd bin/release/net6.0
+cd bin/release/net6.0/publish
 docker build -t farseernet/fss:${ver} --network=host .
 docker push farseernet/fss:${ver}
 

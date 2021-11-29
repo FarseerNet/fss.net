@@ -3,7 +3,7 @@ docker rm fss
 docker rmi farseernet/fss:latest
 
 dotnet publish -c release
-cd bin/release/net6.0
+cd bin/release/net6.0/publish
 docker build -t farseernet/fss:latest --network=host .
 
 docker run -d --name fss -p 888:888 \
