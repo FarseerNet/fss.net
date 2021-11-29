@@ -120,9 +120,17 @@ namespace FSS.Com.MetaInfoServer.Tasks
 
             // 更新任务状态
             // 更新任务为已调度
-            foreach (var task in lstTask)
+            for (var index = 0; index < lstTask.Count; index++)
             {
+                var task      = lstTask[index];
                 var taskGroup = await TaskGroupInfo.ToInfoAsync(task.TaskGroupId);
+                if (!taskGroup.IsEnable)
+                {
+                    await TaskUpdate.CancelTask(task.TaskGroupId);
+                    lstTask.RemoveAt(index);
+                    index--;
+                }
+                
                 task.Status      = EumTaskType.Scheduler;
                 task.ClientIp    = client.ClientIp;
                 task.ClientName  = client.ClientName;

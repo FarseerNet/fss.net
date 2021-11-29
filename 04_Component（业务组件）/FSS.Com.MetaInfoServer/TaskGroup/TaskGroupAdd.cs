@@ -24,13 +24,19 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
             {
                 vo.IntervalMs = vo.Cron.ConvertType(0L);
                 vo.Cron       = "";
-            }
-            else if (new Cron().Parse(vo.Cron))
-            {
-                vo.IntervalMs = 0;
+                vo.NextAt     = DateTime.Now.AddMilliseconds(vo.IntervalMs);
             }
             else
-                throw new Exception("Cron格式错误");
+            {
+                var cron = new Cron(vo.Cron);
+                if (cron.Parse())
+                {
+                    vo.IntervalMs = 0;
+                    vo.NextAt     = cron.GetNext(DateTime.Now);
+                }
+                else
+                    throw new Exception("Cron格式错误");
+            }
 
             var po = new TaskGroupPO
             {
@@ -40,7 +46,8 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
                 IntervalMs = vo.IntervalMs,
                 Cron       = vo.Cron.Trim(),
                 StartAt    = vo.StartAt,
-                IsEnable   = vo.IsEnable
+                IsEnable   = vo.IsEnable,
+                NextAt     = vo.NextAt,
             };
 
             // 添加到数据库
