@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using FS.Core.Job;
 using FS.Job;
 using FS.Job.Entity;
 using FSS.Abstract.Server.MetaInfo;
@@ -15,7 +16,7 @@ namespace FSS.Service.Job
         public ITaskGroupList TaskGroupList { get; set; }
         public ITaskGroupInfo TaskGroupInfo { get; set; }
 
-        public async Task<bool> Execute(ReceiveContext context)
+        public async Task<bool> Execute(IFssContext context)
         {
             // 数据库同步到缓存
             var lstGroupByDb = await TaskGroupList.ToListInDbAsync();
@@ -24,7 +25,7 @@ namespace FSS.Service.Job
                 // 强制从缓存中再读一次，可以实现当缓存丢失时，可以重新写入该条任务组到缓存
                 await TaskGroupInfo.ToInfoAsync(taskGroupVo.Id);
             }
-            
+
             return true;
         }
     }

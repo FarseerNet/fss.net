@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using FS.Core.Job;
 using FS.DI;
 using FS.Extends;
 using FS.Job;
@@ -26,7 +27,7 @@ namespace FSS.Service.Job
             _reservedTaskCount = IocManager.GetService<IConfigurationRoot>().GetSection("FSS:ReservedTaskCount").Value.ConvertType(20);
         }
 
-        public async Task<bool> Execute(ReceiveContext context)
+        public async Task<bool> Execute(IFssContext context)
         {
             var lst      = await TaskGroupList.ToListInCacheAsync();
             var curIndex = 0;

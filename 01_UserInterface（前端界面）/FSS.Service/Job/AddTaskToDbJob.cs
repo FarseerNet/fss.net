@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using FS.Core.Job;
 using FS.Extends;
 using FS.Job;
 using FS.Job.Entity;
@@ -17,7 +18,7 @@ namespace FSS.Service.Job
     {
         public ITaskAdd TaskAdd { get; set; }
 
-        public async Task<bool> Execute(ReceiveContext context)
+        public async Task<bool> Execute(IFssContext context)
         {
             context.Meta.Data.TryGetValue("DataCount", out var top);
             var dataCount                = top.ConvertType(200);

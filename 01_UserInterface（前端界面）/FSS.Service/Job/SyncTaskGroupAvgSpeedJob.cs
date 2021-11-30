@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using FS.Core.Job;
 using FS.Job;
 using FS.Job.Entity;
 using FSS.Abstract.Server.MetaInfo;
@@ -16,7 +17,7 @@ namespace FSS.Service.Job
         public ITaskGroupUpdate TaskGroupUpdate { get; set; }
         public ITaskInfo        TaskInfo        { get; set; }
 
-        public async Task<bool> Execute(ReceiveContext context)
+        public async Task<bool> Execute(IFssContext context)
         {
             var taskGroupVos = await TaskGroupList.ToListInCacheAsync();
             foreach (var taskGroupVo in taskGroupVos)
