@@ -274,7 +274,7 @@ public class HelloWorldJob : IFssJob
     }
 }
 ```
-### 2、能过http调用 （application/json）
+### 2、通过http调用 （application/json）
 header data（所有接口都需要带入）:
 ```json
 {
