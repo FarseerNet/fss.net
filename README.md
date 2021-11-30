@@ -252,7 +252,7 @@ public class StartupModule : FarseerModule
 `HelloWorldJob.cs`
 
 ```c#
-[FssJob(Name = "testJob")] // Name与FSS平台配置的JobTypeName保持一致
+[FssJob(Name = "testJob")] // Name与FSS平台配置的JobName保持一致
 public class HelloWorldJob : IFssJob
 {
     /// <summary>
