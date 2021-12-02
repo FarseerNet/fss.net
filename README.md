@@ -53,6 +53,7 @@ FSS的设计初衷是为了实现分布式的调度，运行Job的程序不应�
 
 `1、mysql 脚本（你也可以换其它数据库）`
 ```mysql
+
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
@@ -70,7 +71,7 @@ CREATE TABLE `run_log` (
 `caption` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '任务组标题',
 `job_name` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '实现Job的特性名称（客户端识别哪个实现类）',
 PRIMARY KEY (`Id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=218630 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- ----------------------------
 -- Table structure for task
@@ -81,8 +82,6 @@ CREATE TABLE `task` (
 `task_group_id` int(11) NOT NULL DEFAULT '0' COMMENT '任务组ID',
 `start_at` datetime(6) NOT NULL COMMENT '开始时间',
 `run_speed` int(11) NOT NULL COMMENT '运行耗时',
-`client_host` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '客户端',
-`server_node` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '服务端节点',
 `client_ip` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '客户端IP',
 `progress` int(11) NOT NULL COMMENT '进度0-100',
 `status` tinyint(4) NOT NULL COMMENT '状态',
@@ -90,12 +89,15 @@ CREATE TABLE `task` (
 `caption` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '任务组标题',
 `job_name` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '实现Job的特性名称（客户端识别哪个实现类）',
 `run_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '实际执行时间',
+`client_id` bigint(20) NOT NULL DEFAULT '0' COMMENT '客户端ID',
+`client_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '客户端名称',
+`scheduler_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '调度时间',
 PRIMARY KEY (`Id`) USING BTREE,
 KEY `group_id_status` (`task_group_id`,`status`,`create_at`,`Id`) USING BTREE,
 KEY `task_group_id` (`create_at`,`task_group_id`) USING BTREE,
 KEY `start_at` (`start_at`,`status`) USING BTREE,
-KEY `create_at` (`status`,`create_at`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=322048 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+KEY `create_at` (`status`,`create_at`,`run_at`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=3866243 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- ----------------------------
 -- Table structure for task_group
@@ -104,106 +106,54 @@ DROP TABLE IF EXISTS `task_group`;
 CREATE TABLE `task_group` (
 `Id` int(11) NOT NULL AUTO_INCREMENT,
 `caption` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '任务组标题',
-`job_name` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '实现Job的特性名称（客户端识别哪个实现类）',
+`job_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '实现Job的特性名称（客户端识别哪个实现类）',
 `start_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '开始时间',
 `next_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '下次执行时间',
 `task_id` bigint(20) NOT NULL DEFAULT '0' COMMENT '任务ID',
 `activate_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '活动时间',
 `last_run_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '最后一次完成时间',
-`run_speed_avg` int(11) NOT NULL DEFAULT '0' COMMENT '运行平均耗时',
+`run_speed_avg` bigint(20) NOT NULL DEFAULT '0' COMMENT '运行平均耗时',
 `run_count` int(11) NOT NULL DEFAULT '0' COMMENT '运行次数',
 `is_enable` bit(1) NOT NULL DEFAULT b'1' COMMENT '是否开启',
 `interval_ms` bigint(20) NOT NULL DEFAULT '1000' COMMENT '时间间隔',
 `cron` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '时间定时器表达式',
 `Data` varchar(2048) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '动态参数',
 PRIMARY KEY (`Id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=206 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=491 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 SET FOREIGN_KEY_CHECKS = 1;
-```mysql
-
 ```
 
 `2、docker运行脚本`
 
 ```
-docker run -d --name fss \
--e Redis__0__Server=127.0.0.1:6379 \
--e Redis__0__Password=123456 \
--e Database__Items__0__Server=127.0.0.1 \
--e Database__Items__0__Port=1433 \
--e Database__Items__0__UserID=sa \
--e Database__Items__0__PassWord=123456 \
--e Database__Items__0__Catalog=fss \
--e Database__Items__0__DataType=MySql \
-farseernet/fss:latest --restart=always
+docker run -d --name fss -p 80:888 \
+-e FSS__Server=http://docker.for.mac.host.internal:80 \
+-e Database__default=DataType=MySql,Server=docker.for.mac.host.internal:3306,UserID=root,PassWord=steden@123,Catalog=fss,PoolMaxSize=50,PoolMinSize=1 \
+-e Redis__default=Server=docker.for.mac.host.internal:6379,DB=13,Password=123456,ConnectTimeout=600000,SyncTimeout=10000,ResponseTimeout=10000 \
+-e ElasticSearch__es=http://docker.for.mac.host.internal:9200 \
+-e ElasticSearch__LinkTrack=http://docker.for.mac.host.internal:9200 \
+--network=net farseernet/fss:latest \
+ --restart=always
 ```
 
 环境变量解释：
 
 |  环境变量   | 说明  |
 |  ----  | ----  |
-| Redis__0__Server  | redis地址 |
-| Redis__0__Password  | redis密码，默认123456（没有，把value去掉） |
-| Database__Items__0__Server  | 数据库地址 |
-| Database__Items__0__Port  | 数据库端口 |
-| Database__Items__0__UserID  | 数据库账号 |
-| Database__Items__0__PassWord  | 数据库密码 |
-| Database__Items__0__Catalog  | 数据库名称 |
-| Database__Items__0__DataType  | 数据库类型，SqlServer,OleDb,SQLite,Oracle,PostgreSql |
+| FSS__Server  | 当前FSS地址 |
+| Database__default  | 数据库地址 |
+| Redis__default  | redis地址 |
+| ElasticSearch__es  | es地址，用于写入日志，不填，则使用数据库记录 |
+| ElasticSearch__LinkTrack  | 链路追踪的ES地址，默认启用 |
 
 你也可以使用挂载配置的方式
 ```
-docker run -d --name fss \
+docker run -d --name fss -p 80:888 \
 -v /home/appsettings.json:app/appsettings.json \
 farseernet/fss:latest --restart=always
 ```
 
-`3、查看打印日志`
-```
-docker logs fss
-```
-
-```
-info: FS.FarseerApplication[0]
-      注册系统核心组件
-info: FS.Modules.FarseerModuleManager[0]
-      总共找到 11 个模块
-info: FS.Modules.FarseerModuleManager[0]
-      已经加载模块: FSS.GrpcService.Startup, FSS.GrpcService, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-info: FS.Modules.FarseerModuleManager[0]
-      已经加载模块: FS.Core.FarseerCoreModule, Farseer.Net.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=null
-info: FS.Modules.FarseerModuleManager[0]
-      已经加载模块: FS.Mapper.MapperModule, Farseer.Net.Mapper, Version=2.5.0.0, Culture=neutral, PublicKeyToken=null
-info: FS.Modules.FarseerModuleManager[0]
-      已经加载模块: FS.Cache.Redis.RedisModule, Farseer.Net.Cache.Redis, Version=2.5.1.0, Culture=neutral, PublicKeyToken=null
-info: FS.Modules.FarseerModuleManager[0]
-      已经加载模块: FS.Cache.CacheManagerModule, Farseer.Net.Cache, Version=2.5.1.0, Culture=neutral, PublicKeyToken=null
-info: FS.Modules.FarseerModuleManager[0]
-      已经加载模块: FS.Data.DataModule, Farseer.Net.Data, Version=2.5.0.0, Culture=neutral, PublicKeyToken=null
-info: FS.Modules.FarseerModuleManager[0]
-      已经加载模块: FSS.Com.MetaInfoServer.MetaInfoModule, FSS.Com.MetaInfoServer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-info: FS.Modules.FarseerModuleManager[0]
-      已经加载模块: FSS.Com.SchedulerServer.SchedulerModule, FSS.Com.SchedulerServer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-info: FS.Modules.FarseerModuleManager[0]
-      已经加载模块: FSS.Com.RegisterCenterServer.RegisterCenterModule, FSS.Com.RegisterCenterServer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-info: FS.Modules.FarseerModuleManager[0]
-      已经加载模块: FSS.Com.RemoteCallServer.RemoteCallModule, FSS.Com.RemoteCallServer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-info: FS.Modules.FarseerModuleManager[0]
-      已经加载模块: FS.Modules.FarseerKernelModule, Farseer.Net, Version=2.5.0.0, Culture=neutral, PublicKeyToken=null
-info: FS.Modules.FarseerModuleManager[0]
-      模块加载完毕，开始启动11个模块...
-info: FS.Modules.FarseerModuleManager[0]
-      模块启动完毕...
-info: FS.FarseerApplication[0]
-      系统初始化完毕，耗时731.57ms
-info: FSS.GrpcService.Startup[0]
-      服务(172.17.0.2)启动完成，监听 http://0.0.0.0:88
-info: FSS.GrpcService.Startup[0]
-      正在读取所有任务组信息
-info: FSS.GrpcService.Startup[0]
-      共获取到：0 条任务组信息
-```
 ## 客户端使用
 ### 1、通过Farseer.Net.Job组件
 运行job的程序在启动之后会做：

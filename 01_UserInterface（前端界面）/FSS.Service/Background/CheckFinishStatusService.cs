@@ -18,7 +18,7 @@ namespace FSS.Service.Background
 
         protected override async Task ExecuteJobAsync(CancellationToken stoppingToken)
         {
-            while (true)
+            while (!stoppingToken.IsCancellationRequested)
             {
                 // 取出任务组
                 var dicTaskGroup = await TaskGroupList.ToListInCacheAsync();

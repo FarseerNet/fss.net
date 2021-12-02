@@ -11,7 +11,7 @@ namespace FSS.Service
     {
         public static void Main(string[] args)
         {
-            FarseerApplication.Run<Startup>("FSS.Service").Initialize(Env.IsPro ? null : _ => _.AddConsole());
+            FarseerApplication.Run<Startup>("FSS.Service").Initialize();
             CreateHostBuilder(args).Build().Run();
         }
 

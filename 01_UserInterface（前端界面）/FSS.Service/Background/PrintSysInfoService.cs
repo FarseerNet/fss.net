@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FS.Core.LinkTrack;
 using FS.DI;
+using FS.ElasticSearch.Configuration;
 using FS.Extends;
 using FS.Job;
 using FS.Job.Entity;
@@ -51,8 +52,8 @@ namespace FSS.Service.Background
             var reservedTaskCount = _ioc.Resolve<IConfigurationRoot>().GetSection("FSS:ReservedTaskCount").Value.ConvertType(20);
             _logger.LogInformation($"当前系统设置任务至少保留：{reservedTaskCount}条");
 
-            var configurationSection = _ioc.Resolve<IConfigurationRoot>().GetSection("ElasticSearch:0:Server").Value;
-            var use                  = !string.IsNullOrWhiteSpace(configurationSection) ? $"Elasticsearch，{configurationSection}" : "数据库";
+            var elasticSearchItemConfig = ElasticSearchConfigRoot.Get().Find(o => o.Name == "es");
+            var use                     = elasticSearchItemConfig != null ? $"Elasticsearch，{elasticSearchItemConfig.Server}" : "数据库";
             _logger.LogInformation($"使用 [ {use} ] 作为日志保存记录");
 
             _logger.LogInformation($"正在读取所有任务组信息");
@@ -62,7 +63,7 @@ namespace FSS.Service.Background
             await CreateSysJob(lstTaskGroup, "FSS.ClearHisTask", "清除历史任务", TimeSpan.FromHours(1));
             await CreateSysJob(lstTaskGroup, "FSS.SyncTaskGroupAvgSpeed", "计算任务平均耗时", TimeSpan.FromHours(1));
             await CreateSysJob(lstTaskGroup, "FSS.SyncTaskGroup", "同步任务组缓存", TimeSpan.FromMinutes(1));
-            await CreateSysJob(lstTaskGroup, "FSS.AddTaskToDb", "任务写入数据库", TimeSpan.FromMinutes(1), JsonConvert.SerializeObject(new { DataCount = 100 }));
+            await CreateSysJob(lstTaskGroup, "FSS.AddTaskToDb", "任务写入数据库", TimeSpan.FromMinutes(1), JsonConvert.SerializeObject(new { DataCount    = 100 }));
             await CreateSysJob(lstTaskGroup, "FSS.AddRunLogToDb", "日志写入数据库", TimeSpan.FromSeconds(10), JsonConvert.SerializeObject(new { DataCount = 100 }));
 
             _logger.LogInformation($"共获取到：{lstTaskGroup.Count} 条任务组信息");

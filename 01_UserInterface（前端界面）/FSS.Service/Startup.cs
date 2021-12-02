@@ -18,22 +18,23 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 
 namespace FSS.Service
 {
     [DependsOn(
-        typeof(FarseerCoreModule),
-        typeof(MapperModule),
-        typeof(RedisModule),
-        typeof(DataModule),
-        typeof(ElasticSearchModule),
-        typeof(MetaInfoModule),
-        typeof(SchedulerModule),
-        typeof(RegisterCenterModule),
-        typeof(LinkTrackModule),
-        typeof(JobModule)
-    )]
+                  typeof(FarseerCoreModule),
+                  typeof(MapperModule),
+                  typeof(RedisModule),
+                  typeof(DataModule),
+                  typeof(ElasticSearchModule),
+                  typeof(MetaInfoModule),
+                  typeof(SchedulerModule),
+                  typeof(RegisterCenterModule),
+                  typeof(LinkTrackModule),
+                  typeof(JobModule)
+              )]
     public class Startup : FarseerModule
     {
         public Startup()
@@ -53,11 +54,14 @@ namespace FSS.Service
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApplication", Version = "v1" }); });
             services.AddFarseerControllers();
-            
+
             // 开启任务组调度
             services.AddHostedService<PrintSysInfoService>();
             services.AddHostedService<CheckFinishStatusService>();
             services.AddHostedService<CheckWorkStatusService>();
+            services.AddLogging(o => 
+                                o.AddConsole());
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -69,7 +73,7 @@ namespace FSS.Service
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebApplication v1"));
             }
-            
+
             app.UseMiddleware<LinkTrackMiddleware>();
             app.UseMiddleware<CorsMiddleware>();
             app.UseMiddleware<ExceptionMiddleware>();
