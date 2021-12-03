@@ -11,12 +11,12 @@ namespace FSS.Abstract.Server.MetaInfo
         /// <summary>
         /// 获取指定任务组执行成功的任务列表
         /// </summary>
-        Task<List<TaskVO>> ToSuccessListAsync(int groupId, int top);
+        Task<List<TaskVO>> ToFinishListAsync(int groupId, int top);
 
         /// <summary>
         /// 清除成功的任务记录（1天前）
         /// </summary>
-        Task ClearSuccessAsync(int groupId, int taskId);
+        Task ClearFinishAsync(int groupId, int taskId);
 
         /// <summary>
         /// 拉取指定数量的任务，并将任务设为已调度状态

@@ -34,12 +34,12 @@ namespace FSS.Service.Job
             foreach (var taskGroupVO in lst)
             {
                 curIndex++;
-                var lstTask = await TaskList.ToSuccessListAsync(taskGroupVO.Id, _reservedTaskCount);
+                var lstTask = await TaskList.ToFinishListAsync(taskGroupVO.Id, _reservedTaskCount);
                 if (lstTask == null || lstTask.Count == 0) continue;
                 var taskId = lstTask.Min(o => o.Id);
 
                 // 清除历史记录
-                await TaskList.ClearSuccessAsync(taskGroupVO.Id, taskId);
+                await TaskList.ClearFinishAsync(taskGroupVO.Id, taskId);
                 await context.SetProgressAsync(curIndex / lst.Count * 100);
                 Thread.Sleep(100);
             }

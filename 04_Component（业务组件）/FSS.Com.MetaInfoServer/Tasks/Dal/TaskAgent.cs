@@ -14,17 +14,12 @@ namespace FSS.Com.MetaInfoServer.Tasks.Dal
         /// <summary>
         /// 获取指定任务组执行成功的任务列表
         /// </summary>
-        public Task<List<TaskPO>> ToSuccessListAsync(int groupId, int top) => MetaInfoContext.Data.Task.Where(o => o.TaskGroupId == groupId && o.Status == EumTaskType.Success).Desc(o => o.CreateAt).ToListAsync(top);
+        public Task<List<TaskPO>> ToFinishListAsync(int groupId, int top) => MetaInfoContext.Data.Task.Where(o => o.TaskGroupId == groupId && (o.Status == EumTaskType.Success ||o.Status == EumTaskType.Fail)).Desc(o => o.CreateAt).ToListAsync(top);
 
         /// <summary>
         /// 清除成功的任务记录（1天前）
         /// </summary>
-        public Task ClearSuccessAsync(int groupId, int taskId) => MetaInfoContext.Data.Task.Where(o => o.TaskGroupId == groupId && o.Status == EumTaskType.Success && o.CreateAt < DateTime.Now.AddDays(-1) && o.Id < taskId).DeleteAsync();
-
-        /// <summary>
-        /// 添加任务信息
-        /// </summary>
-        public Task AddAsync(TaskPO task) => MetaInfoContext.Data.Task.InsertAsync(task, true);
+        public Task ClearFinishAsync(int groupId, int taskId) => MetaInfoContext.Data.Task.Where(o => o.TaskGroupId == groupId && (o.Status == EumTaskType.Success ||o.Status == EumTaskType.Fail) && o.CreateAt < DateTime.Now.AddDays(-1) && o.Id < taskId).DeleteAsync();
 
         /// <summary>
         /// 取前100条的运行速度

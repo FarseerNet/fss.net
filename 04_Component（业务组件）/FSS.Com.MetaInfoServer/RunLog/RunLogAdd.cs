@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using FS.DI;
 using FS.MQ.RedisStream;
@@ -19,12 +20,11 @@ namespace FSS.Com.MetaInfoServer.RunLog
         public ITaskGroupInfo TaskGroupInfo { get; set; }
         public RunLogCache    RunLogCache   { get; set; }
 
-        static readonly bool UseEs;
+        public static readonly bool UseEs;
 
         static RunLogAdd()
         {
-            var configurationSection = FS.DI.IocManager.Instance.Resolve<IConfigurationRoot>().GetSection("ElasticSearch:0:Server").Value;
-            UseEs = !string.IsNullOrWhiteSpace(configurationSection);
+            UseEs = FS.DI.IocManager.Instance.Resolve<IConfigurationRoot>().GetSection("ElasticSearch").GetChildren().Any(o => o.Key == "es");
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace FSS.Com.MetaInfoServer.RunLog
             {
                 await MetaInfoContext.Data.RunLog.InsertAsync(lstLog);
             }
-            
+
             return lstLog.Count;
         }
     }
