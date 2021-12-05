@@ -30,7 +30,7 @@ Docker：https://hub.docker.com/r/farseernet/fss
     Sqlserver/MySql/Oracle（常用数据库任意选一个）
     建议：多实例运行
 
-`1、mysql 脚本（你也可以换其它数据库）`
+`1、数据库（你也可以换其它数据库）`
 
 [Mysql脚本](https://raw.githubusercontent.com/FarseerNet/FarseerSchedulerService/main/07_Solution%20Items%EF%BC%88%E9%A1%B9%E7%9B%AE%E6%96%87%E4%BB%B6%EF%BC%89/fss.sql)
 
