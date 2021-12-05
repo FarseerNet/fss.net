@@ -43,7 +43,7 @@ docker run -d --name fss -p 888:888 \
 -e ElasticSearch__es="Server=http://es:9200,Username=es,Password=123456" \
 -e ElasticSearch__LinkTrack="Server=http://es:9200,Username=es,Password=123456" \
 --network=net farseernet/fss:latest \
- --restart=always
+--restart=always
 ```
 
 你也可以使用挂载配置的方式
