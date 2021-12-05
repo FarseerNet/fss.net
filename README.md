@@ -66,11 +66,12 @@ farseernet/fss:latest --restart=always
 
 ## 客户端使用
 
+### 1、通过Farseer.Net.Job组件
+
     netstandard2.0
     Farseer.Net.Job 开源组件 可以实现快速接入1分钟上手（如不依赖，需自行对接）
     建议：多实例运行
 
-### 1、通过Farseer.Net.Job组件
 运行job的程序在启动之后会做：
 
     1、向FSS调度平台注册客户端的信息打开Channel。（如多个server，会打开多个，断开后自动重连）
