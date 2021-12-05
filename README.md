@@ -82,8 +82,8 @@ farseernet/fss:latest --restart=always
 ```json
 {
   "FSS": {
-    "Server": "http://localhost,http://localhost"
     // FSS平台地址（多节点用,分隔）
+    "Server": "http://localhost,http://localhost"
   }
 }
 ```
