@@ -1,7 +1,5 @@
 using System;
 using FS.Core.Mapping.Attribute;
-using FS.Mapper;
-using FSS.Abstract.Entity;
 using Nest;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
@@ -10,7 +8,6 @@ namespace FSS.Infrastructure.Repository.Log.Entity
     /// <summary>
     /// 运行日志
     /// </summary>
-    [Map(typeof(RunLogVO))]
     public class RunLogPO
     {
         /// <summary>

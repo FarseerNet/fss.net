@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
-using FS.Cache;
 using FS.Core.Net;
 using FS.DI;
 using FS.Extends;
-using FS.Job;
-using FS.Job.Entity;
 using FSS.Abstract.Entity;
+using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Server.MetaInfo;
+using FSS.Application.Log.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -29,6 +27,7 @@ namespace FSS.Service.Controllers
     {
         public ITaskList        TaskList        { get; set; }
         public IIocManager      IocManager      { get; set; }
+        public ILogAddApp       LogAddApp       { get; set; }
         public IRunLogAdd       RunLogAdd       { get; set; }
         public ITaskInfo        TaskInfo        { get; set; }
         public ITaskGroupInfo   TaskGroupInfo   { get; set; }
@@ -67,7 +66,7 @@ namespace FSS.Service.Controllers
             var taskGroup = await taskGroupTask;
             if (taskGroup == null)
             {
-                await RunLogAdd.AddAsync(task.TaskGroupId, LogLevel.Warning, $"所属的任务组：{task.TaskGroupId} 不存在");
+                await LogAddApp.AddAsync(new TaskGroupVO(), LogLevel.Warning, $"所属的任务组：{task.TaskGroupId} 不存在");
                 return await ApiResponseJson.ErrorAsync($"所属的任务组：{task.TaskGroupId} 不存在");
             }
 
@@ -76,7 +75,7 @@ namespace FSS.Service.Controllers
                 // 不相等，说明被覆盖了（JOB请求慢了。被调度重新执行了）
                 if (task.ClientId != Client.Id)
                 {
-                    await RunLogAdd.AddAsync(taskGroup, LogLevel.Warning, $"任务： {taskGroup.Caption}（{taskGroup.JobName}） ，{task.ClientId}与本次请求的客户端{Client.Id} 不一致，忽略本次请求");
+                    await LogAddApp.AddAsync(taskGroup, LogLevel.Warning, $"任务： {taskGroup.Caption}（{taskGroup.JobName}） ，{task.ClientId}与本次请求的客户端{Client.Id} 不一致，忽略本次请求");
                     return await ApiResponseJson.ErrorAsync($"任务： {taskGroup.Caption}（{taskGroup.JobName}） ，{task.ClientId}与本次请求的客户端{Client.Id} 不一致，忽略本次请求");
                 }
 
@@ -105,7 +104,7 @@ namespace FSS.Service.Controllers
                 // 如果有日志
                 if (request.Log != null && !string.IsNullOrWhiteSpace(request.Log.Log))
                 {
-                    await RunLogAdd.AddAsync(taskGroup, request.Log.LogLevel, request.Log.Log);
+                    await LogAddApp.AddAsync(taskGroup, request.Log.LogLevel, request.Log.Log);
                 }
 
                 // 如果是成功、错误状态，则要立即更新数据库
@@ -130,7 +129,7 @@ namespace FSS.Service.Controllers
                         return await ApiResponseJson.SuccessAsync($"任务组：TaskGroupId={task.TaskGroupId}，Caption={taskGroup.Caption}，JobName={taskGroup.JobName}，TaskId={task.Id} 执行成功，耗时：{task.RunSpeed} ms");
                     case EumTaskType.Fail:
                     default:
-                        await RunLogAdd.AddAsync(taskGroup, LogLevel.Warning, message);
+                        await LogAddApp.AddAsync(taskGroup, LogLevel.Warning, message);
                         return await ApiResponseJson.ErrorAsync(message);
                 }
             }
@@ -139,7 +138,7 @@ namespace FSS.Service.Controllers
                 if (e.InnerException != null) e = e.InnerException;
                 task.Status = EumTaskType.Fail;
                 await TaskUpdate.SaveFinishAsync(task, taskGroup);
-                await RunLogAdd.AddAsync(taskGroup, LogLevel.Error, e.Message);
+                await LogAddApp.AddAsync(taskGroup, LogLevel.Error, e.Message);
                 return await ApiResponseJson.ErrorAsync(e.Message);
             }
         }

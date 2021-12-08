@@ -10,6 +10,8 @@ using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
 using FSS.Abstract.Server.RegisterCenter;
+using FSS.Application.Log.Interface;
+using FSS.Domain.Log.TaskLog.Entity;
 using FSS.Service.Request;
 using Microsoft.AspNetCore.Mvc;
 
@@ -32,7 +34,7 @@ namespace FSS.Service.Controllers
         public ITaskGroupInfo   TaskGroupInfo   { get; set; }
         public ITaskGroupDelete TaskGroupDelete { get; set; }
         public ITaskUpdate      TaskUpdate      { get; set; }
-        public IRunLogList      RunLogList      { get; set; }
+        public ILogAddApp       LogAddApp      { get; set; }
 
         /// <summary>
         /// 客户端拉取任务
@@ -294,10 +296,10 @@ namespace FSS.Service.Controllers
         /// </summary>
         [HttpPost]
         [Route("GetRunLogList")]
-        public async Task<ApiResponseJson<DataSplitList<RunLogVO>>> GetRunLogList(GetRunLogRequest request)
+        public async Task<ApiResponseJson<DataSplitList<RunLogDO>>> GetRunLogList(GetRunLogRequest request)
         {
-            var lst = RunLogList.GetList(request.JobName, request.LogLevel, request.PageSize, request.PageIndex);
-            return await ApiResponseJson<DataSplitList<RunLogVO>>.SuccessAsync(lst);
+            var lst = LogAddApp.GetList(request.JobName, request.LogLevel, request.PageSize, request.PageIndex);
+            return await ApiResponseJson<DataSplitList<RunLogDO>>.SuccessAsync(lst);
         }
     }
 }

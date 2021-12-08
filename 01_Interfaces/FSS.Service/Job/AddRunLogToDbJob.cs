@@ -4,6 +4,7 @@ using FS.Extends;
 using FS.Job;
 using FS.Job.Entity;
 using FSS.Abstract.Server.MetaInfo;
+using FSS.Domain.Log.TaskLog.Interface;
 
 namespace FSS.Service.Job
 {
@@ -13,7 +14,7 @@ namespace FSS.Service.Job
     [FssJob(Name = "FSS.AddRunLogToDb")]
     public class AddRunLogToDbJob : IFssJob
     {
-        public IRunLogAdd RunLogAdd { get; set; }
+        public ITaskLogService TaskLogService { get; set; }
 
         public async Task<bool> Execute(IFssContext context)
         {
@@ -24,7 +25,7 @@ namespace FSS.Service.Job
             var progress                 = 10;
             while (true)
             {
-                var count = await RunLogAdd.AddToDbAsync(dataCount);
+                var count = await TaskLogService.SaveAsync(dataCount);
                 result += count;
                 if (count != dataCount) break;
                 await context.SetProgressAsync(progress += 10);

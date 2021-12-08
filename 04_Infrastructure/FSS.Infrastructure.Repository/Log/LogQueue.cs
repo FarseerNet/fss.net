@@ -8,7 +8,7 @@ using FSS.Infrastructure.Repository.Log.Entity;
 using FSS.Infrastructure.Repository.Log.Interface;
 using Newtonsoft.Json;
 
-namespace FSS.Infrastructure.Repository.Log.Storage
+namespace FSS.Infrastructure.Repository.Log
 {
     public class LogQueue : ILogQueue
     {

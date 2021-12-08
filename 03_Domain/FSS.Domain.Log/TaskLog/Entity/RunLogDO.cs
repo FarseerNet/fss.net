@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using FS.DI;
 using FS.Extends;
+using FS.Mapper;
 using FSS.Infrastructure.Repository.Log.Entity;
 using FSS.Infrastructure.Repository.Log.Interface;
 using Microsoft.Extensions.Logging;
@@ -11,6 +12,7 @@ namespace FSS.Domain.Log.TaskLog.Entity
     /// <summary>
     /// 运行日志
     /// </summary>
+    [Map(typeof(RunLogPO))]
     public class RunLogDO
     {
         /// <summary>

@@ -8,6 +8,7 @@ using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
 using FSS.Abstract.Server.RegisterCenter;
 using FSS.Abstract.Server.Scheduler;
+using FSS.Application.Log.Interface;
 using Microsoft.Extensions.Logging;
 
 namespace FSS.Com.SchedulerServer.Scheduler
@@ -16,7 +17,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
     {
         public IClientRegister ClientRegister { get; set; }
         public ITaskUpdate     TaskUpdate     { get; set; }
-        public IRunLogAdd      RunLogAdd      { get; set; }
+        public ILogAddApp      LogAddApp      { get; set; }
         public ITaskGroupInfo  TaskGroupInfo  { get; set; }
         public ITaskList       TaskList       { get; set; }
 
@@ -30,7 +31,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
 
             if (!taskGroup.IsEnable)
             {
-                await RunLogAdd.AddAsync(taskGroup, LogLevel.Warning, $"任务：{taskGroup.Id} {taskGroup.Caption} {taskGroup.JobName} 已被禁用，强制设为失败状态");
+                await LogAddApp.AddAsync(taskGroup, LogLevel.Warning, $"任务：{taskGroup.Id} {taskGroup.Caption} {taskGroup.JobName} 已被禁用，强制设为失败状态");
                 task.Status = EumTaskType.Fail;
                 await TaskUpdate.SaveFinishAsync(task, taskGroup);
                 return;
@@ -43,7 +44,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
             // 客户端下线
             if (client.Id == 0 || (DateTime.Now - client.ActivateAt).TotalMinutes >= 1)
             {
-                await RunLogAdd.AddAsync(taskGroup, LogLevel.Warning, $"【客户端下线】{client.ActivateAt:yyyy-MM-dd HH:mm:ss}，任务：【{taskGroup.JobName}】 {taskGroup.Id} {taskGroup.Caption} ，强制设为失败状态");
+                await LogAddApp.AddAsync(taskGroup, LogLevel.Warning, $"【客户端下线】{client.ActivateAt:yyyy-MM-dd HH:mm:ss}，任务：【{taskGroup.JobName}】 {taskGroup.Id} {taskGroup.Caption} ，强制设为失败状态");
                 task.Status = EumTaskType.Fail;
                 await TaskUpdate.SaveFinishAsync(task, taskGroup);
                 return;
@@ -56,7 +57,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
             // 测试客户端是否假死
             if (await CheckFeignDeath(client, taskGroup))
             {
-                await RunLogAdd.AddAsync(taskGroup, LogLevel.Warning, $"【客户端假死】{client.ActivateAt:yyyy-MM-dd HH:mm:ss}，强制下线客户端");
+                await LogAddApp.AddAsync(taskGroup, LogLevel.Warning, $"【客户端假死】{client.ActivateAt:yyyy-MM-dd HH:mm:ss}，强制下线客户端");
                 await ClientRegister.RemoveAsync(client.Id);
                 task.Status = EumTaskType.Fail;
                 await TaskUpdate.SaveFinishAsync(task, taskGroup);
@@ -67,7 +68,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
             // 任务组活动时间大于1分钟、同时客户端活动时间大于1分钟，判定为客户端下线
             if ((DateTime.Now - taskGroup.ActivateAt).TotalMinutes >= 1) // 大于1分钟，才检查
             {
-                await RunLogAdd.AddAsync(taskGroup, LogLevel.Warning, $"【客户端假死】{client.ActivateAt:yyyy-MM-dd HH:mm:ss}，任务：【{taskGroup.JobName}】 {taskGroup.Id} {taskGroup.Caption} ，强制设为失败状态");
+                await LogAddApp.AddAsync(taskGroup, LogLevel.Warning, $"【客户端假死】{client.ActivateAt:yyyy-MM-dd HH:mm:ss}，任务：【{taskGroup.JobName}】 {taskGroup.Id} {taskGroup.Caption} ，强制设为失败状态");
                 task.Status = EumTaskType.Fail;
                 await TaskUpdate.SaveFinishAsync(task, taskGroup);
                 return;

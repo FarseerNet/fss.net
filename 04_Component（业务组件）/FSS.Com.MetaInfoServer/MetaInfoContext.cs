@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using FS.Data;
 using FS.Data.Map;
-using FSS.Com.MetaInfoServer.RunLog.Dal;
 using FSS.Com.MetaInfoServer.TaskGroup.Dal;
 using FSS.Com.MetaInfoServer.Tasks.Dal;
 
@@ -18,7 +17,6 @@ namespace FSS.Com.MetaInfoServer
         
         public TableSet<TaskPO>      Task      { get; set; }
         public TableSet<TaskGroupPO> TaskGroup { get; set; }
-        public TableSet<RunLogPO>    RunLog    { get; set; }
 
         protected override void CreateModelInit(Dictionary<string, SetDataMap> map)
         {

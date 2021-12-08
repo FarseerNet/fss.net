@@ -19,6 +19,7 @@
         <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.Job\Farseer.Net.Job.csproj" />
         <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.Mapper\Farseer.Net.Mapper.csproj" />
         <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net\Farseer.Net.csproj" />
+        <ProjectReference Include="..\..\02_Application\FSS.Application\FSS.Application.csproj" />
         <ProjectReference Include="..\..\04_Component（业务组件）\FSS.Com.MetaInfoServer\FSS.Com.MetaInfoServer.csproj" />
         <ProjectReference Include="..\..\04_Component（业务组件）\FSS.Com.SchedulerServer\FSS.Com.SchedulerServer.csproj" />
         <ProjectReference Include="..\..\04_Component（业务组件）\FSS.Com.RegisterCenterServer\FSS.Com.RegisterCenterServer.csproj" />
