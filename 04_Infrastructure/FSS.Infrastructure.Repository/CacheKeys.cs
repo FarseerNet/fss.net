@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using FS.Cache;
 using FSS.Abstract.Entity;
 using FSS.Abstract.Entity.MetaInfo;
+using FSS.Infrastructure.Repository.Client.Model;
 
 namespace FSS.Infrastructure.Repository
 {
@@ -19,7 +20,7 @@ namespace FSS.Infrastructure.Repository
 
 
         /// <summary> 客户端缓存 </summary>
-        public static CacheKey<ClientVO, long> ClientKey => new($"FSS_ClientList", o => o.Id, EumCacheStoreType.Redis);
+        public static CacheKey<ClientPO, long> ClientKey => new($"FSS_ClientList", o => o.Id, EumCacheStoreType.Redis);
         public static Task ClientClear(long clientId) => RedisContext.Instance.CacheManager.RemoveItemAsync(ClientKey, clientId);
     }
 }

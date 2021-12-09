@@ -10,8 +10,10 @@ using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
 using FSS.Abstract.Server.RegisterCenter;
+using FSS.Application.Client.Interface;
 using FSS.Application.Log.Interface;
 using FSS.Domain.Log.TaskLog.Entity;
+using FSS.Infrastructure.Repository.Client.Interface;
 using FSS.Service.Request;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,6 +27,7 @@ namespace FSS.Service.Controllers
     public class MetaController : ControllerBase
     {
         public IClientRegister  ClientRegister  { get; set; }
+        public IClientApp       ClientApp       { get; set; }
         public ITaskGroupAdd    TaskGroupAdd    { get; set; }
         public ITaskGroupList   TaskGroupList   { get; set; }
         public ITaskGroupUpdate TaskGroupUpdate { get; set; }
@@ -34,7 +37,8 @@ namespace FSS.Service.Controllers
         public ITaskGroupInfo   TaskGroupInfo   { get; set; }
         public ITaskGroupDelete TaskGroupDelete { get; set; }
         public ITaskUpdate      TaskUpdate      { get; set; }
-        public ILogAddApp       LogAddApp      { get; set; }
+        public ILogAddApp       LogAddApp       { get; set; }
+        public IClientAgent     ClientAgent     { get; set; }
 
         /// <summary>
         /// 客户端拉取任务
@@ -44,7 +48,7 @@ namespace FSS.Service.Controllers
         public async Task<ApiResponseJson<List<ClientVO>>> GetClientList()
         {
             // 取出全局客户端列表
-            var lst = await ClientRegister.ToListAsync();
+            var lst = await ClientApp.ToListAsync();
             return await ApiResponseJson<List<ClientVO>>.SuccessAsync(lst);
         }
 
@@ -56,7 +60,7 @@ namespace FSS.Service.Controllers
         public async Task<ApiResponseJson<long>> GetClientCount()
         {
             // 取出全局客户端列表
-            var count = await ClientRegister.GetClientCountAsync();
+            var count = await ClientAgent.GetClientCountAsync();
             return await ApiResponseJson<long>.SuccessAsync(count);
         }
 
@@ -231,7 +235,7 @@ namespace FSS.Service.Controllers
         [Route("GetEnableTaskList")]
         public async Task<ApiResponseJson<DataSplitList<TaskVO>>> GetEnableTaskList(GetAllTaskListRequest request)
         {
-            var lst          = await TaskList.ToGroupListAsync();
+            var lst = await TaskList.ToGroupListAsync();
             // 移除被禁用的任务组
             var lstTaskGroup = await TaskGroupList.ToListInCacheAsync();
             foreach (var taskGroupVO in lstTaskGroup.Where(o => !o.IsEnable))

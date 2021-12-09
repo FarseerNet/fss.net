@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using FS.Core;
 using FS.Extends;
-using FSS.Infrastructure.Repository.Log.Entity;
 using FSS.Infrastructure.Repository.Log.Interface;
+using FSS.Infrastructure.Repository.Log.Model;
 using Microsoft.Extensions.Logging;
 
 namespace FSS.Infrastructure.Repository.Log

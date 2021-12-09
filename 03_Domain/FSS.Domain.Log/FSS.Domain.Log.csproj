@@ -8,7 +8,6 @@
 
     <ItemGroup>
       <Folder Include="TaskLog\Event" />
-      <Folder Include="TaskLog\Repository" />
     </ItemGroup>
 
     <ItemGroup>

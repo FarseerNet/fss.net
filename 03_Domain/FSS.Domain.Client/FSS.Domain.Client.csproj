@@ -8,9 +8,11 @@
 
     <ItemGroup>
       <Folder Include="Client\Entity" />
-      <Folder Include="Client\Event" />
-      <Folder Include="Client\Repository" />
-      <Folder Include="Client\Service" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.EventBus\Farseer.Net.EventBus.csproj" />
+      <ProjectReference Include="..\..\04_Infrastructure\FSS.Infrastructure.Repository\FSS.Infrastructure.Repository.csproj" />
     </ItemGroup>
 
 </Project>

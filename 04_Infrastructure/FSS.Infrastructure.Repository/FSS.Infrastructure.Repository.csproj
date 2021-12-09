@@ -14,4 +14,11 @@
         <ProjectReference Include="..\..\03_Abstract（组件接口）\FSS.Abstract\FSS.Abstract.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="TaskGroup\Interface" />
+      <Folder Include="TaskGroup\Model" />
+      <Folder Include="Task\Interface" />
+      <Folder Include="Task\Model" />
+    </ItemGroup>
+
 </Project>

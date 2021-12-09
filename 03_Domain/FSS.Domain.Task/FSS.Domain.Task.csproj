@@ -8,13 +8,16 @@
 
     <ItemGroup>
       <Folder Include="Task\Entity" />
-      <Folder Include="Task\Event" />
       <Folder Include="Task\Repository" />
       <Folder Include="Task\Service" />
       <Folder Include="TaskGroup\Entity" />
       <Folder Include="TaskGroup\Event" />
       <Folder Include="TaskGroup\Repository" />
       <Folder Include="TaskGroup\Service" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.EventBus\Farseer.Net.EventBus.csproj" />
     </ItemGroup>
 
 </Project>

@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using FS.DI;
+using FS.EventBus;
 using FSS.Abstract.Entity;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Enum;
@@ -9,6 +10,8 @@ using FSS.Abstract.Server.MetaInfo;
 using FSS.Abstract.Server.RegisterCenter;
 using FSS.Abstract.Server.Scheduler;
 using FSS.Application.Log.Interface;
+using FSS.Infrastructure.Repository.Client.Interface;
+using FSS.Infrastructure.Repository.Client.Model;
 using Microsoft.Extensions.Logging;
 
 namespace FSS.Com.SchedulerServer.Scheduler
@@ -16,6 +19,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
     public class CheckClientOffline : ICheckClientOffline
     {
         public IClientRegister ClientRegister { get; set; }
+        public IClientAgent    ClientAgent    { get; set; }
         public ITaskUpdate     TaskUpdate     { get; set; }
         public ILogAddApp      LogAddApp      { get; set; }
         public ITaskGroupInfo  TaskGroupInfo  { get; set; }
@@ -39,7 +43,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
 
 
             // 客户端
-            var client = await ClientRegister.ToInfoAsync(task.ClientId) ?? new ClientVO();
+            var client = await ClientAgent.ToInfoAsync(task.ClientId) ?? new ClientPO();
 
             // 客户端下线
             if (client.Id == 0 || (DateTime.Now - client.ActivateAt).TotalMinutes >= 1)
@@ -58,7 +62,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
             if (await CheckFeignDeath(client, taskGroup))
             {
                 await LogAddApp.AddAsync(taskGroup, LogLevel.Warning, $"【客户端假死】{client.ActivateAt:yyyy-MM-dd HH:mm:ss}，强制下线客户端");
-                await ClientRegister.RemoveAsync(client.Id);
+                IocManager.GetService<IEventProduct>("ClientOffline").Send(this, client.Id.ToString());
                 task.Status = EumTaskType.Fail;
                 await TaskUpdate.SaveFinishAsync(task, taskGroup);
                 return;

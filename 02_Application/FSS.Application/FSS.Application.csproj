@@ -5,12 +5,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Client\Interface" />
+      <Folder Include="Client\PublishEvent" />
       <Folder Include="Task\Interface" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\..\03_Abstract（组件接口）\FSS.Abstract\FSS.Abstract.csproj" />
+      <ProjectReference Include="..\..\03_Domain\FSS.Domain.Client\FSS.Domain.Client.csproj" />
       <ProjectReference Include="..\..\03_Domain\FSS.Domain.Log\FSS.Domain.Log.csproj" />
     </ItemGroup>
 

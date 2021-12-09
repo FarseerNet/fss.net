@@ -3,7 +3,7 @@ using FS.Core.Mapping.Attribute;
 using Nest;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
-namespace FSS.Infrastructure.Repository.Log.Entity
+namespace FSS.Infrastructure.Repository.Log.Model
 {
     /// <summary>
     /// 运行日志

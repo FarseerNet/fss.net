@@ -4,7 +4,7 @@ using System.Linq;
 using FS.DI;
 using FS.ElasticSearch;
 using FS.ElasticSearch.Map;
-using FSS.Infrastructure.Repository.Log.Entity;
+using FSS.Infrastructure.Repository.Log.Model;
 using Microsoft.Extensions.Configuration;
 
 namespace FSS.Infrastructure.Repository

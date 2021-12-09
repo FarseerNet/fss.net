@@ -4,8 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using FS.Core;
 using FS.Extends;
-using FSS.Infrastructure.Repository.Log.Entity;
 using FSS.Infrastructure.Repository.Log.Interface;
+using FSS.Infrastructure.Repository.Log.Model;
 using Newtonsoft.Json;
 
 namespace FSS.Infrastructure.Repository.Log

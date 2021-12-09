@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FS.DI;
-using FSS.Infrastructure.Repository.Log.Entity;
+using FSS.Infrastructure.Repository.Log.Model;
 
 namespace FSS.Infrastructure.Repository.Log.Interface
 {

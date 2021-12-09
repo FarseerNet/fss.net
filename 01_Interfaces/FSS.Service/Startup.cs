@@ -4,6 +4,7 @@ using FS.Cache.Redis;
 using FS.Core;
 using FS.Data;
 using FS.ElasticSearch;
+using FS.EventBus;
 using FS.Job;
 using FS.LinkTrack;
 using FS.Mapper;
@@ -33,6 +34,7 @@ namespace FSS.Service
                   typeof(SchedulerModule),
                   typeof(RegisterCenterModule),
                   typeof(LinkTrackModule),
+                  typeof(EventBusModule),
                   typeof(JobModule)
               )]
     public class Startup : FarseerModule
@@ -59,7 +61,7 @@ namespace FSS.Service
             services.AddHostedService<PrintSysInfoService>();
             services.AddHostedService<CheckFinishStatusService>();
             services.AddHostedService<CheckWorkStatusService>();
-            services.AddLogging(o => 
+            services.AddLogging(o =>
                                 o.AddConsole());
 
         }

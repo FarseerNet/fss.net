@@ -3,8 +3,8 @@ using System.Threading.Tasks;
 using FS.DI;
 using FS.Extends;
 using FS.Mapper;
-using FSS.Infrastructure.Repository.Log.Entity;
 using FSS.Infrastructure.Repository.Log.Interface;
+using FSS.Infrastructure.Repository.Log.Model;
 using Microsoft.Extensions.Logging;
 
 namespace FSS.Domain.Log.TaskLog.Entity

@@ -3,6 +3,8 @@ using FS.DI;
 using FS.Extends;
 using FSS.Abstract.Entity;
 using FSS.Abstract.Server.RegisterCenter;
+using FSS.Infrastructure.Repository.Client.Interface;
+using FSS.Infrastructure.Repository.Client.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -45,7 +47,7 @@ namespace FSS.Service.Controllers
             };
 
             // 更新客户端的使用时间
-            IocManager.Instance.Resolve<IClientRegister>().UpdateClient(Client);
+            IocManager.Instance.Resolve<IClientAgent>().UpdateClient(Client.Map<ClientPO>());
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using FS.Data;
 using FS.Data.Map;
-using FSS.Infrastructure.Repository.Log.Entity;
+using FSS.Infrastructure.Repository.Log.Model;
 
 namespace FSS.Infrastructure.Repository
 {
