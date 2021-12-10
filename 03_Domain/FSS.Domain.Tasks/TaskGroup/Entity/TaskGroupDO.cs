@@ -185,7 +185,7 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
         /// <summary>
         /// 创建新的Task
         /// </summary>
-        public void CreateTask()
+        public async Task CreateTask()
         {
             if (!IsEnable)
             {
@@ -211,6 +211,8 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
                 RunAt       = DateTime.Now,
                 SchedulerAt = DateTime.Now
             };
+            
+            await IocManager.GetService<ITaskGroupAgent>().SaveAsync(this);
         }
     }
 }

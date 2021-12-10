@@ -216,7 +216,7 @@ namespace FSS.Service.Controllers
         [Route("TodayTaskFailCount")]
         public async Task<ApiResponseJson<int>> TodayTaskFailCount()
         {
-            var count = await TaskInfo.TodayFailCountAsync();
+            var count = await TaskGroupApp.TodayFailCountAsync();
             return await ApiResponseJson<int>.SuccessAsync(count);
         }
 

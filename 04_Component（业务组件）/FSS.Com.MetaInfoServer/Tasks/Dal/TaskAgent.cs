@@ -30,10 +30,6 @@ namespace FSS.Com.MetaInfoServer.Tasks.Dal
         /// 今日执行失败数量
         /// </summary>
         public Task<int> TodayFailCountAsync() => MetaInfoContext.Data.Task.Where(o => o.Status == EumTaskType.Fail && o.CreateAt >= DateTime.Now.Date).CountAsync();
-        
-        /// <summary>
-        /// 删除当前任务组下的所有
-        /// </summary>
-        public Task<int> DeleteAsync(int taskGroupId) => MetaInfoContext.Data.Task.Where(o => o.TaskGroupId == taskGroupId).DeleteAsync();
+
     }
 }

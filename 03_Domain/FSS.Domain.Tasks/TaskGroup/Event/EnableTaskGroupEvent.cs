@@ -17,7 +17,7 @@ namespace FSS.Domain.Tasks.TaskGroup.Event
         public async Task<bool> Consumer(object taskGroupDO, DomainEventArgs ea)
         {
             // 创建任务
-            await TaskGroupService.CreateTaskAsync((TaskGroupDO)taskGroupDO);
+            await ((TaskGroupDO)taskGroupDO).CreateTask();
             return true;
         }
     }

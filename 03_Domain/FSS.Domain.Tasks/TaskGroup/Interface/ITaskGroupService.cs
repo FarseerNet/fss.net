@@ -12,12 +12,8 @@ namespace FSS.Domain.Tasks.TaskGroup.Interface
         /// </summary>
         Task DeleteAsync(int taskGroupId);
         /// <summary>
-        /// 创建新的Task缓存
-        /// </summary>
-        Task<TaskDO> CreateTaskAsync(TaskGroupDO taskGroup);
-        /// <summary>
         /// 获取所有任务组中的任务
         /// </summary>
-        Task<List<TaskDO>> ToGroupListAsync();
+        Task<List<TaskGroupDO>> ToListAsync();
     }
 }

@@ -94,7 +94,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
             if ((DateTime.Now - client.ActivateAt).TotalMilliseconds < timeout) return false;
 
             // 找出当前客户端对应的所有任务、并且执行时间 已经到了
-            var lstTask = await TaskGroupService.ToGroupListAsync();
+            var lstTask = await TaskGroupService.ToListAsync();
             lstTask = lstTask.FindAll(o => o.ClientId == client.Id && o.StartAt < DateTime.Now);
             if (lstTask.Count == 0) return false;
 

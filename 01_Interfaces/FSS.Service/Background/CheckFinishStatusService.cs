@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FS.Core.LinkTrack;
 using FSS.Abstract.Server.MetaInfo;
+using FSS.Application.Tasks.TaskGroup.Interface;
 using FSS.Infrastructure.Repository.Tasks.Enum;
 
 namespace FSS.Service.Background
@@ -13,30 +14,26 @@ namespace FSS.Service.Background
     /// </summary>
     public class CheckFinishStatusService : BackgroundServiceTrace
     {
-        public ITaskGroupList TaskGroupList { get; set; }
-        public ITaskInfo      TaskInfo      { get; set; }
-        public ITaskAdd       TaskAdd       { get; set; }
+        public ITaskGroupApp TaskGroupApp { get; set; }
+        public ITaskInfo     TaskInfo     { get; set; }
+        public ITaskAdd      TaskAdd      { get; set; }
 
         protected override async Task ExecuteJobAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
                 // 取出任务组
-                var dicTaskGroup = await TaskGroupList.ToListInCacheAsync();
+                var dicTaskGroup = await TaskGroupApp.ToListAsync();
 
                 // 只检测Enable状态的任务组
-                foreach (var taskGroupVO in dicTaskGroup.Where(o => o.IsEnable))
+                foreach (var taskGroupDO in dicTaskGroup.Where(o => o.IsEnable))
                 {
-                    var task = await TaskInfo.ToInfoByGroupIdAsync(taskGroupVO.Id);
-                    if (task != null)
-                    {
-                        // 状态必须是 完成的
-                        if (task.Status != EumTaskType.Fail && task.Status != EumTaskType.Success) continue;
-                        // 加个时间，来限制并发
-                        if ((DateTime.Now - task.RunAt).TotalSeconds < 3) continue;
-                    }
-
-                    await TaskAdd.GetOrCreateAsync(taskGroupVO.Id);
+                    // 状态必须是 完成的
+                    if (taskGroupDO.Task.Status != EumTaskType.Fail && taskGroupDO.Task.Status != EumTaskType.Success) continue;
+                    // 加个时间，来限制并发
+                    if ((DateTime.Now - taskGroupDO.Task.RunAt).TotalSeconds < 3) continue;
+                    
+                    await taskGroupDO.CreateTask();
                     await Task.Delay(200, stoppingToken);
                 }
                 await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);

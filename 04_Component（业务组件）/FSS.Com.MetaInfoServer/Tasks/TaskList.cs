@@ -68,7 +68,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
         {
             try
             {
-                var lst = await TaskGroupService.ToGroupListAsync();
+                var lst = await TaskGroupService.ToListAsync();
                 return lst.Count(o => o.StartAt < DateTime.Now && (o.Status == EumTaskType.None || o.Status == EumTaskType.Scheduler));
             }
             catch (Exception e)
@@ -83,7 +83,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
         /// </summary>
         public async Task<List<TaskVO>> ToSchedulerWorkingListAsync()
         {
-            var lst = await TaskGroupService.ToGroupListAsync();
+            var lst = await TaskGroupService.ToListAsync();
             return lst.Where(o => o.Status == EumTaskType.Scheduler || o.Status == EumTaskType.Working).ToList();
         }
 
@@ -97,7 +97,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
                 requestTaskCount = 3;
             }
 
-            var lstTask = await TaskGroupService.ToGroupListAsync();
+            var lstTask = await TaskGroupService.ToListAsync();
             lstTask = lstTask.Where(o => o.Status == EumTaskType.None && client.Jobs.Contains(o.JobName) && o.StartAt < DateTime.Now.AddSeconds(15)).OrderBy(o => o.StartAt).Take(requestTaskCount).ToList();
             if (lstTask == null || !lstTask.Any()) return null;
 

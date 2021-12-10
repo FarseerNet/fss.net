@@ -26,27 +26,18 @@ namespace FSS.Domain.Tasks.TaskGroup
         }
 
         /// <summary>
-        /// 创建新的Task缓存
-        /// </summary>
-        public async Task<TaskDO> CreateTaskAsync(TaskGroupDO taskGroup)
-        {
-            taskGroup.CreateTask();
-            await TaskGroupAgent.SaveAsync(taskGroup.Map<TaskGroupPO>());
-            return taskGroup.Task;
-        }
-
-        /// <summary>
         /// 获取所有任务组中的任务
         /// </summary>
-        public async Task<List<TaskDO>> ToGroupListAsync()
+        public async Task<List<TaskGroupDO>> ToListAsync()
         {
             var lstTaskGroup = await TaskGroupAgent.ToListAsync(EumCacheStoreType.Redis).MapAsync<TaskGroupDO, TaskGroupPO>();
 
             foreach (var taskGroupPO in lstTaskGroup)
             {
-                if (taskGroupPO.Task == null) await CreateTaskAsync(taskGroupPO);
+                if (taskGroupPO.Task == null) await taskGroupPO.CreateTask();
             }
-            return lstTaskGroup.Select(o => o.Task).Where(o => o != null).ToList();
+            
+            return lstTaskGroup;
         }
     }
 }

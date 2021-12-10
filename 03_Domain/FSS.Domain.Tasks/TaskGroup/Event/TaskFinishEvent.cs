@@ -25,7 +25,7 @@ namespace FSS.Domain.Tasks.TaskGroup.Event
             if (taskGroup.IsEnable)
             {
                 // 创建任务
-                await TaskGroupService.CreateTaskAsync(taskGroup);
+                await taskGroup.CreateTask();
             }
             
             return true;

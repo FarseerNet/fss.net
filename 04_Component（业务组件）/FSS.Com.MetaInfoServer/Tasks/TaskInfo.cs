@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using FS.DI;
 using FSS.Abstract.Entity.MetaInfo;
@@ -22,21 +21,6 @@ namespace FSS.Com.MetaInfoServer.Tasks
         {
             var key = CacheKeys.TaskForGroupKey;
             return RedisContext.Instance.CacheManager.GetItemAsync(key, taskGroupId, () => TaskApp.GetOrCreateAsync(taskGroupId));
-        }
-
-        /// <summary>
-        /// 今日执行失败数量
-        /// </summary>
-        public Task<int> TodayFailCountAsync() => TaskAgent.TodayFailCountAsync();
-
-        /// <summary>
-        /// 计算任务的平均运行速度
-        /// </summary>
-        public async Task<long> StatAvgSpeedAsync(int taskGroupId)
-        {
-            var speedList = await TaskAgent.ToSpeedListAsync(taskGroupId);
-            if (speedList.Count == 0) return 0;
-            return speedList.Sum() / speedList.Count;
         }
     }
 }

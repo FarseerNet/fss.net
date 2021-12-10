@@ -12,14 +12,5 @@ namespace FSS.Abstract.Server.MetaInfo
         /// </summary>
         Task<TaskVO> ToInfoByGroupIdAsync(int taskGroupId);
 
-        /// <summary>
-        /// 计算任务的平均运行速度
-        /// </summary>
-        Task<long> StatAvgSpeedAsync(int taskGroupId);
-
-        /// <summary>
-        /// 今日执行失败数量
-        /// </summary>
-        Task<int> TodayFailCountAsync();
     }
 }

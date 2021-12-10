@@ -14,6 +14,10 @@ namespace FSS.Application.Tasks.Tasks.Interface
         /// <summary>
         /// 获取所有任务组中的任务
         /// </summary>
-        Task<List<TaskDO>> ToGroupListAsync();
+        Task<List<TaskGroupDO>> ToGroupListAsync();
+        /// <summary>
+        /// 将任务暂时写入redis集合，再通过job集中写入数据库
+        /// </summary>
+        Task<int> AddToDbAsync(int top);
     }
 }

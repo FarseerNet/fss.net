@@ -47,5 +47,9 @@ namespace FSS.Infrastructure.Repository.Tasks.Interface
         /// 获取所有任务组中的任务
         /// </summary>
         Task<List<TaskPO>> ToGroupListAsync();
+        /// <summary>
+        /// 将任务暂时写入redis集合，再通过job集中写入数据库
+        /// </summary>
+        Task<int> AddToDbAsync(List<TaskPO> lstTask);
     }
 }

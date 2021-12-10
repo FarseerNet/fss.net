@@ -3,6 +3,7 @@ using FS.Core.Job;
 using FS.Job;
 using FS.Job.Entity;
 using FSS.Abstract.Server.MetaInfo;
+using FSS.Application.Tasks.TaskGroup.Interface;
 
 namespace FSS.Service.Job
 {
@@ -15,7 +16,7 @@ namespace FSS.Service.Job
         public ITaskGroupList   TaskGroupList   { get; set; }
         public ITaskGroupInfo   TaskGroupInfo   { get; set; }
         public ITaskGroupUpdate TaskGroupUpdate { get; set; }
-        public ITaskInfo        TaskInfo        { get; set; }
+        public ITaskGroupApp    TaskGroupApp    { get; set; }
 
         public async Task<bool> Execute(IFssContext context)
         {
@@ -23,7 +24,7 @@ namespace FSS.Service.Job
             foreach (var taskGroupVo in taskGroupVos)
             {
                 // 先计算在更新
-                var statAvgSpeed = await TaskInfo.StatAvgSpeedAsync(taskGroupVo.Id);
+                var statAvgSpeed = await TaskGroupApp.StatAvgSpeedAsync(taskGroupVo.Id);
                 if (statAvgSpeed == 0) continue;
 
                 var taskGroupVO = await TaskGroupInfo.ToInfoAsync(taskGroupVo.Id);

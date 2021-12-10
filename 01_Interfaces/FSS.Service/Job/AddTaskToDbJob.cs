@@ -6,6 +6,8 @@ using FS.Extends;
 using FS.Job;
 using FS.Job.Entity;
 using FSS.Abstract.Server.MetaInfo;
+using FSS.Application.Tasks.Tasks.Interface;
+using FSS.Infrastructure.Repository.Tasks.Interface;
 using Microsoft.Extensions.Logging;
 
 namespace FSS.Service.Job
@@ -16,7 +18,7 @@ namespace FSS.Service.Job
     [FssJob(Name = "FSS.AddTaskToDb")]
     public class AddTaskToDbJob : IFssJob
     {
-        public ITaskAdd TaskAdd { get; set; }
+        public ITaskApp TaskApp { get; set; }
 
         public async Task<bool> Execute(IFssContext context)
         {
@@ -27,7 +29,7 @@ namespace FSS.Service.Job
             int result = 0;
             while (true)
             {
-                var count = await TaskAdd.AddToDbAsync(dataCount);
+                var count = await TaskApp.AddToDbAsync(dataCount);
                 result += count;
                 if (count != dataCount) break;
             }

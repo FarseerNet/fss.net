@@ -17,8 +17,24 @@ namespace FSS.Infrastructure.Repository.Tasks
     /// </summary>
     public class TaskAgent : ITaskAgent
     {
-        public ITaskGroupAgent TaskGroupAgent { get; set; }
-        
+        /// <summary>
+        /// 将任务暂时写入redis集合，再通过job集中写入数据库
+        /// </summary>
+        public async Task<int> AddToDbAsync(List<TaskPO> lstTask)
+        {
+            using (var db = new MysqlContext())
+            {
+                foreach (var taskPO in lstTask)
+                {
+                    taskPO.Id = null;
+                    await db.Task.InsertAsync(taskPO);
+                }
+                db.SaveChanges();
+            }
+
+            return lstTask.Count;
+        }
+
         /// <summary>
         /// 获取指定任务组执行成功的任务列表
         /// </summary>
@@ -81,7 +97,7 @@ namespace FSS.Infrastructure.Repository.Tasks
             var key = CacheKeys.TaskForGroupKey;
             return RedisContext.Instance.CacheManager.GetItemAsync(key, taskGroupId);
         }
-        
+
         /// <summary>
         /// 获取所有任务组中的任务
         /// </summary>
