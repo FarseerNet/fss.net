@@ -2,13 +2,12 @@ using System;
 using System.Threading.Tasks;
 using FS.Core;
 using FS.Extends;
-using FSS.Abstract.Entity.MetaInfo;
 using FSS.Domain.Log.TaskLog.Entity;
 using FSS.Domain.Log.TaskLog.Interface;
 using FSS.Infrastructure.Repository.Log.Interface;
 using Microsoft.Extensions.Logging;
 
-namespace FSS.Domain.Log.TaskLog.Service
+namespace FSS.Domain.Log.TaskLog
 {
     public class TaskLogService : ITaskLogService
     {
@@ -18,13 +17,13 @@ namespace FSS.Domain.Log.TaskLog.Service
         /// <summary>
         /// 添加日志记录
         /// </summary>
-        public Task AddAsync(TaskGroupVO groupInfo, LogLevel logLevel, string content)
+        public Task AddAsync(int taskGroupId, string jobName, string caption, LogLevel logLevel, string content)
         {
             return new RunLogDO
             {
-                TaskGroupId = groupInfo.Id,
-                Caption     = groupInfo.Caption ?? "",
-                JobName     = groupInfo.JobName ?? "",
+                TaskGroupId = taskGroupId,
+                Caption     = caption ?? "",
+                JobName     = jobName ?? "",
                 LogLevel    = logLevel,
                 Content     = content,
                 CreateAt    = DateTime.Now

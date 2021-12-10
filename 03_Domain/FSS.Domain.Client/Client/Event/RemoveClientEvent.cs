@@ -14,7 +14,7 @@ namespace FSS.Domain.Client.Client.Event
     {
         public IClientAgent ClientAgent { get; set; }
 
-        public async Task<bool> Consumer(string message, object sender, DomainEventArgs ea)
+        public async Task<bool> Consumer(object message, DomainEventArgs ea)
         {
             await ClientAgent.RemoveClientAsync(message.ConvertType(0L));
             return true;

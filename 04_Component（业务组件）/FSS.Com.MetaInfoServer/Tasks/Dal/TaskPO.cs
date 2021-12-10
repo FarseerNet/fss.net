@@ -2,7 +2,7 @@ using System;
 using FS.Core.Mapping.Attribute;
 using FS.Mapper;
 using FSS.Abstract.Entity.MetaInfo;
-using FSS.Abstract.Enum;
+using FSS.Infrastructure.Repository.Tasks.Enum;
 
 namespace FSS.Com.MetaInfoServer.Tasks.Dal
 {

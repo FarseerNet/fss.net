@@ -10,7 +10,6 @@ using FS.LinkTrack;
 using FS.Mapper;
 using FS.Modules;
 using FSS.Com.MetaInfoServer;
-using FSS.Com.RegisterCenterServer;
 using FSS.Com.SchedulerServer;
 using FSS.Service.Background;
 using Microsoft.AspNetCore.Builder;
@@ -32,7 +31,6 @@ namespace FSS.Service
                   typeof(ElasticSearchModule),
                   typeof(MetaInfoModule),
                   typeof(SchedulerModule),
-                  typeof(RegisterCenterModule),
                   typeof(LinkTrackModule),
                   typeof(EventBusModule),
                   typeof(JobModule)

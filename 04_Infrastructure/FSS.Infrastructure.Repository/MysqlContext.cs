@@ -2,6 +2,8 @@
 using FS.Data;
 using FS.Data.Map;
 using FSS.Infrastructure.Repository.Log.Model;
+using FSS.Infrastructure.Repository.TaskGroup.Model;
+using FSS.Infrastructure.Repository.Tasks.Model;
 
 namespace FSS.Infrastructure.Repository
 {
@@ -14,12 +16,16 @@ namespace FSS.Infrastructure.Repository
         {
         }
 
-        public TableSet<RunLogPO> RunLog { get; set; }
+        public TableSet<RunLogPO>    RunLog    { get; set; }
+        public TableSet<TaskPO>      Task      { get; set; }
+        public TableSet<TaskGroupPO> TaskGroup { get; set; }
 
         protected override void CreateModelInit(Dictionary<string, SetDataMap> map)
         {
             //map["RunLog"].SetName("run_log");
             RunLog.SetName("run_log");
+            Task.SetName("task");
+            TaskGroup.SetName("task_group");
         }
     }
 }

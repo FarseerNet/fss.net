@@ -8,11 +8,12 @@ using FSS.Abstract.Entity;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Server.MetaInfo;
 using FSS.Application.Log.Interface;
+using FSS.Domain.Tasks.TaskGroup.Entity;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using EumTaskType = FSS.Abstract.Enum.EumTaskType;
+using EumTaskType = FSS.Infrastructure.Repository.Tasks.Enum.EumTaskType;
 using JobInvokeRequest = FSS.Abstract.Entity.JobInvokeRequest;
 using TaskVO = FSS.Abstract.Entity.MetaInfo.TaskVO;
 
@@ -66,7 +67,7 @@ namespace FSS.Service.Controllers
             var taskGroup = await taskGroupTask;
             if (taskGroup == null)
             {
-                await LogAddApp.AddAsync(new TaskGroupVO(), LogLevel.Warning, $"所属的任务组：{task.TaskGroupId} 不存在");
+                await LogAddApp.AddAsync(new TaskGroupDO(), LogLevel.Warning, $"所属的任务组：{task.TaskGroupId} 不存在");
                 return await ApiResponseJson.ErrorAsync($"所属的任务组：{task.TaskGroupId} 不存在");
             }
 

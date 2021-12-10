@@ -9,6 +9,7 @@ using FS.Extends;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Server.MetaInfo;
 using FSS.Com.MetaInfoServer.TaskGroup.Dal;
+using FSS.Domain.Tasks.TaskGroup.Entity;
 using FSS.Infrastructure.Repository;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -27,12 +28,12 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
         /// <summary>
         /// 获取全部任务列表（数据库）
         /// </summary>
-        public Task<List<TaskGroupVO>> ToListInDbAsync() => TaskGroupAgent.ToListAsync().MapAsync<TaskGroupVO, TaskGroupPO>();
+        public Task<List<TaskGroupDO>> ToListInDbAsync() => TaskGroupAgent.ToListAsync().MapAsync<TaskGroupDO, TaskGroupPO>();
 
         /// <summary>
         /// 获取全部任务列表
         /// </summary>
-        public Task<List<TaskGroupVO>> ToListInCacheAsync(EumCacheStoreType cacheStoreType = EumCacheStoreType.Redis) => TaskGroupCache.ToListAsync(cacheStoreType);
+        public Task<List<TaskGroupDO>> ToListInCacheAsync(EumCacheStoreType cacheStoreType = EumCacheStoreType.Redis) => TaskGroupCache.ToListAsync(cacheStoreType);
 
         /// <summary>
         /// 获取任务组数量

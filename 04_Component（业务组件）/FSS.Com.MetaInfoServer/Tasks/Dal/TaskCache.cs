@@ -30,15 +30,6 @@ namespace FSS.Com.MetaInfoServer.Tasks.Dal
         }
 
         /// <summary>
-        /// 将Task写入队列中
-        /// </summary>
-        public Task AddQueueAsync(TaskVO task)
-        {
-            return Task.WhenAll(SaveAsync(task),
-                                RedisContext.Instance.Db.SortedSetAddAsync(FinishTaskQueueKey, JsonConvert.SerializeObject(task),DateTime.Now.ToTimestamps()));
-        }
-
-        /// <summary>
         /// 队列中取出已完成的任务
         /// </summary>
         public async Task<List<TaskVO>> GetFinishTaskListAsync(int top)

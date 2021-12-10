@@ -9,12 +9,12 @@ namespace FSS.Abstract.Server.MetaInfo
         /// <summary>
         /// 更新TaskGroup
         /// </summary>
-        Task UpdateAsync(TaskGroupVO taskGroup);
+        Task UpdateAsync(TaskGroupDO taskGroup);
 
         /// <summary>
         /// 保存TaskGroup
         /// </summary>
-        Task SaveAsync(TaskGroupVO taskGroup);
+        Task SaveAsync(TaskGroupDO taskGroup);
 
         /// <summary>
         /// 同步缓存到数据库

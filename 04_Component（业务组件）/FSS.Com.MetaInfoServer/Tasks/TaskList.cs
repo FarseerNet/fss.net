@@ -7,11 +7,13 @@ using FS.DI;
 using FS.Extends;
 using FSS.Abstract.Entity;
 using FSS.Abstract.Entity.MetaInfo;
-using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
+using FSS.Application.Tasks.TaskGroup;
+using FSS.Application.Tasks.TaskGroup.Interface;
 using FSS.Com.MetaInfoServer.TaskGroup;
 using FSS.Com.MetaInfoServer.Tasks.Dal;
-using FSS.Infrastructure.Repository;
+using FSS.Domain.Tasks.TaskGroup.Interface;
+using FSS.Infrastructure.Repository.Tasks.Enum;
 using Microsoft.Extensions.Logging;
 
 namespace FSS.Com.MetaInfoServer.Tasks
@@ -21,31 +23,12 @@ namespace FSS.Com.MetaInfoServer.Tasks
     /// </summary>
     public class TaskList : ITaskList
     {
-        public TaskAgent      TaskAgent     { get; set; }
-        public ITaskGroupInfo TaskGroupInfo { get; set; }
-        public ITaskUpdate    TaskUpdate    { get; set; }
-        public ITaskGroupList TaskGroupList { get; set; }
-        public ITaskAdd       TaskAdd       { get; set; }
+        public TaskAgent         TaskAgent        { get; set; }
+        public ITaskGroupInfo    TaskGroupInfo    { get; set; }
+        public ITaskUpdate       TaskUpdate       { get; set; }
+        public ITaskGroupService TaskGroupService { get; set; }
+        public ITaskGroupApp     TaskGroupApp     { get; set; }
 
-
-        /// <summary>
-        /// 获取所有任务组中的任务
-        /// </summary>
-        public Task<List<TaskVO>> ToGroupListAsync()
-        {
-            var key = CacheKeys.TaskForGroupKey;
-            return RedisContext.Instance.CacheManager.GetListAsync(key, async () =>
-            {
-                var taskGroupVos = await TaskGroupList.ToListInCacheAsync();
-                var lst          = new List<TaskVO>();
-                foreach (var taskGroupVo in taskGroupVos)
-                {
-                    lst.Add(await TaskAdd.GetOrCreateAsync(taskGroupVo.Id));
-                }
-
-                return lst;
-            });
-        }
 
         /// <summary>
         /// 获取指定任务组的任务列表（FOPS）
@@ -85,7 +68,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
         {
             try
             {
-                var lst = await ToGroupListAsync();
+                var lst = await TaskGroupService.ToGroupListAsync();
                 return lst.Count(o => o.StartAt < DateTime.Now && (o.Status == EumTaskType.None || o.Status == EumTaskType.Scheduler));
             }
             catch (Exception e)
@@ -100,7 +83,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
         /// </summary>
         public async Task<List<TaskVO>> ToSchedulerWorkingListAsync()
         {
-            var lst = await ToGroupListAsync();
+            var lst = await TaskGroupService.ToGroupListAsync();
             return lst.Where(o => o.Status == EumTaskType.Scheduler || o.Status == EumTaskType.Working).ToList();
         }
 
@@ -114,7 +97,7 @@ namespace FSS.Com.MetaInfoServer.Tasks
                 requestTaskCount = 3;
             }
 
-            var lstTask = await ToGroupListAsync();
+            var lstTask = await TaskGroupService.ToGroupListAsync();
             lstTask = lstTask.Where(o => o.Status == EumTaskType.None && client.Jobs.Contains(o.JobName) && o.StartAt < DateTime.Now.AddSeconds(15)).OrderBy(o => o.StartAt).Take(requestTaskCount).ToList();
             if (lstTask == null || !lstTask.Any()) return null;
 
@@ -126,11 +109,11 @@ namespace FSS.Com.MetaInfoServer.Tasks
                 var taskGroup = await TaskGroupInfo.ToInfoAsync(task.TaskGroupId);
                 if (!taskGroup.IsEnable)
                 {
-                    await TaskUpdate.CancelTask(task.TaskGroupId);
+                    await TaskGroupApp.CancelTask(task.TaskGroupId);
                     lstTask.RemoveAt(index);
                     index--;
                 }
-                
+
                 task.Status      = EumTaskType.Scheduler;
                 task.ClientIp    = client.ClientIp;
                 task.ClientName  = client.ClientName;

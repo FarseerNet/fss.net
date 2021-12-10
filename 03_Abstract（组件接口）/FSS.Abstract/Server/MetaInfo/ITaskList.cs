@@ -36,10 +36,6 @@ namespace FSS.Abstract.Server.MetaInfo
         /// </summary>
         Task<List<TaskVO>> ToFinishListAsync(int pageSize, int pageIndex, out int totalCount);
         /// <summary>
-        /// 获取所有任务组中的任务
-        /// </summary>
-        Task<List<TaskVO>> ToGroupListAsync();
-        /// <summary>
         /// 获取未执行的任务数量
         /// </summary>
         Task<int> ToUnRunCountAsync();

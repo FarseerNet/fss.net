@@ -12,13 +12,13 @@ namespace FSS.Application.Log
     public class LogAddApp : ILogAddApp
     {
         public ITaskLogService TaskLogService { get; set; }
-        
+
         /// <summary>
         /// 添加日志记录
         /// </summary>
-        public Task AddAsync(TaskGroupVO groupInfo, LogLevel logLevel, string content)
+        public Task AddAsync(int taskGroupId, string jobName, string caption, LogLevel logLevel, string content)
         {
-            return TaskLogService.AddAsync(groupInfo, logLevel, content);
+            return TaskLogService.AddAsync(taskGroupId, jobName, caption, logLevel, content);
         }
 
         /// <summary>

@@ -11,14 +11,6 @@
         <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.Cache\Farseer.Net.Cache.csproj" />
         <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.Mapper\Farseer.Net.Mapper.csproj" />
         <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net\Farseer.Net.csproj" />
-        <ProjectReference Include="..\..\03_Abstract（组件接口）\FSS.Abstract\FSS.Abstract.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="TaskGroup\Interface" />
-      <Folder Include="TaskGroup\Model" />
-      <Folder Include="Task\Interface" />
-      <Folder Include="Task\Model" />
     </ItemGroup>
 
 </Project>

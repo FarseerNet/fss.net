@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FS.DI;
-using FSS.Abstract.Enum;
+using FSS.Infrastructure.Repository.Tasks.Enum;
 
 namespace FSS.Com.MetaInfoServer.Tasks.Dal
 {

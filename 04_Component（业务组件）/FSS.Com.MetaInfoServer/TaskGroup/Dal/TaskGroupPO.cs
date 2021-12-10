@@ -2,13 +2,14 @@ using System;
 using FS.Core.Mapping.Attribute;
 using FS.Mapper;
 using FSS.Abstract.Entity.MetaInfo;
+using FSS.Domain.Tasks.TaskGroup.Entity;
 
 namespace FSS.Com.MetaInfoServer.TaskGroup.Dal
 {
     /// <summary>
     /// 任务组记录
     /// </summary>
-    [Map(typeof(TaskGroupVO))]
+    [Map(typeof(TaskGroupDO))]
     public class TaskGroupPO
     {
         /// <summary>

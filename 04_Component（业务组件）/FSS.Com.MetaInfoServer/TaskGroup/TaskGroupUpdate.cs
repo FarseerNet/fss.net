@@ -3,6 +3,7 @@ using FS.Extends;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Server.MetaInfo;
 using FSS.Com.MetaInfoServer.TaskGroup.Dal;
+using FSS.Domain.Tasks.TaskGroup.Entity;
 
 namespace FSS.Com.MetaInfoServer.TaskGroup
 {
@@ -15,15 +16,15 @@ namespace FSS.Com.MetaInfoServer.TaskGroup
         /// <summary>
         /// 更新TaskGroup
         /// </summary>
-        public Task UpdateAsync(TaskGroupVO vo) => TaskGroupCache.SaveAsync(vo);
+        public Task UpdateAsync(TaskGroupDO @do) => TaskGroupCache.SaveAsync(@do);
 
         /// <summary>
         /// 保存TaskGroup
         /// </summary>
-        public async Task SaveAsync(TaskGroupVO vo)
+        public async Task SaveAsync(TaskGroupDO @do)
         {
-            await UpdateAsync(vo);
-            await TaskGroupAgent.UpdateAsync(vo.Id, vo.Map<TaskGroupPO>());
+            await TaskGroupCache.SaveAsync(@do);
+            await TaskGroupAgent.UpdateAsync(@do.Id, @do.Map<TaskGroupPO>());
         }
 
         /// <summary>

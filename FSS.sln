@@ -60,7 +60,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FSS.Infrastructure.Reposito
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FSS.Application", "02_Application\FSS.Application\FSS.Application.csproj", "{00248B06-8661-43D9-AC09-B24AAF513711}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FSS.Domain.Task", "03_Domain\FSS.Domain.Task\FSS.Domain.Task.csproj", "{C9B77D7D-0955-4012-9D04-0DDF48A6D833}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FSS.Domain.Tasks", "03_Domain\FSS.Domain.Tasks\FSS.Domain.Tasks.csproj", "{C9B77D7D-0955-4012-9D04-0DDF48A6D833}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FSS.Domain.Client", "03_Domain\FSS.Domain.Client\FSS.Domain.Client.csproj", "{40308820-FC2E-4B69-B7E6-12BA18EB463C}"
 EndProject

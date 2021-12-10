@@ -1,4 +1,4 @@
-using FSS.Abstract.Enum;
+using FSS.Infrastructure.Repository.Tasks.Enum;
 
 namespace FSS.Service.Request
 {

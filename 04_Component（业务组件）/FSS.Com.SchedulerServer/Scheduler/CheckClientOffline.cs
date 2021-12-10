@@ -5,25 +5,26 @@ using FS.DI;
 using FS.EventBus;
 using FSS.Abstract.Entity;
 using FSS.Abstract.Entity.MetaInfo;
-using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
-using FSS.Abstract.Server.RegisterCenter;
 using FSS.Abstract.Server.Scheduler;
 using FSS.Application.Log.Interface;
+using FSS.Domain.Client.Client;
+using FSS.Domain.Tasks.TaskGroup.Entity;
+using FSS.Domain.Tasks.TaskGroup.Interface;
 using FSS.Infrastructure.Repository.Client.Interface;
 using FSS.Infrastructure.Repository.Client.Model;
+using FSS.Infrastructure.Repository.Tasks.Enum;
 using Microsoft.Extensions.Logging;
 
 namespace FSS.Com.SchedulerServer.Scheduler
 {
     public class CheckClientOffline : ICheckClientOffline
     {
-        public IClientRegister ClientRegister { get; set; }
-        public IClientAgent    ClientAgent    { get; set; }
-        public ITaskUpdate     TaskUpdate     { get; set; }
-        public ILogAddApp      LogAddApp      { get; set; }
-        public ITaskGroupInfo  TaskGroupInfo  { get; set; }
-        public ITaskList       TaskList       { get; set; }
+        public IClientAgent      ClientAgent      { get; set; }
+        public ITaskUpdate       TaskUpdate       { get; set; }
+        public ILogAddApp        LogAddApp        { get; set; }
+        public ITaskGroupInfo    TaskGroupInfo    { get; set; }
+        public ITaskGroupService TaskGroupService { get; set; }
 
         /// <summary>
         /// 检查客户端是否离线
@@ -62,7 +63,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
             if (await CheckFeignDeath(client, taskGroup))
             {
                 await LogAddApp.AddAsync(taskGroup, LogLevel.Warning, $"【客户端假死】{client.ActivateAt:yyyy-MM-dd HH:mm:ss}，强制下线客户端");
-                IocManager.GetService<IEventProduct>("ClientOffline").Send(this, client.Id.ToString());
+                IocManager.GetService<ClientPublish>().ClientOffline(this, client.Id);
                 task.Status = EumTaskType.Fail;
                 await TaskUpdate.SaveFinishAsync(task, taskGroup);
                 return;
@@ -78,10 +79,11 @@ namespace FSS.Com.SchedulerServer.Scheduler
                 return;
             }
         }
+        
         /// <summary>
         /// 检查客户端是否假死（客户端2倍于平时耗时时间未使用，且该客户端关联的所有任务，全部处于调度、工作状态）
         /// </summary>
-        private async Task<bool> CheckFeignDeath(ClientVO client, TaskGroupVO taskGroup)
+        private async Task<bool> CheckFeignDeath(ClientVO client, TaskGroupDO taskGroup)
         {
             var timeout = taskGroup.RunSpeedAvg * 2.5;
             // 如果时间小于5分钟的，则按5分钟来判定
@@ -92,7 +94,7 @@ namespace FSS.Com.SchedulerServer.Scheduler
             if ((DateTime.Now - client.ActivateAt).TotalMilliseconds < timeout) return false;
 
             // 找出当前客户端对应的所有任务、并且执行时间 已经到了
-            var lstTask = await TaskList.ToGroupListAsync();
+            var lstTask = await TaskGroupService.ToGroupListAsync();
             lstTask = lstTask.FindAll(o => o.ClientId == client.Id && o.StartAt < DateTime.Now);
             if (lstTask.Count == 0) return false;
 

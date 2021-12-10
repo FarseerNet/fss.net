@@ -7,13 +7,18 @@ using FS.Core.Net;
 using FS.Extends;
 using FSS.Abstract.Entity;
 using FSS.Abstract.Entity.MetaInfo;
-using FSS.Abstract.Enum;
 using FSS.Abstract.Server.MetaInfo;
 using FSS.Abstract.Server.RegisterCenter;
 using FSS.Application.Client.Interface;
 using FSS.Application.Log.Interface;
+using FSS.Application.Tasks.TaskGroup.Entity;
+using FSS.Application.Tasks.TaskGroup.Interface;
+using FSS.Application.Tasks.Tasks.Interface;
 using FSS.Domain.Log.TaskLog.Entity;
+using FSS.Domain.Tasks.TaskGroup.Entity;
+using FSS.Domain.Tasks.TaskGroup.Interface;
 using FSS.Infrastructure.Repository.Client.Interface;
+using FSS.Infrastructure.Repository.Tasks.Enum;
 using FSS.Service.Request;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,19 +31,18 @@ namespace FSS.Service.Controllers
     [Route("meta")]
     public class MetaController : ControllerBase
     {
-        public IClientRegister  ClientRegister  { get; set; }
-        public IClientApp       ClientApp       { get; set; }
-        public ITaskGroupAdd    TaskGroupAdd    { get; set; }
-        public ITaskGroupList   TaskGroupList   { get; set; }
-        public ITaskGroupUpdate TaskGroupUpdate { get; set; }
-        public ITaskAdd         TaskAdd         { get; set; }
-        public ITaskInfo        TaskInfo        { get; set; }
-        public ITaskList        TaskList        { get; set; }
-        public ITaskGroupInfo   TaskGroupInfo   { get; set; }
-        public ITaskGroupDelete TaskGroupDelete { get; set; }
-        public ITaskUpdate      TaskUpdate      { get; set; }
-        public ILogAddApp       LogAddApp       { get; set; }
-        public IClientAgent     ClientAgent     { get; set; }
+        public ITaskGroupService TaskGroupService { get; set; }
+        public IClientApp        ClientApp        { get; set; }
+        public ITaskGroupList    TaskGroupList    { get; set; }
+        public ITaskGroupUpdate  TaskGroupUpdate  { get; set; }
+        public ITaskApp          TaskApp          { get; set; }
+        public ITaskInfo         TaskInfo         { get; set; }
+        public ITaskList         TaskList         { get; set; }
+        public ITaskGroupInfo    TaskGroupInfo    { get; set; }
+        public ITaskUpdate       TaskUpdate       { get; set; }
+        public ILogAddApp        LogAddApp        { get; set; }
+        public IClientAgent      ClientAgent      { get; set; }
+        public ITaskGroupApp     TaskGroupApp     { get; set; }
 
         /// <summary>
         /// 客户端拉取任务
@@ -87,7 +91,7 @@ namespace FSS.Service.Controllers
                 info.IntervalMs = 0;
             }
 
-            request.Id = await TaskGroupAdd.AddAsync(info);
+            request.Id = await TaskGroupApp.AddAsync(info);
             return await ApiResponseJson<int>.SuccessAsync("复制成功", request.Id);
         }
 
@@ -98,7 +102,7 @@ namespace FSS.Service.Controllers
         [Route("DeleteTaskGroup")]
         public async Task<ApiResponseJson> DeleteTaskGroup(OnlyIdRequest request)
         {
-            await TaskGroupDelete.DeleteAsync(request.Id);
+            await TaskGroupService.DeleteAsync(request.Id);
             return await ApiResponseJson.SuccessAsync("删除成功", request.Id);
         }
 
@@ -107,10 +111,10 @@ namespace FSS.Service.Controllers
         /// </summary>
         [HttpPost]
         [Route("GetTaskGroupInfo")]
-        public async Task<ApiResponseJson<TaskGroupVO>> GetTaskGroupInfo(OnlyIdRequest request)
+        public async Task<ApiResponseJson<TaskGroupDO>> GetTaskGroupInfo(OnlyIdRequest request)
         {
             var info = await TaskGroupInfo.ToInfoAsync(request.Id);
-            return await ApiResponseJson<TaskGroupVO>.SuccessAsync(info);
+            return await ApiResponseJson<TaskGroupDO>.SuccessAsync(info);
         }
 
         /// <summary>
@@ -118,7 +122,7 @@ namespace FSS.Service.Controllers
         /// </summary>
         [HttpPost]
         [Route("SyncCacheToDb")]
-        public async Task<ApiResponseJson<List<TaskGroupVO>>> SyncCacheToDb()
+        public async Task<ApiResponseJson<List<TaskGroupDO>>> SyncCacheToDb()
         {
             await TaskGroupUpdate.SyncCacheToDb();
             return await ApiResponseJson.SuccessAsync();
@@ -129,10 +133,10 @@ namespace FSS.Service.Controllers
         /// </summary>
         [HttpPost]
         [Route("GetTaskGroupList")]
-        public async Task<ApiResponseJson<List<TaskGroupVO>>> GetTaskGroupList()
+        public async Task<ApiResponseJson<List<TaskGroupDO>>> GetTaskGroupList()
         {
             var lst = await TaskGroupList.ToListInCacheAsync();
-            return await ApiResponseJson<List<TaskGroupVO>>.SuccessAsync(lst);
+            return await ApiResponseJson<List<TaskGroupDO>>.SuccessAsync(lst);
         }
 
         /// <summary>
@@ -162,14 +166,14 @@ namespace FSS.Service.Controllers
         /// </summary>
         [HttpPost]
         [Route("AddTaskGroup")]
-        public async Task<ApiResponseJson<int>> AddTaskGroup(TaskGroupVO request)
+        public async Task<ApiResponseJson<int>> AddTaskGroup(TaskGroupDTO request)
         {
             if (request.Caption == null || request.Cron == null || request.Data == null || request.JobName == null)
             {
                 return await ApiResponseJson<int>.ErrorAsync("标题、时间间隔、传输数据、Job名称 必须填写");
             }
-            request.Id = await TaskGroupAdd.AddAsync(request);
-            await TaskAdd.GetOrCreateAsync(request.Id);
+            request.Id = await TaskGroupApp.AddAsync(request);
+            await TaskApp.GetOrCreateAsync(request.Id);
             return await ApiResponseJson<int>.SuccessAsync("添加成功", request.Id);
         }
 
@@ -178,7 +182,7 @@ namespace FSS.Service.Controllers
         /// </summary>
         [HttpPost]
         [Route("SaveTaskGroup")]
-        public async Task<ApiResponseJson> SaveTaskGroup(TaskGroupVO request)
+        public async Task<ApiResponseJson> SaveTaskGroup(TaskGroupDO request)
         {
             var taskGroup = await TaskGroupInfo.ToInfoAsync(request.Id);
             if (taskGroup == null) return await ApiResponseJson.ErrorAsync("任务组不存在");
@@ -199,7 +203,7 @@ namespace FSS.Service.Controllers
             // 任务是重新开启状态时，立即创建一个任务
             if (request.IsEnable && !taskGroup.IsEnable)
             {
-                await TaskUpdate.CancelTask(request.Id);
+                await TaskGroupApp.CancelTask(request.Id);
             }
 
             return await ApiResponseJson.SuccessAsync();
@@ -223,7 +227,7 @@ namespace FSS.Service.Controllers
         [Route("GetTaskUnFinishList")]
         public async Task<ApiResponseJson<List<TaskVO>>> GetTaskUnFinishList(OnlyTopRequest request)
         {
-            var lst = await TaskList.ToGroupListAsync();
+            var lst = await TaskApp.ToGroupListAsync();
             lst = lst.Where(o => o.Status != EumTaskType.Success && o.Status != EumTaskType.Fail).OrderBy(o => o.StartAt).Take(request.Top).ToList();
             return await ApiResponseJson<List<TaskVO>>.SuccessAsync(lst);
         }
@@ -235,7 +239,7 @@ namespace FSS.Service.Controllers
         [Route("GetEnableTaskList")]
         public async Task<ApiResponseJson<DataSplitList<TaskVO>>> GetEnableTaskList(GetAllTaskListRequest request)
         {
-            var lst = await TaskList.ToGroupListAsync();
+            var lst = await TaskApp.ToGroupListAsync();
             // 移除被禁用的任务组
             var lstTaskGroup = await TaskGroupList.ToListInCacheAsync();
             foreach (var taskGroupVO in lstTaskGroup.Where(o => !o.IsEnable))
@@ -257,7 +261,7 @@ namespace FSS.Service.Controllers
         [Route("GetTopTaskList")]
         public async Task<ApiResponseJson<List<TaskVO>>> GetTopTaskList(OnlyTopRequest request)
         {
-            var lst = await TaskList.ToGroupListAsync();
+            var lst = await TaskApp.ToGroupListAsync();
             lst = lst.Where(o => o.Status != EumTaskType.Success && o.Status != EumTaskType.Fail).Take(request.Top).OrderBy(o => o.StartAt).ToList();
             return await ApiResponseJson<List<TaskVO>>.SuccessAsync(lst);
         }
@@ -291,7 +295,7 @@ namespace FSS.Service.Controllers
         [Route("CancelTask")]
         public async Task<ApiResponseJson> CancelTask(OnlyIdRequest request)
         {
-            await TaskUpdate.CancelTask(request.Id);
+            await TaskGroupApp.CancelTask(request.Id);
             return await ApiResponseJson.SuccessAsync();
         }
 

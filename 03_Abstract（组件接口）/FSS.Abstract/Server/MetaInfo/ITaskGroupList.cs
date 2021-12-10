@@ -11,12 +11,12 @@ namespace FSS.Abstract.Server.MetaInfo
         /// <summary>
         /// 获取全部任务列表
         /// </summary>
-        Task<List<TaskGroupVO>> ToListInCacheAsync(EumCacheStoreType cacheStoreType = EumCacheStoreType.Redis);
+        Task<List<TaskGroupDO>> ToListInCacheAsync(EumCacheStoreType cacheStoreType = EumCacheStoreType.Redis);
 
         /// <summary>
         /// 获取全部任务列表（数据库）
         /// </summary>
-        Task<List<TaskGroupVO>> ToListInDbAsync();
+        Task<List<TaskGroupDO>> ToListInDbAsync();
         /// <summary>
         /// 获取任务组数量
         /// </summary>

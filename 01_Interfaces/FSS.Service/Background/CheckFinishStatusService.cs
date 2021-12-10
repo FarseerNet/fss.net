@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FS.Core.LinkTrack;
 using FSS.Abstract.Server.MetaInfo;
+using FSS.Infrastructure.Repository.Tasks.Enum;
 
 namespace FSS.Service.Background
 {
@@ -30,7 +31,7 @@ namespace FSS.Service.Background
                     if (task != null)
                     {
                         // 状态必须是 完成的
-                        if (task.Status != FSS.Abstract.Enum.EumTaskType.Fail && task.Status != FSS.Abstract.Enum.EumTaskType.Success) continue;
+                        if (task.Status != EumTaskType.Fail && task.Status != EumTaskType.Success) continue;
                         // 加个时间，来限制并发
                         if ((DateTime.Now - task.RunAt).TotalSeconds < 3) continue;
                     }

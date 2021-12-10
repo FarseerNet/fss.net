@@ -1,11 +1,10 @@
 using System;
 using System.Threading.Tasks;
 using FS.DI;
-using FS.EventBus;
 using FSS.Domain.Client.Client.Interface;
 using FSS.Infrastructure.Repository.Client.Interface;
 
-namespace FSS.Domain.Client.Client.Service
+namespace FSS.Domain.Client.Client
 {
     public class ClientService : IClientService
     {
@@ -22,7 +21,7 @@ namespace FSS.Domain.Client.Client.Service
                 // 心跳大于1秒中，认为已经下线了
                 if ((DateTime.Now - client.ActivateAt).TotalMinutes >= 1)
                 {
-                    IocManager.GetService<IEventProduct>("ClientOffline").Send(this, client.Id.ToString());
+                    IocManager.GetService<ClientPublish>().ClientOffline(this, client.Id);
                 }
             }
         }

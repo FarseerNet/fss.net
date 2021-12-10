@@ -13,6 +13,11 @@ using FS.Job.Entity;
 using FS.Utils.Common;
 using FSS.Abstract.Entity.MetaInfo;
 using FSS.Abstract.Server.MetaInfo;
+using FSS.Application.Tasks.TaskGroup.Entity;
+using FSS.Application.Tasks.TaskGroup.Interface;
+using FSS.Application.Tasks.Tasks.Interface;
+using FSS.Domain.Tasks.TaskGroup.Entity;
+using FSS.Domain.Tasks.TaskGroup.Interface;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -28,19 +33,21 @@ namespace FSS.Service.Background
         readonly         ILogger          _logger;
         readonly         ITaskGroupList   _taskGroupList;
         readonly         ITaskGroupInfo   _taskGroupInfo;
-        readonly         ITaskGroupAdd    _taskGroupAdd;
+        readonly         ITaskGroupApp    _taskGroupApp;
         readonly         ITaskAdd         _taskAdd;
+        readonly         ITaskApp         _taskApp;
         readonly         ITaskGroupUpdate _taskGroupUpdate;
 
         public PrintSysInfoService(IIocManager ioc)
         {
-            _ioc             = ioc;
-            _logger          = _ioc.Logger<Startup>();
-            _taskGroupList   = _ioc.Resolve<ITaskGroupList>();
-            _taskGroupInfo   = _ioc.Resolve<ITaskGroupInfo>();
-            _taskGroupAdd    = _ioc.Resolve<ITaskGroupAdd>();
-            _taskAdd         = _ioc.Resolve<ITaskAdd>();
-            _taskGroupUpdate = _ioc.Resolve<ITaskGroupUpdate>();
+            _ioc              = ioc;
+            _logger           = _ioc.Logger<Startup>();
+            _taskGroupList    = _ioc.Resolve<ITaskGroupList>();
+            _taskGroupInfo    = _ioc.Resolve<ITaskGroupInfo>();
+            _taskGroupApp = _ioc.Resolve<ITaskGroupApp>();
+            _taskAdd          = _ioc.Resolve<ITaskAdd>();
+            _taskApp          = _ioc.Resolve<ITaskApp>();
+            _taskGroupUpdate  = _ioc.Resolve<ITaskGroupUpdate>();
         }
 
         protected override async Task ExecuteJobAsync(CancellationToken stoppingToken)
@@ -75,18 +82,18 @@ namespace FSS.Service.Background
             }
         }
 
-        private async Task CreateSysJob(List<TaskGroupVO> lstTaskGroup, string jobName, string caption, TimeSpan intervalMs, string data = null)
+        private async Task CreateSysJob(List<TaskGroupDTO> lstTaskGroup, string jobName, string caption, TimeSpan intervalMs, string data = null)
         {
             if (lstTaskGroup.All(o => o.JobName != jobName))
             {
-                var taskGroupVO = new TaskGroupVO
+                var taskGroupVO = new TaskGroupDTO
                 {
                     Caption = caption,
                     JobName = jobName,
                     Data    = data ?? "{}", Cron = $"{(int)intervalMs.TotalMilliseconds}", StartAt = DateTime.Now, NextAt = DateTime.Now, ActivateAt = DateTime.Now, LastRunAt = DateTime.Now, IsEnable = true
                 };
-                taskGroupVO.Id = await _taskGroupAdd.AddAsync(taskGroupVO);
-                await _taskAdd.GetOrCreateAsync(taskGroupVO.Id);
+                taskGroupVO.Id = await _taskGroupApp.AddAsync(taskGroupVO);
+                await _taskApp.GetOrCreateAsync(taskGroupVO.Id);
                 lstTaskGroup.Add(taskGroupVO);
             }
 
@@ -99,7 +106,7 @@ namespace FSS.Service.Background
                         taskGroupVo.IsEnable = true;
                         await _taskGroupUpdate.UpdateAsync(taskGroupVo);
                     }
-                    await _taskAdd.GetOrCreateAsync(taskGroupVo);
+                    await _taskApp.GetOrCreateAsync(taskGroupVo);
                 }
             }
         }

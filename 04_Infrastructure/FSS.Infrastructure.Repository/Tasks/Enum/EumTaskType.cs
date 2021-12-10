@@ -1,4 +1,4 @@
-namespace FSS.Abstract.Enum
+namespace FSS.Infrastructure.Repository.Tasks.Enum
 {
     /// <summary>
     /// 任务状态

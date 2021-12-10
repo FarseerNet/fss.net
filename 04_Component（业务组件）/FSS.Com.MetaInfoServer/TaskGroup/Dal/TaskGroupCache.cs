@@ -4,6 +4,7 @@ using FS.Cache;
 using FS.DI;
 using FS.Extends;
 using FSS.Abstract.Entity.MetaInfo;
+using FSS.Domain.Tasks.TaskGroup.Entity;
 using FSS.Infrastructure.Repository;
 
 namespace FSS.Com.MetaInfoServer.TaskGroup.Dal
@@ -19,7 +20,7 @@ namespace FSS.Com.MetaInfoServer.TaskGroup.Dal
         /// <summary>
         /// 保存任务组信息
         /// </summary>
-        public Task SaveAsync(TaskGroupVO taskGroup)
+        public Task SaveAsync(TaskGroupDO taskGroup)
         {
             var key = CacheKeys.TaskGroupKey(EumCacheStoreType.MemoryAndRedis);
             return RedisContext.Instance.CacheManager.SaveItemAsync(key, taskGroup);
@@ -28,7 +29,7 @@ namespace FSS.Com.MetaInfoServer.TaskGroup.Dal
         /// <summary>
         /// 保存任务组信息
         /// </summary>
-        public Task SaveAsync(List<TaskGroupVO> lstTaskGroup)
+        public Task SaveAsync(List<TaskGroupDO> lstTaskGroup)
         {
             var key = CacheKeys.TaskGroupKey(EumCacheStoreType.MemoryAndRedis);
             return RedisContext.Instance.CacheManager.SaveListAsync(key, lstTaskGroup);
@@ -37,19 +38,19 @@ namespace FSS.Com.MetaInfoServer.TaskGroup.Dal
         /// <summary>
         /// 当前任务组的列表
         /// </summary>
-        public Task<List<TaskGroupVO>> ToListAsync(EumCacheStoreType cacheStoreType)
+        public Task<List<TaskGroupDO>> ToListAsync(EumCacheStoreType cacheStoreType)
         {
             var key = CacheKeys.TaskGroupKey(cacheStoreType);
-            return RedisContext.Instance.CacheManager.GetListAsync(key, () => TaskGroupAgent.ToListAsync().MapAsync<TaskGroupVO, TaskGroupPO>());
+            return RedisContext.Instance.CacheManager.GetListAsync(key, () => TaskGroupAgent.ToListAsync().MapAsync<TaskGroupDO, TaskGroupPO>());
         }
 
         /// <summary>
         /// 获取任务组
         /// </summary>
-        public Task<TaskGroupVO> ToEntityAsync(EumCacheStoreType cacheStoreType, int taskGroupId)
+        public Task<TaskGroupDO> ToEntityAsync(EumCacheStoreType cacheStoreType, int taskGroupId)
         {
             var key = CacheKeys.TaskGroupKey(cacheStoreType);
-            return RedisContext.Instance.CacheManager.GetItemAsync(key, taskGroupId, () => TaskGroupAgent.ToListAsync().MapAsync<TaskGroupVO, TaskGroupPO>());
+            return RedisContext.Instance.CacheManager.GetItemAsync(key, taskGroupId, () => TaskGroupAgent.ToListAsync().MapAsync<TaskGroupDO, TaskGroupPO>());
         }
     }
 }
