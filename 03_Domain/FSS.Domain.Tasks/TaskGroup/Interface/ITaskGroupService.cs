@@ -15,5 +15,9 @@ namespace FSS.Domain.Tasks.TaskGroup.Interface
         /// 获取所有任务组中的任务
         /// </summary>
         Task<List<TaskGroupDO>> ToListAsync();
+        /// <summary>
+        /// 获取任务组信息
+        /// </summary>
+        Task<TaskGroupDO> ToEntityAsync(int taskGroupId);
     }
 }

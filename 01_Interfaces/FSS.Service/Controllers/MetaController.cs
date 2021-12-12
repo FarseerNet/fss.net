@@ -1,24 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using FS.Core;
 using FS.Core.Net;
 using FS.Extends;
-using FSS.Abstract.Entity;
-using FSS.Abstract.Entity.MetaInfo;
-using FSS.Abstract.Server.MetaInfo;
-using FSS.Abstract.Server.RegisterCenter;
-using FSS.Application.Client.Interface;
-using FSS.Application.Log.Interface;
+using FSS.Application.Clients.Dto;
+using FSS.Application.Clients.Interface;
+using FSS.Application.Log.TaskLog.Entity;
+using FSS.Application.Log.TaskLog.Interface;
 using FSS.Application.Tasks.TaskGroup.Entity;
 using FSS.Application.Tasks.TaskGroup.Interface;
-using FSS.Application.Tasks.Tasks.Interface;
-using FSS.Domain.Log.TaskLog.Entity;
 using FSS.Domain.Tasks.TaskGroup.Entity;
-using FSS.Domain.Tasks.TaskGroup.Interface;
-using FSS.Infrastructure.Repository.Client.Interface;
-using FSS.Infrastructure.Repository.Tasks.Enum;
 using FSS.Service.Request;
 using Microsoft.AspNetCore.Mvc;
 
@@ -31,29 +22,20 @@ namespace FSS.Service.Controllers
     [Route("meta")]
     public class MetaController : ControllerBase
     {
-        public ITaskGroupService TaskGroupService { get; set; }
-        public IClientApp        ClientApp        { get; set; }
-        public ITaskGroupList    TaskGroupList    { get; set; }
-        public ITaskGroupUpdate  TaskGroupUpdate  { get; set; }
-        public ITaskApp          TaskApp          { get; set; }
-        public ITaskInfo         TaskInfo         { get; set; }
-        public ITaskList         TaskList         { get; set; }
-        public ITaskGroupInfo    TaskGroupInfo    { get; set; }
-        public ITaskUpdate       TaskUpdate       { get; set; }
-        public ILogAddApp        LogAddApp        { get; set; }
-        public IClientAgent      ClientAgent      { get; set; }
-        public ITaskGroupApp     TaskGroupApp     { get; set; }
+        public IClientApp    ClientApp    { get; set; }
+        public ITaskLogApp   TaskLogApp   { get; set; }
+        public ITaskGroupApp TaskGroupApp { get; set; }
 
         /// <summary>
         /// 客户端拉取任务
         /// </summary>
         [HttpPost]
         [Route("GetClientList")]
-        public async Task<ApiResponseJson<List<ClientVO>>> GetClientList()
+        public async Task<ApiResponseJson<List<ClientDTO>>> GetClientList()
         {
             // 取出全局客户端列表
             var lst = await ClientApp.ToListAsync();
-            return await ApiResponseJson<List<ClientVO>>.SuccessAsync(lst);
+            return await ApiResponseJson<List<ClientDTO>>.SuccessAsync(lst);
         }
 
         /// <summary>
@@ -64,7 +46,7 @@ namespace FSS.Service.Controllers
         public async Task<ApiResponseJson<long>> GetClientCount()
         {
             // 取出全局客户端列表
-            var count = await ClientAgent.GetClientCountAsync();
+            var count = await ClientApp.GetCountAsync();
             return await ApiResponseJson<long>.SuccessAsync(count);
         }
 
@@ -75,24 +57,8 @@ namespace FSS.Service.Controllers
         [Route("CopyTaskGroup")]
         public async Task<ApiResponseJson<int>> CopyTaskGroup(OnlyIdRequest request)
         {
-            var info = await TaskGroupInfo.ToInfoAsync(request.Id);
-            if (info == null) return await ApiResponseJson<int>.ErrorAsync("要复制的任务组不存在");
-
-            info.Caption     += "复制";
-            info.Id          =  0;
-            info.ActivateAt  =  DateTime.MinValue;
-            info.NextAt      =  DateTime.MinValue;
-            info.RunCount    =  0;
-            info.LastRunAt   =  DateTime.MinValue;
-            info.RunSpeedAvg =  0;
-            if (info.IntervalMs > 0)
-            {
-                info.Cron       = info.IntervalMs.ToString();
-                info.IntervalMs = 0;
-            }
-
-            request.Id = await TaskGroupApp.AddAsync(info);
-            return await ApiResponseJson<int>.SuccessAsync("复制成功", request.Id);
+            var taskGroupId = await TaskGroupApp.CopyTaskGroup(request.Id);
+            return await ApiResponseJson<int>.SuccessAsync("复制成功", taskGroupId);
         }
 
         /// <summary>
@@ -102,7 +68,7 @@ namespace FSS.Service.Controllers
         [Route("DeleteTaskGroup")]
         public async Task<ApiResponseJson> DeleteTaskGroup(OnlyIdRequest request)
         {
-            await TaskGroupService.DeleteAsync(request.Id);
+            await TaskGroupApp.DeleteAsync(request.Id);
             return await ApiResponseJson.SuccessAsync("删除成功", request.Id);
         }
 
@@ -111,10 +77,10 @@ namespace FSS.Service.Controllers
         /// </summary>
         [HttpPost]
         [Route("GetTaskGroupInfo")]
-        public async Task<ApiResponseJson<TaskGroupDO>> GetTaskGroupInfo(OnlyIdRequest request)
+        public async Task<ApiResponseJson<TaskGroupDTO>> GetTaskGroupInfo(OnlyIdRequest request)
         {
-            var info = await TaskGroupInfo.ToInfoAsync(request.Id);
-            return await ApiResponseJson<TaskGroupDO>.SuccessAsync(info);
+            var info = await TaskGroupApp.ToEntityAsync(request.Id).MapAsync<TaskGroupDTO, TaskGroupDO>();
+            return await ApiResponseJson<TaskGroupDTO>.SuccessAsync(info);
         }
 
         /// <summary>
@@ -124,7 +90,7 @@ namespace FSS.Service.Controllers
         [Route("SyncCacheToDb")]
         public async Task<ApiResponseJson<List<TaskGroupDO>>> SyncCacheToDb()
         {
-            await TaskGroupUpdate.SyncCacheToDb();
+            await TaskGroupApp.SyncTaskGroup();
             return await ApiResponseJson.SuccessAsync();
         }
 
@@ -133,20 +99,20 @@ namespace FSS.Service.Controllers
         /// </summary>
         [HttpPost]
         [Route("GetTaskGroupList")]
-        public async Task<ApiResponseJson<List<TaskGroupDO>>> GetTaskGroupList()
+        public async Task<ApiResponseJson<List<TaskGroupDTO>>> GetTaskGroupList()
         {
-            var lst = await TaskGroupList.ToListInCacheAsync();
-            return await ApiResponseJson<List<TaskGroupDO>>.SuccessAsync(lst);
+            var lst = await TaskGroupApp.ToListAsync().MapAsync<TaskGroupDTO, TaskGroupDO>();
+            return await ApiResponseJson<List<TaskGroupDTO>>.SuccessAsync(lst);
         }
 
         /// <summary>
-        /// 获取全部任务组列表
+        /// 获取任务组数量
         /// </summary>
         [HttpPost]
         [Route("GetTaskGroupCount")]
         public async Task<ApiResponseJson<long>> GetTaskGroupCount()
         {
-            var count = await TaskGroupList.Count();
+            var count = await TaskGroupApp.GetTaskGroupCount();
             return await ApiResponseJson<long>.SuccessAsync(count);
         }
 
@@ -157,7 +123,7 @@ namespace FSS.Service.Controllers
         [Route("GetTaskGroupUnRunCount")]
         public async Task<ApiResponseJson<long>> GetTaskGroupUnRunCount()
         {
-            var count = await TaskList.ToUnRunCountAsync();
+            var count = await TaskGroupApp.ToUnRunCountAsync();
             return await ApiResponseJson<long>.SuccessAsync(count);
         }
 
@@ -173,7 +139,6 @@ namespace FSS.Service.Controllers
                 return await ApiResponseJson<int>.ErrorAsync("标题、时间间隔、传输数据、Job名称 必须填写");
             }
             request.Id = await TaskGroupApp.AddAsync(request);
-            await TaskApp.GetOrCreateAsync(request.Id);
             return await ApiResponseJson<int>.SuccessAsync("添加成功", request.Id);
         }
 
@@ -182,30 +147,9 @@ namespace FSS.Service.Controllers
         /// </summary>
         [HttpPost]
         [Route("SaveTaskGroup")]
-        public async Task<ApiResponseJson> SaveTaskGroup(TaskGroupDO request)
+        public async Task<ApiResponseJson> SaveTaskGroup(TaskGroupDTO request)
         {
-            var taskGroup = await TaskGroupInfo.ToInfoAsync(request.Id);
-            if (taskGroup == null) return await ApiResponseJson.ErrorAsync("任务组不存在");
-
-            await TaskGroupUpdate.SaveAsync(request);
-
-            // 更新了JobName，则要立即更新Task的JobName
-            if (taskGroup.JobName != request.JobName)
-            {
-                var task = await TaskInfo.ToInfoByGroupIdAsync(request.Id);
-                if (task.Status == EumTaskType.None)
-                {
-                    task.JobName = request.JobName;
-                    await TaskUpdate.UpdateAsync(task);
-                }
-            }
-
-            // 任务是重新开启状态时，立即创建一个任务
-            if (request.IsEnable && !taskGroup.IsEnable)
-            {
-                await TaskGroupApp.CancelTask(request.Id);
-            }
-
+            await TaskGroupApp.Save(request);
             return await ApiResponseJson.SuccessAsync();
         }
 
@@ -225,11 +169,10 @@ namespace FSS.Service.Controllers
         /// </summary>
         [HttpPost]
         [Route("GetTaskUnFinishList")]
-        public async Task<ApiResponseJson<List<TaskVO>>> GetTaskUnFinishList(OnlyTopRequest request)
+        public async Task<ApiResponseJson<List<TaskDTO>>> GetTaskUnFinishList(OnlyTopRequest request)
         {
-            var lst = await TaskApp.ToGroupListAsync();
-            lst = lst.Where(o => o.Status != EumTaskType.Success && o.Status != EumTaskType.Fail).OrderBy(o => o.StartAt).Take(request.Top).ToList();
-            return await ApiResponseJson<List<TaskVO>>.SuccessAsync(lst);
+            var lst = await TaskGroupApp.GetTaskUnFinishList(request.Top);
+            return await ApiResponseJson<List<TaskDTO>>.SuccessAsync(lst);
         }
 
         /// <summary>
@@ -237,33 +180,10 @@ namespace FSS.Service.Controllers
         /// </summary>
         [HttpPost]
         [Route("GetEnableTaskList")]
-        public async Task<ApiResponseJson<DataSplitList<TaskVO>>> GetEnableTaskList(GetAllTaskListRequest request)
+        public async Task<ApiResponseJson<DataSplitList<TaskDTO>>> GetEnableTaskList(GetAllTaskListRequest request)
         {
-            var lst = await TaskApp.ToGroupListAsync();
-            // 移除被禁用的任务组
-            var lstTaskGroup = await TaskGroupList.ToListInCacheAsync();
-            foreach (var taskGroupVO in lstTaskGroup.Where(o => !o.IsEnable))
-            {
-                lst.RemoveAll(o => o.TaskGroupId == taskGroupVO.Id);
-            }
-
-            if (request.Status.HasValue) lst = lst.Where(o => o.Status == request.Status.GetValueOrDefault()).ToList();
-
-            var totalCount = lst.Count;
-            lst = lst.OrderBy(o => o.JobName).ToList(request.PageSize, request.PageIndex);
-            return await ApiResponseJson<DataSplitList<TaskVO>>.SuccessAsync(new DataSplitList<TaskVO>(lst, totalCount));
-        }
-
-        /// <summary>
-        /// 获取进行中的任务
-        /// </summary>
-        [HttpPost]
-        [Route("GetTopTaskList")]
-        public async Task<ApiResponseJson<List<TaskVO>>> GetTopTaskList(OnlyTopRequest request)
-        {
-            var lst = await TaskApp.ToGroupListAsync();
-            lst = lst.Where(o => o.Status != EumTaskType.Success && o.Status != EumTaskType.Fail).Take(request.Top).OrderBy(o => o.StartAt).ToList();
-            return await ApiResponseJson<List<TaskVO>>.SuccessAsync(lst);
+            var lst = TaskGroupApp.GetEnableTaskList(request.Status, request.PageSize, request.PageIndex);
+            return await ApiResponseJson<DataSplitList<TaskDTO>>.SuccessAsync(lst);
         }
 
         /// <summary>
@@ -271,10 +191,10 @@ namespace FSS.Service.Controllers
         /// </summary>
         [HttpPost]
         [Route("GetTaskList")]
-        public async Task<ApiResponseJson<DataSplitList<TaskVO>>> GetTaskList(GetTaskListRequest request)
+        public async Task<ApiResponseJson<DataSplitList<TaskDTO>>> GetTaskList(GetTaskListRequest request)
         {
-            var lst = await TaskList.ToListAsync(request.GroupId, request.PageSize, request.PageIndex, out var totalCount);
-            return await ApiResponseJson<DataSplitList<TaskVO>>.SuccessAsync(new DataSplitList<TaskVO>(lst, totalCount));
+            var lst = await TaskGroupApp.ToListAsync(request.GroupId, request.PageSize, request.PageIndex);
+            return await ApiResponseJson<DataSplitList<TaskDTO>>.SuccessAsync(lst);
         }
 
         /// <summary>
@@ -282,10 +202,10 @@ namespace FSS.Service.Controllers
         /// </summary>
         [HttpPost]
         [Route("GetTaskFinishList")]
-        public async Task<ApiResponseJson<DataSplitList<TaskVO>>> GetTaskFinishList(PageSizeRequest request)
+        public async Task<ApiResponseJson<DataSplitList<TaskDTO>>> GetTaskFinishList(PageSizeRequest request)
         {
-            var lst = await TaskList.ToFinishListAsync(request.PageSize, request.PageIndex, out var totalCount);
-            return await ApiResponseJson<DataSplitList<TaskVO>>.SuccessAsync(new DataSplitList<TaskVO>(lst, totalCount));
+            var lst = await TaskGroupApp.ToFinishListAsync(request.PageSize, request.PageIndex);
+            return await ApiResponseJson<DataSplitList<TaskDTO>>.SuccessAsync(lst);
         }
 
         /// <summary>
@@ -304,10 +224,10 @@ namespace FSS.Service.Controllers
         /// </summary>
         [HttpPost]
         [Route("GetRunLogList")]
-        public async Task<ApiResponseJson<DataSplitList<RunLogDO>>> GetRunLogList(GetRunLogRequest request)
+        public async Task<ApiResponseJson<DataSplitList<TaskLogDTO>>> GetRunLogList(GetRunLogRequest request)
         {
-            var lst = LogAddApp.GetList(request.JobName, request.LogLevel, request.PageSize, request.PageIndex);
-            return await ApiResponseJson<DataSplitList<RunLogDO>>.SuccessAsync(lst);
+            var lst = TaskLogApp.GetList(request.JobName, request.LogLevel, request.PageSize, request.PageIndex);
+            return await ApiResponseJson<DataSplitList<TaskLogDTO>>.SuccessAsync(lst);
         }
     }
 }

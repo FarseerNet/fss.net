@@ -1,27 +1,29 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FS.Cache;
-using FS.Extends;
 using FSS.Domain.Tasks.TaskGroup.Entity;
+using FSS.Domain.Tasks.TaskGroup.Enum;
 using FSS.Domain.Tasks.TaskGroup.Interface;
-using FSS.Infrastructure.Repository.TaskGroup.Interface;
-using FSS.Infrastructure.Repository.TaskGroup.Model;
-using FSS.Infrastructure.Repository.Tasks.Interface;
+using FSS.Domain.Tasks.TaskGroup.Repository;
 
 namespace FSS.Domain.Tasks.TaskGroup
 {
     public class TaskGroupService : ITaskGroupService
     {
-        public ITaskGroupAgent TaskGroupAgent { get; set; }
-        public ITaskAgent      TaskAgent      { get; set; }
+        public ITaskGroupRepository TaskGroupRepository { get; set; }
+
+        /// <summary>
+        /// 获取任务组信息
+        /// </summary>
+        public Task<TaskGroupDO> ToEntityAsync(int taskGroupId) => TaskGroupRepository.ToEntityAsync(taskGroupId);
 
         /// <summary>
         /// 删除任务组
         /// </summary>
         public async Task DeleteAsync(int taskGroupId)
         {
-            var taskGroup = await TaskGroupAgent.ToEntityAsync(EumCacheStoreType.Redis, taskGroupId).MapAsync<TaskGroupDO, TaskGroupPO>();
+            var taskGroup = await TaskGroupRepository.ToEntityAsync(taskGroupId);
             await taskGroup.DeleteAsync();
         }
 
@@ -30,14 +32,23 @@ namespace FSS.Domain.Tasks.TaskGroup
         /// </summary>
         public async Task<List<TaskGroupDO>> ToListAsync()
         {
-            var lstTaskGroup = await TaskGroupAgent.ToListAsync(EumCacheStoreType.Redis).MapAsync<TaskGroupDO, TaskGroupPO>();
+            var lstTaskGroup = await TaskGroupRepository.ToListAsync();
 
             foreach (var taskGroupPO in lstTaskGroup)
             {
                 if (taskGroupPO.Task == null) await taskGroupPO.CreateTask();
             }
-            
             return lstTaskGroup;
         }
+
+        /// <summary>
+        /// 获取所有任务组中的任务
+        /// </summary>
+        public async Task<List<TaskGroupDO>> ToListAsync(string[] jobs, TimeSpan ts, int count)
+        {
+            var lstTaskGroup = await ToListAsync();
+            return lstTaskGroup.Where(o => o.Task != null && o.Task.Status == EumTaskType.None && jobs.Contains(o.JobName) && o.StartAt < DateTime.Now.Add(ts)).OrderBy(o => o.StartAt).Take(count).ToList();
+        }
+
     }
 }

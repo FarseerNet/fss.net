@@ -7,12 +7,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Client\Entity" />
+      <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.EventBus\Farseer.Net.EventBus.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.EventBus\Farseer.Net.EventBus.csproj" />
-      <ProjectReference Include="..\..\04_Infrastructure\FSS.Infrastructure.Repository\FSS.Infrastructure.Repository.csproj" />
+      <Folder Include="Clients\Event" />
     </ItemGroup>
 
 </Project>

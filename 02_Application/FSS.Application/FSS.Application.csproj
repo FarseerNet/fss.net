@@ -5,15 +5,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Client\PublishEvent" />
+      <Folder Include="Clients\PublishEvent" />
+      <Folder Include="Log" />
       <Folder Include="Tasks\TaskGroup\Event" />
       <Folder Include="Tasks\TaskGroup\Publish" />
-      <Folder Include="Tasks\Tasks\Entity" />
-      <Folder Include="Tasks\Tasks\Event" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\03_Abstract（组件接口）\FSS.Abstract\FSS.Abstract.csproj" />
       <ProjectReference Include="..\..\03_Domain\FSS.Domain.Client\FSS.Domain.Client.csproj" />
       <ProjectReference Include="..\..\03_Domain\FSS.Domain.Log\FSS.Domain.Log.csproj" />
       <ProjectReference Include="..\..\03_Domain\FSS.Domain.Tasks\FSS.Domain.Tasks.csproj" />

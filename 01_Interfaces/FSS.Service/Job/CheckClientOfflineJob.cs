@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using FS.Core.Job;
 using FS.Job;
-using FSS.Application.Client.Interface;
+using FSS.Application.Clients.Interface;
 
 namespace FSS.Service.Job
 {

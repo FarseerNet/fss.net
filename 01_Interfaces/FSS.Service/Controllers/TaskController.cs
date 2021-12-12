@@ -3,19 +3,13 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using FS.Core.Net;
 using FS.DI;
-using FS.Extends;
-using FSS.Abstract.Entity;
-using FSS.Abstract.Entity.MetaInfo;
-using FSS.Abstract.Server.MetaInfo;
-using FSS.Application.Log.Interface;
-using FSS.Domain.Tasks.TaskGroup.Entity;
+using FSS.Application.Log.TaskLog.Interface;
+using FSS.Application.Tasks.TaskGroup.Entity;
+using FSS.Application.Tasks.TaskGroup.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using EumTaskType = FSS.Infrastructure.Repository.Tasks.Enum.EumTaskType;
-using JobInvokeRequest = FSS.Abstract.Entity.JobInvokeRequest;
-using TaskVO = FSS.Abstract.Entity.MetaInfo.TaskVO;
+using EumTaskType = FSS.Domain.Tasks.TaskGroup.Enum.EumTaskType;
 
 namespace FSS.Service.Controllers
 {
@@ -26,14 +20,9 @@ namespace FSS.Service.Controllers
     [Route("task")]
     public class TaskController : BaseController
     {
-        public ITaskList        TaskList        { get; set; }
-        public IIocManager      IocManager      { get; set; }
-        public ILogAddApp       LogAddApp       { get; set; }
-        public IRunLogAdd       RunLogAdd       { get; set; }
-        public ITaskInfo        TaskInfo        { get; set; }
-        public ITaskGroupInfo   TaskGroupInfo   { get; set; }
-        public ITaskUpdate      TaskUpdate      { get; set; }
-        public ITaskGroupUpdate TaskGroupUpdate { get; set; }
+        public IIocManager   IocManager   { get; set; }
+        public ITaskLogApp   TaskLogApp   { get; set; }
+        public ITaskGroupApp TaskGroupApp { get; set; }
 
         public TaskController(IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
         {
@@ -44,11 +33,11 @@ namespace FSS.Service.Controllers
         /// </summary>
         [HttpPost]
         [Route("Pull")]
-        public async Task<ApiResponseJson<List<TaskVO>>> Pull(PullRequest request)
+        public async Task<ApiResponseJson<List<TaskDTO>>> Pull(PullDTO dto)
         {
             // 拉取任务
-            var lstTask = await TaskList.PullTaskAsync(Client, request.TaskCount) ?? new List<TaskVO>();
-            return await ApiResponseJson<List<TaskVO>>.SuccessAsync("默认", lstTask);
+            var lstTask = await TaskGroupApp.TaskSchedulerAsync(Client, dto.TaskCount) ?? new List<TaskDTO>();
+            return await ApiResponseJson<List<TaskDTO>>.SuccessAsync("默认", lstTask);
         }
 
         /// <summary>
@@ -56,90 +45,51 @@ namespace FSS.Service.Controllers
         /// </summary>
         [HttpPost]
         [Route("JobInvoke")]
-        public async Task<ApiResponseJson> JobInvoke(JobInvokeRequest request)
+        public async Task<ApiResponseJson> JobInvoke(JobInvokeDTO dto)
         {
-            var logger        = IocManager.Logger<TaskController>();
-            var taskTask      = TaskInfo.ToInfoByGroupIdAsync(request.TaskGroupId);
-            var taskGroupTask = TaskGroupInfo.ToInfoAsync(request.TaskGroupId);
-            await Task.WhenAll(taskTask, taskGroupTask);
+            var taskGroup = await TaskGroupApp.ToEntityAsync(dto.TaskGroupId);
 
-            var task      = await taskTask;
-            var taskGroup = await taskGroupTask;
             if (taskGroup == null)
             {
-                await LogAddApp.AddAsync(new TaskGroupDO(), LogLevel.Warning, $"所属的任务组：{task.TaskGroupId} 不存在");
-                return await ApiResponseJson.ErrorAsync($"所属的任务组：{task.TaskGroupId} 不存在");
+                await TaskLogApp.AddAsync(dto.TaskGroupId, "", "", LogLevel.Warning, $"所属的任务组：{dto.TaskGroupId} 不存在");
+                return await ApiResponseJson.ErrorAsync($"所属的任务组：{dto.TaskGroupId} 不存在");
             }
 
             try
             {
-                // 不相等，说明被覆盖了（JOB请求慢了。被调度重新执行了）
-                if (task.ClientId != Client.Id)
+                // 如果有日志
+                if (dto.Log != null && !string.IsNullOrWhiteSpace(dto.Log.Log))
                 {
-                    await LogAddApp.AddAsync(taskGroup, LogLevel.Warning, $"任务： {taskGroup.Caption}（{taskGroup.JobName}） ，{task.ClientId}与本次请求的客户端{Client.Id} 不一致，忽略本次请求");
-                    return await ApiResponseJson.ErrorAsync($"任务： {taskGroup.Caption}（{taskGroup.JobName}） ，{task.ClientId}与本次请求的客户端{Client.Id} 不一致，忽略本次请求");
-                }
-
-                // 更新Task元信息
-                if (task.Status == EumTaskType.Scheduler)
-                {
-                    task.RunAt = DateTime.Now; // 首次执行，记录时间
-                    // 更新group元信息
-                    taskGroup.RunCount++;
-                    taskGroup.LastRunAt = DateTime.Now;
-                }
-
-                // 更新Task
-                taskGroup.ActivateAt = DateTime.Now;
-                taskGroup.Data       = JsonConvert.SerializeObject(request.Data);
-                // 客户端设置了动态时间
-                if (request.NextTimespan > 0)
-                {
-                    taskGroup.NextAt = request.NextTimespan.ToTimestamps();
+                    await TaskLogApp.AddAsync(taskGroup, dto.Log.LogLevel, dto.Log.Log);
                 }
                 
-                task.Progress        = request.Progress;
-                task.Status          = request.Status;
-                task.RunSpeed        = request.RunSpeed;
-
-                // 如果有日志
-                if (request.Log != null && !string.IsNullOrWhiteSpace(request.Log.Log))
+                // 不相等，说明被覆盖了（JOB请求慢了。被调度重新执行了）
+                if (taskGroup.Task.ClientId != Client.Id)
                 {
-                    await LogAddApp.AddAsync(taskGroup, request.Log.LogLevel, request.Log.Log);
+                    await TaskLogApp.AddAsync(taskGroup, LogLevel.Warning, $"任务： {taskGroup.Caption}（{taskGroup.JobName}） ，{taskGroup.Task.ClientId}与本次请求的客户端{Client.Id} 不一致，忽略本次请求");
+                    return await ApiResponseJson.ErrorAsync($"任务： {taskGroup.Caption}（{taskGroup.JobName}） ，{taskGroup.Task.ClientId}与本次请求的客户端{Client.Id} 不一致，忽略本次请求");
                 }
 
-                // 如果是成功、错误状态，则要立即更新数据库
-                switch (task.Status)
-                {
-                    case EumTaskType.Fail:
-                    case EumTaskType.Success:
-                        await TaskUpdate.SaveFinishAsync(task, taskGroup);
-                        break;
-                    default:
-                        await TaskUpdate.UpdateAsync(task);
-                        await TaskGroupUpdate.UpdateAsync(taskGroup);
-                        break;
-                }
+                // 更新执行中状态
+                await taskGroup.Working(dto.Data, dto.NextTimespan, dto.Progress, dto.Status, dto.RunSpeed);
 
-                var message = $"任务组：TaskGroupId={task.TaskGroupId}，Caption={taskGroup.Caption}，JobName={taskGroup.JobName}，TaskId={task.Id} 执行失败";
-                switch (task.Status)
+                switch (taskGroup.Task.Status)
                 {
                     case EumTaskType.Working:
-                        return await ApiResponseJson.SuccessAsync($"任务组：TaskGroupId={task.TaskGroupId}，Caption={taskGroup.Caption}，JobName={taskGroup.JobName}，TaskId={task.Id} 更新成功");
+                        return await ApiResponseJson.SuccessAsync($"任务组：TaskGroupId={taskGroup.Id}，Caption={taskGroup.Caption}，JobName={taskGroup.JobName}，TaskId={taskGroup.Task.Id} 更新成功");
                     case EumTaskType.Success:
-                        return await ApiResponseJson.SuccessAsync($"任务组：TaskGroupId={task.TaskGroupId}，Caption={taskGroup.Caption}，JobName={taskGroup.JobName}，TaskId={task.Id} 执行成功，耗时：{task.RunSpeed} ms");
-                    case EumTaskType.Fail:
+                        return await ApiResponseJson.SuccessAsync($"任务组：TaskGroupId={taskGroup.Id}，Caption={taskGroup.Caption}，JobName={taskGroup.JobName}，TaskId={taskGroup.Task.Id} 执行成功，耗时：{taskGroup.Task.RunSpeed} ms");
                     default:
-                        await LogAddApp.AddAsync(taskGroup, LogLevel.Warning, message);
+                        var message = $"任务组：TaskGroupId={taskGroup.Id}，Caption={taskGroup.Caption}，JobName={taskGroup.JobName}，TaskId={taskGroup.Task.Id} 执行失败";
+                        await TaskLogApp.AddAsync(taskGroup, LogLevel.Warning, message);
                         return await ApiResponseJson.ErrorAsync(message);
                 }
             }
             catch (Exception e)
             {
                 if (e.InnerException != null) e = e.InnerException;
-                task.Status = EumTaskType.Fail;
-                await TaskUpdate.SaveFinishAsync(task, taskGroup);
-                await LogAddApp.AddAsync(taskGroup, LogLevel.Error, e.Message);
+                await taskGroup.CancelTask();
+                await TaskLogApp.AddAsync(taskGroup, LogLevel.Error, e.Message);
                 return await ApiResponseJson.ErrorAsync(e.Message);
             }
         }

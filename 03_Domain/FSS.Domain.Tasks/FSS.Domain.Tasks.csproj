@@ -10,7 +10,6 @@
       <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.EventBus\Farseer.Net.EventBus.csproj" />
       <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.Mapper\Farseer.Net.Mapper.csproj" />
       <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.Utils\Farseer.Net.Utils.csproj" />
-      <ProjectReference Include="..\..\04_Infrastructure\FSS.Infrastructure.Repository\FSS.Infrastructure.Repository.csproj" />
     </ItemGroup>
 
 </Project>

@@ -1,25 +1,22 @@
 using System;
 using System.Threading.Tasks;
-using FS.Core;
-using FS.Extends;
 using FSS.Domain.Log.TaskLog.Entity;
 using FSS.Domain.Log.TaskLog.Interface;
-using FSS.Infrastructure.Repository.Log.Interface;
+using FSS.Domain.Log.TaskLog.Repository;
 using Microsoft.Extensions.Logging;
 
 namespace FSS.Domain.Log.TaskLog
 {
     public class TaskLogService : ITaskLogService
     {
-        public ILogQueue LogQueue { get; set; }
-        public ILogAgent LogAgent { get; set; }
+        public ITaskLogRepository TaskLogRepository { get; set; }
 
         /// <summary>
         /// 添加日志记录
         /// </summary>
         public Task AddAsync(int taskGroupId, string jobName, string caption, LogLevel logLevel, string content)
         {
-            return new RunLogDO
+            return new TaskLogDO
             {
                 TaskGroupId = taskGroupId,
                 Caption     = caption ?? "",
@@ -28,26 +25,6 @@ namespace FSS.Domain.Log.TaskLog
                 Content     = content,
                 CreateAt    = DateTime.Now
             }.AddAsync();
-        }
-
-        /// <summary>
-        /// 将日志从队列中保存到ES数据库
-        /// </summary>
-        public async Task<int> SaveAsync(int saveCount)
-        {
-            var lstLog = await LogQueue.GetQueueAsync(saveCount);
-            if (lstLog.Count == 0) return 0;
-
-            return await LogAgent.AddAsync(lstLog);
-        }
-
-        /// <summary>
-        /// 获取日志
-        /// </summary>
-        public DataSplitList<RunLogDO> GetList(string jobName, LogLevel? logLevel, int pageSize, int pageIndex)
-        {
-            var lst = LogAgent.GetList(jobName, logLevel, pageSize, pageIndex);
-            return new DataSplitList<RunLogDO>(lst.List.Map<RunLogDO>(), lst.TotalCount);
         }
     }
 }

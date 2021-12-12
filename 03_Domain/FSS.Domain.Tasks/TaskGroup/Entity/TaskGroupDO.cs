@@ -1,21 +1,20 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FS.DI;
 using FS.Extends;
-using FS.Mapper;
 using FS.Utils.Common;
 using FS.Utils.Component;
-using FSS.Infrastructure.Repository.TaskGroup.Interface;
-using FSS.Infrastructure.Repository.TaskGroup.Model;
-using FSS.Infrastructure.Repository.Tasks.Enum;
+using FSS.Domain.Tasks.TaskGroup.Enum;
+using FSS.Domain.Tasks.TaskGroup.Repository;
+using Newtonsoft.Json;
 
 namespace FSS.Domain.Tasks.TaskGroup.Entity
 {
     /// <summary>
     /// 任务组记录
     /// </summary>
-    [Serializable]
-    [Map(typeof(TaskGroupPO))]
     public class TaskGroupDO
     {
         /// <summary>
@@ -78,7 +77,14 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
         /// </summary>
         public bool IsEnable { get; set; }
 
-        public static implicit operator TaskGroupPO(TaskGroupDO taskGroupDO) => taskGroupDO.Map<TaskGroupPO>();
+        /// <summary>
+        /// 运行平均耗时
+        /// </summary>
+        public long RunSpeedAvg { get; set; }
+        /// <summary>
+        /// 运行次数
+        /// </summary>
+        public int RunCount { get; set; }
 
         /// <summary>
         /// 添加任务组信息
@@ -111,17 +117,26 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
 
 
             // 添加到数据库
-            Id = await IocManager.GetService<ITaskGroupAgent>().AddAsync(this.Map<TaskGroupPO>());
+            Id = await IocManager.GetService<ITaskGroupRepository>().AddAsync(this);
 
-            // 发布任务组创建事件
-            //IocManager.GetService<TaskGroupPublish>().CreateTaskGroup(this, taskGroupDO.Id);
-
-            // 发布任务组开启事件
-            if (IsEnable)
-            {
-                IocManager.GetService<TaskGroupPublish>().EnableTaskGroup(this, Id);
-            }
+            // 创建任务
+            await CreateTask();
             return Id;
+        }
+
+        /// <summary>
+        /// 复制任务组
+        /// </summary>
+        public Task<int> CopyAsync()
+        {
+            Caption     += "复制";
+            Id          =  0;
+            ActivateAt  =  DateTime.MinValue;
+            NextAt      =  DateTime.MinValue;
+            LastRunAt   =  DateTime.MinValue;
+            RunSpeedAvg =  0;
+
+            return IocManager.GetService<ITaskGroupRepository>().AddAsync(this);
         }
 
         /// <summary>
@@ -133,13 +148,102 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
             if (IsEnable)
             {
                 IsEnable = false;
-                var taskGroupAgent = IocManager.GetService<ITaskGroupAgent>();
-                await taskGroupAgent.SaveAsync(this);
-                await taskGroupAgent.UpdateAsync(Id, this);
+                await IocManager.GetService<ITaskGroupRepository>().SaveAsync(this);
             }
+
+            await IocManager.GetService<ITaskGroupRepository>().DeleteAsync(Id);
 
             // 发布删除任务组事件
             IocManager.GetService<TaskGroupPublish>().DeleteTaskGroup(this, Id);
+        }
+
+        /// <summary>
+        /// 保存
+        /// </summary>
+        public async Task SaveAsync(TaskGroupDO newTaskGroupDO)
+        {
+            var taskGroupRepository = IocManager.GetService<ITaskGroupRepository>();
+
+            // 更新了JobName，则要立即更新Task的JobName
+            if (JobName != newTaskGroupDO.JobName)
+            {
+                if (Task.Status == EumTaskType.None)
+                {
+                    Task.JobName = newTaskGroupDO.JobName;
+                }
+            }
+
+            Caption = newTaskGroupDO.Caption;
+            JobName = newTaskGroupDO.JobName;
+            Data    = newTaskGroupDO.Data;
+            StartAt = newTaskGroupDO.StartAt;
+
+            // 是否为数字
+            if (IsType.IsInt(newTaskGroupDO.Cron))
+            {
+                IntervalMs = newTaskGroupDO.Cron.ConvertType(0L);
+                Cron       = "";
+                NextAt     = DateTime.Now.AddMilliseconds(IntervalMs);
+            }
+            else
+            {
+                var cron = new Cron(newTaskGroupDO.Cron);
+                if (cron.Parse())
+                {
+                    IntervalMs = 0;
+                    NextAt     = cron.GetNext(DateTime.Now);
+                }
+                else
+                    throw new Exception("Cron格式错误");
+            }
+
+            // 停止了任务，需要把任务取消掉
+            if (IsEnable != newTaskGroupDO.IsEnable)
+            {
+                await SetEnable(newTaskGroupDO.IsEnable);
+            }
+            else
+            {
+                await taskGroupRepository.SaveAsync(this);
+            }
+        }
+
+        /// <summary>
+        /// 保存
+        /// </summary>
+        public Task SaveAsync() => IocManager.GetService<ITaskGroupRepository>().SaveAsync(this);
+
+        /// <summary>
+        /// 更改启用状态
+        /// </summary>
+        public async Task SetEnable(bool enable)
+        {
+            // 停止了任务，需要把任务取消掉
+            if (IsEnable && !enable)
+            {
+                IsEnable = enable;
+                await CancelTask();
+            }
+            // 重新开启了任务
+            else if (!IsEnable && enable)
+            {
+                IsEnable = enable;
+                switch (Task.Status)
+                {
+                    // 进行中的任务，要先取消
+                    case EumTaskType.Scheduler:
+                    case EumTaskType.Working:
+                        await CancelTask();
+                        break;
+                    // 未开始的任务，直接保存
+                    case EumTaskType.None:
+                    case EumTaskType.Fail:
+                    case EumTaskType.Success:
+                        await FinishAsync();
+                        break;
+                }
+            }
+
         }
 
         /// <summary>
@@ -176,7 +280,7 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
                 }
             }
 
-            await IocManager.GetService<ITaskGroupAgent>().SaveAsync(this);
+            await IocManager.GetService<ITaskGroupRepository>().SaveAsync(this);
 
             // 发布任务完成事件
             IocManager.GetService<TaskGroupPublish>().TaskFinish(this, this);
@@ -211,8 +315,106 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
                 RunAt       = DateTime.Now,
                 SchedulerAt = DateTime.Now
             };
-            
-            await IocManager.GetService<ITaskGroupAgent>().SaveAsync(this);
+
+            await IocManager.GetService<ITaskGroupRepository>().SaveAsync(this);
+        }
+
+        /// <summary>
+        /// 调度时设置客户端
+        /// </summary>
+        public Task SetClient(long clientId, string clientIp, string clientName)
+        {
+            Task.SetClient(clientId, clientIp, clientName);
+            return IocManager.GetService<ITaskGroupRepository>().SaveAsync(this);
+        }
+
+        /// <summary>
+        /// 检测进行中状态的任务
+        /// </summary>
+        public async Task CheckClientOffline()
+        {
+            if (Task == null)
+            {
+                await CreateTask();
+                return;
+            }
+
+            if (!IsEnable && Task.Status is not EumTaskType.Success or EumTaskType.Fail)
+            {
+                throw new Exception($"任务：{Id} {Caption} {JobName} 已被禁用，强制设为失败状态");
+            }
+
+            // 任务组活动时间大于1分钟，判定为客户端下线
+            if ((DateTime.Now - ActivateAt).TotalMinutes >= 1) // 大于1分钟，才检查
+            {
+                throw new Exception($"【任务假死】{ActivateAt:yyyy-MM-dd HH:mm:ss}，任务：【{JobName}】 {Id} {Caption} ，强制设为失败状态");
+            }
+
+            // 如果时间小于5分钟的，则按5分钟来判定
+            var timeout = Math.Max(RunSpeedAvg * 2.5, (long)TimeSpan.FromMinutes(5).TotalMilliseconds);
+            if ((DateTime.Now - Task.RunAt).TotalMilliseconds > timeout) throw new Exception($"【任务超时】任务：【{JobName}】 {Id} {Caption} 超过平均运行时间：{timeout} ms，强制设为失败状态");
+
+            // 加个时间，来限制并发
+            if (Task.Status == EumTaskType.Scheduler && (DateTime.Now - Task.StartAt).TotalSeconds < 5) return;
+            if (Task.Status == EumTaskType.Working   && (DateTime.Now - Task.RunAt).TotalSeconds   < 5) return;
+
+            // 检查客户端
+
+            // 找出当前客户端对应的所有任务、并且执行时间 已经到了
+            var lstClientTask = await IocManager.GetService<ITaskGroupRepository>().ToListAsync(Task.ClientId);
+            if (lstClientTask.Count == 0) return;
+
+            // 全部处于调度、工作状态，说明客户端已经假死了
+            if (lstClientTask.All(o => o.Task.Status is EumTaskType.Scheduler or EumTaskType.Working))
+            {
+                throw new Exception($"【客户端假死】客户端：{Task.ClientId}，强制下线客户端");
+            }
+        }
+
+        /// <summary>
+        /// 执行执行中
+        /// </summary>
+        public async Task Working(Dictionary<string, string> data, long nextTimespan, int progress, EumTaskType status, long runSpeed)
+        {
+            // 数据库的状态处于调度状态，说明客户端第一次请求进来
+            if (Task.Status == EumTaskType.Scheduler)
+            {
+                Task.RunAt = DateTime.Now; // 首次执行，记录时间
+                // 更新group元信息
+                RunCount++;
+                LastRunAt = DateTime.Now;
+            }
+
+            Data          = JsonConvert.SerializeObject(data);
+            ActivateAt    = DateTime.Now;
+            Task.Progress = progress;
+            Task.Status   = status;
+            Task.RunSpeed = runSpeed;
+
+            // 客户端设置了动态时间
+            if (nextTimespan > 0) NextAt = nextTimespan.ToTimestamps();
+
+            // 如果是成功、错误状态，则要立即更新数据库
+            switch (Task.Status)
+            {
+                case EumTaskType.Fail:
+                case EumTaskType.Success:
+                    await FinishAsync();
+                    break;
+                default:
+                    await IocManager.GetService<ITaskGroupRepository>().SaveAsync(this);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// 计算平均耗时
+        /// </summary>
+        public async Task UpdateAvgSpeed()
+        {
+            var speedList = await IocManager.GetService<ITaskGroupRepository>().ToTaskSpeedListAsync(Id);
+            RunSpeedAvg = new TaskSpeed(speedList).GetAvgSpeed();
+            if (RunSpeedAvg > 0) await IocManager.GetService<ITaskGroupRepository>().SaveAsync(this);
         }
     }
 }

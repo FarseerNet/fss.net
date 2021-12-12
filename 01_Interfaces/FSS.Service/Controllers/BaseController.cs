@@ -1,10 +1,8 @@
 using System;
 using FS.DI;
 using FS.Extends;
-using FSS.Abstract.Entity;
-using FSS.Abstract.Server.RegisterCenter;
-using FSS.Infrastructure.Repository.Client.Interface;
-using FSS.Infrastructure.Repository.Client.Model;
+using FSS.Application.Clients.Dto;
+using FSS.Application.Clients.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,7 +15,7 @@ namespace FSS.Service.Controllers
         /// <summary>
         /// 客户端请求IP
         /// </summary>
-        protected ClientVO Client { get; }
+        protected ClientDTO Client { get; }
 
         /// <summary>
         /// 客户端请求IP
@@ -37,7 +35,7 @@ namespace FSS.Service.Controllers
         public BaseController(IHttpContextAccessor httpContextAccessor)
         {
             HttpContextAccessor = httpContextAccessor;
-            Client = new ClientVO
+            Client = new ClientDTO
             {
                 ClientIp   = HttpContextAccessor.HttpContext.Request.Headers["ClientIp"].ToString().Split(',')[0].Trim(),
                 ClientName = HttpContextAccessor.HttpContext.Request.Headers["ClientName"],
@@ -47,7 +45,7 @@ namespace FSS.Service.Controllers
             };
 
             // 更新客户端的使用时间
-            IocManager.Instance.Resolve<IClientAgent>().UpdateClient(Client.Map<ClientPO>());
+            IocManager.Instance.Resolve<IClientApp>().UpdateClient(Client);
         }
     }
 }

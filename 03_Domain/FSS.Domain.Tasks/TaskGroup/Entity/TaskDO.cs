@@ -1,22 +1,16 @@
 using System;
 using System.Threading.Tasks;
 using FS.DI;
-using FS.Extends;
-using FS.Mapper;
-using FSS.Infrastructure.Repository.Tasks.Enum;
-using FSS.Infrastructure.Repository.Tasks.Interface;
-using FSS.Infrastructure.Repository.Tasks.Model;
+using FSS.Domain.Tasks.TaskGroup.Enum;
+using FSS.Domain.Tasks.TaskGroup.Repository;
 
 namespace FSS.Domain.Tasks.TaskGroup.Entity
 {
     /// <summary>
     /// 任务记录
     /// </summary>
-    [Map(typeof(TaskPO))]
     public class TaskDO
     {
-        public ITaskAgent TaskAgent { get; set; }
-
         /// <summary>
         /// 主键
         /// </summary>
@@ -87,14 +81,24 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
         /// </summary>
         public DateTime SchedulerAt { get; set; }
 
-        public static implicit operator TaskPO(TaskDO taskDO) => taskDO.Map<TaskPO>();
-
         /// <summary>
         /// 创建任务
         /// </summary>
         public Task AddQueueAsync()
         {
-            return IocManager.GetService<ITaskAgent>().AddQueueAsync(this);
+            return IocManager.GetService<ITaskGroupRepository>().AddTaskAsync(this);
+        }
+
+        /// <summary>
+        /// 调度时设置客户端
+        /// </summary>
+        public void SetClient(long clientId, string clientIp, string clientName)
+        {
+            Status      = EumTaskType.Scheduler;
+            SchedulerAt = DateTime.Now;
+            ClientIp    = clientIp;
+            ClientName  = clientName;
+            ClientId    = clientId;
         }
     }
 }
