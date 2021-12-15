@@ -17,21 +17,6 @@ namespace FSS.Service.Controllers
         /// </summary>
         protected ClientDTO Client { get; }
 
-        /// <summary>
-        /// 客户端请求IP
-        /// </summary>
-        protected string ReqIp { get; }
-
-        /// <summary>
-        /// 客户端浏览器信息
-        /// </summary>
-        protected string UserAgent { get; }
-
-        /// <summary>
-        /// 请求源
-        /// </summary>
-        protected string Origin { get; }
-
         public BaseController(IHttpContextAccessor httpContextAccessor)
         {
             HttpContextAccessor = httpContextAccessor;

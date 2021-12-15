@@ -9,7 +9,7 @@ using FSS.Domain.Tasks.TaskGroup.Repository;
 
 namespace FSS.Application.Tasks.TaskGroup
 {
-    public class SchedulerApp : ISingletonDependency
+    public class TaskSchedulerApp : ISingletonDependency
     {
         public ITaskGroupRepository TaskGroupRepository { get; set; }
         

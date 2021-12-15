@@ -1,9 +1,6 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using FSS.Domain.Tasks.TaskGroup.Entity;
-using FSS.Domain.Tasks.TaskGroup.Enum;
 using FSS.Domain.Tasks.TaskGroup.Interface;
 using FSS.Domain.Tasks.TaskGroup.Repository;
 
@@ -39,15 +36,6 @@ namespace FSS.Domain.Tasks.TaskGroup
                 if (taskGroupPO.Task == null) await taskGroupPO.CreateTask();
             }
             return lstTaskGroup;
-        }
-
-        /// <summary>
-        /// 获取所有任务组中的任务
-        /// </summary>
-        public async Task<List<TaskGroupDO>> ToListAsync(string[] jobs, TimeSpan ts, int count)
-        {
-            var lstTaskGroup = await ToListAsync();
-            return lstTaskGroup.Where(o => o.Task != null && o.Task.Status == EumTaskType.None && jobs.Contains(o.JobName) && o.StartAt < DateTime.Now.Add(ts)).OrderBy(o => o.StartAt).Take(count).ToList();
         }
 
     }
