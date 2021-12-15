@@ -10,7 +10,7 @@ namespace FSS.Application.Tasks.TaskGroup
 {
     public class TaskGroupApp : ISingletonDependency
     {
-        public ITaskGroupRepository   TaskGroupRepository    { get; set; }
+        public ITaskGroupRepository TaskGroupRepository { get; set; }
 
         /// <summary>
         /// 添加任务组信息
@@ -29,31 +29,12 @@ namespace FSS.Application.Tasks.TaskGroup
         }
 
         /// <summary>
-        /// 设置任务组状态
-        /// </summary>
-        public async Task SetEnable(int taskGroupId, bool enable)
-        {
-            var taskGroupDO = await TaskGroupRepository.ToEntityAsync(taskGroupId);
-            if (taskGroupDO == null) throw new Exception("任务组不存在");
-            await taskGroupDO.SetEnable(enable);
-        }
-
-        /// <summary>
         /// 取消任务
         /// </summary>
         public async Task CancelTask(int taskGroupId)
         {
             var taskGroup = await TaskGroupRepository.ToEntityAsync(taskGroupId);
             await taskGroup.CancelAsync();
-        }
-
-        /// <summary>
-        /// 计算任务的平均运行速度
-        /// </summary>
-        public async Task UpdateAvgSpeed(int taskGroupId)
-        {
-            var taskGroup = await TaskGroupRepository.ToEntityAsync(taskGroupId);
-            await taskGroup.UpdateAvgSpeed();
         }
 
         /// <summary>

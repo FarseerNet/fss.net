@@ -1,9 +1,10 @@
 using System.Threading.Tasks;
 using FS.Core.Job;
 using FS.Job;
-using FSS.Application.Tasks.TaskGroup;
+using FSS.Domain.Tasks.TaskGroup.Interface;
+using FSS.Domain.Tasks.TaskGroup.Repository;
 
-namespace FSS.Service.Job
+namespace FSS.Application.Tasks.TaskGroup.Job
 {
     /// <summary>
     /// 计算任务组的平均耗时
@@ -11,16 +12,17 @@ namespace FSS.Service.Job
     [FssJob(Name = "FSS.SyncTaskGroupAvgSpeed")]
     public class SyncTaskGroupAvgSpeedJob : IFssJob
     {
-        public TaskQueryApp TaskQueryApp { get; set; }
-        public TaskGroupApp TaskGroupApp { get; set; }
+        public ITaskGroupService    TaskGroupService    { get; set; }
+        public ITaskGroupRepository TaskGroupRepository { get; set; }
 
         public async Task<bool> Execute(IFssContext context)
         {
-            var taskGroupVos = await TaskQueryApp.ToListAsync();
+            var taskGroupVos = await TaskGroupService.ToListAsync();
             foreach (var taskGroupVo in taskGroupVos)
             {
                 // 先计算在更新
-                await TaskGroupApp.UpdateAvgSpeed(taskGroupVo.Id);
+                var taskGroup = await TaskGroupRepository.ToEntityAsync(taskGroupVo.Id);
+                await taskGroup.UpdateAvgSpeed();
                 await Task.Delay(1000);
             }
             return true;

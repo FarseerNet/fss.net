@@ -9,6 +9,7 @@ using FS.Job;
 using FS.LinkTrack;
 using FS.Mapper;
 using FS.Modules;
+using FSS.Application.Tasks.TaskGroup.Job;
 using FSS.Infrastructure;
 using FSS.Service.Background;
 using Microsoft.AspNetCore.Builder;
@@ -55,6 +56,7 @@ namespace FSS.Service
 
             // 开启任务组调度
             services.AddHostedService<PrintSysInfoService>();
+            services.AddHostedService<InitSysTaskService>();
             services.AddHostedService<CheckFinishStatusService>();
             services.AddHostedService<CheckWorkStatusService>();
             services.AddLogging(o =>

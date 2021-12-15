@@ -1,9 +1,9 @@
 using System.Threading.Tasks;
 using FS.Core.Job;
 using FS.Job;
-using FSS.Application.Clients.Client;
+using FSS.Domain.Client.Clients.Interface;
 
-namespace FSS.Service.Job
+namespace FSS.Application.Clients.Client.Job
 {
     /// <summary>
     /// 检查超时离线的客户端
@@ -11,10 +11,10 @@ namespace FSS.Service.Job
     [FssJob(Name = "FSS.CheckClientOffline")]
     public class CheckClientOfflineJob : IFssJob
     {
-        public ClientApp ClientApp { get; set; }
+        public IClientService ClientService { get; set; }
         public async Task<bool> Execute(IFssContext context)
         {
-            await ClientApp.CheckTimeoutAsync();
+            await ClientService.CheckTimeoutAsync();
             return true;
         }
     }

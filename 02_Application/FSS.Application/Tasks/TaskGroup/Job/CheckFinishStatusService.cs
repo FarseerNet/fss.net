@@ -3,23 +3,23 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FS.Core.LinkTrack;
-using FSS.Application.Tasks.TaskGroup;
+using FSS.Domain.Tasks.TaskGroup.Interface;
 
-namespace FSS.Service.Background
+namespace FSS.Application.Tasks.TaskGroup.Job
 {
     /// <summary>
     /// 检测完成状态的任务
     /// </summary>
     public class CheckFinishStatusService : BackgroundServiceTrace
     {
-        public TaskQueryApp TaskQueryApp { get; set; }
+        public ITaskGroupService TaskGroupService { get; set; }
 
         protected override async Task ExecuteJobAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
                 // 取出任务组
-                var dicTaskGroup = await TaskQueryApp.ToListAsync();
+                var dicTaskGroup = await TaskGroupService.ToListAsync();
 
                 // 只检测Enable状态的任务组
                 foreach (var taskGroupDO in dicTaskGroup.Where(o => o.IsEnable))

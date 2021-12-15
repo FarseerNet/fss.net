@@ -61,11 +61,6 @@ namespace FSS.Application.Tasks.TaskGroup
         }
 
         /// <summary>
-        /// 获取执行中的任务
-        /// </summary>
-        public Task<List<TaskGroupDO>> ToSchedulerWorkingListAsync() => TaskGroupRepository.ToSchedulerWorkingListAsync();
-
-        /// <summary>
         /// 获取进行中的任务
         /// </summary>
         public async Task<List<TaskDTO>> GetTaskUnFinishList(int top)
