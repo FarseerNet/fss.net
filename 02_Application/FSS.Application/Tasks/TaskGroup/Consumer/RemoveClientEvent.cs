@@ -5,7 +5,7 @@ using FS.Extends;
 using FSS.Domain.Tasks.TaskGroup.Enum;
 using FSS.Domain.Tasks.TaskGroup.Repository;
 
-namespace FSS.Domain.Tasks.TaskGroup.Event
+namespace FSS.Application.Tasks.TaskGroup.Consumer
 {
     /// <summary>
     /// 客户端下线后移除任务

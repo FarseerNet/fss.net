@@ -4,7 +4,7 @@ using FS.EventBus.Attr;
 using FSS.Domain.Tasks.TaskGroup.Entity;
 using FSS.Domain.Tasks.TaskGroup.Interface;
 
-namespace FSS.Domain.Tasks.TaskGroup.Event
+namespace FSS.Application.Tasks.TaskGroup.Consumer
 {
     /// <summary>
     /// 任务完成事件

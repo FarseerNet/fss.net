@@ -4,7 +4,7 @@ using FS.EventBus.Attr;
 using FS.Extends;
 using FSS.Domain.Tasks.TaskGroup.Repository;
 
-namespace FSS.Domain.Tasks.TaskGroup.Event
+namespace FSS.Application.Tasks.TaskGroup.Consumer
 {
     /// <summary>
     /// 删除任务组
