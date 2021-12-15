@@ -2,7 +2,7 @@ using System;
 using FS.DI;
 using FS.Extends;
 using FSS.Application.Clients.Client;
-using FSS.Application.Clients.Client.Dto;
+using FSS.Application.Clients.Client.Entity;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

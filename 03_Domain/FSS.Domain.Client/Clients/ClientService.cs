@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using FS.DI;
 using FSS.Domain.Client.Clients.Interface;
+using FSS.Domain.Client.Clients.Publish;
 using FSS.Domain.Client.Clients.Repository;
 
 namespace FSS.Domain.Client.Clients
@@ -22,7 +23,7 @@ namespace FSS.Domain.Client.Clients
                 if ((DateTime.Now - client.ActivateAt).TotalMinutes >= 1)
                 {
                     await client.RemoveAsync();
-                    IocManager.GetService<ClientPublish>().ClientOffline(this, client);
+                    IocManager.GetService<IClientOfflinePublish>().Publish(this, client);
                 }
             }
         }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using FS.Core;
 using FS.DI;
-using FSS.Application.Clients.Client.Dto;
+using FSS.Application.Clients.Client.Entity;
 using FSS.Application.Tasks.TaskGroup.Entity;
 using FSS.Domain.Tasks.TaskGroup.Repository;
 

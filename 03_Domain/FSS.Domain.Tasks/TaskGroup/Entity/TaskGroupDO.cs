@@ -7,6 +7,7 @@ using FS.Extends;
 using FS.Utils.Common;
 using FS.Utils.Component;
 using FSS.Domain.Tasks.TaskGroup.Enum;
+using FSS.Domain.Tasks.TaskGroup.Publish;
 using FSS.Domain.Tasks.TaskGroup.Repository;
 
 namespace FSS.Domain.Tasks.TaskGroup.Entity
@@ -150,9 +151,9 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
             }
 
             await IocManager.GetService<ITaskGroupRepository>().DeleteAsync(Id);
-
+            
             // 发布删除任务组事件
-            IocManager.GetService<TaskGroupPublish>().DeleteTaskGroup(this, Id);
+            IocManager.GetService<IPublishDeleteTaskGroup>().Publish(this, Id);
         }
 
         /// <summary>
@@ -276,7 +277,7 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
             await IocManager.GetService<ITaskGroupRepository>().SaveAsync(this);
 
             // 发布任务完成事件
-            IocManager.GetService<TaskGroupPublish>().TaskFinish(this, this);
+            IocManager.GetService<ITaskFinishPublish>().Publish(this, this);
         }
 
         /// <summary>

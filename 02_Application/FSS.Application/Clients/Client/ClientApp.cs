@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using FS.DI;
 using FS.Extends;
-using FSS.Application.Clients.Client.Dto;
+using FSS.Application.Clients.Client.Entity;
 using FSS.Domain.Client.Clients.Interface;
 using FSS.Domain.Client.Clients.Repository;
 

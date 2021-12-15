@@ -4,7 +4,7 @@ using FS.Core;
 using FS.Core.Net;
 using FS.Extends;
 using FSS.Application.Clients.Client;
-using FSS.Application.Clients.Client.Dto;
+using FSS.Application.Clients.Client.Entity;
 using FSS.Application.Log.TaskLog;
 using FSS.Application.Log.TaskLog.Entity;
 using FSS.Application.Tasks.TaskGroup;

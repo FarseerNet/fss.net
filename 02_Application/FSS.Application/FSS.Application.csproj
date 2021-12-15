@@ -5,10 +5,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Clients\Client\PublishEvent" />
       <Folder Include="Log" />
-      <Folder Include="Tasks\TaskGroup\Event" />
-      <Folder Include="Tasks\TaskGroup\Publish" />
+      <Folder Include="Tasks\TaskGroup\Event\Subscribe" />
     </ItemGroup>
 
     <ItemGroup>

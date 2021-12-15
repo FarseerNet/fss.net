@@ -10,7 +10,7 @@ namespace FSS.Application.Tasks.TaskGroup
 {
     public class TaskGroupApp : ISingletonDependency
     {
-        public ITaskGroupRepository TaskGroupRepository { get; set; }
+        public ITaskGroupRepository   TaskGroupRepository    { get; set; }
 
         /// <summary>
         /// 添加任务组信息

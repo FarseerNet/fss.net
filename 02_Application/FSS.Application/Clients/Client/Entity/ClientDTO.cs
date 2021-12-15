@@ -3,7 +3,7 @@ using FS.Extends;
 using FS.Mapper;
 using FSS.Domain.Tasks.TaskGroup.Entity;
 
-namespace FSS.Application.Clients.Client.Dto
+namespace FSS.Application.Clients.Client.Entity
 {
     [Map(typeof(Domain.Client.Clients.Entity.Client), typeof(ClientVO))]
     public class ClientDTO
