@@ -1,11 +1,12 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FS.DI;
 using FSS.Domain.Log.TaskLog.Entity;
 using Microsoft.Extensions.Logging;
 
 namespace FSS.Domain.Log.TaskLog.Repository
 {
-    public interface ITaskLogRepository
+    public interface ITaskLogRepository: ISingletonDependency
     {
         /// <summary>
         /// 获取日志

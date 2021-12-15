@@ -1,11 +1,11 @@
 using System;
 using FS.Extends;
 using FS.Mapper;
-using FSS.Domain.Client.Clients.Entity;
+using FSS.Domain.Tasks.TaskGroup.Entity;
 
-namespace FSS.Application.Clients.Dto
+namespace FSS.Application.Clients.Client.Dto
 {
-    [Map(typeof(Client))]
+    [Map(typeof(Domain.Client.Clients.Entity.Client), typeof(ClientVO))]
     public class ClientDTO
     {
         /// <summary>
@@ -29,6 +29,7 @@ namespace FSS.Application.Clients.Dto
         /// </summary>
         public DateTime ActivateAt { get; set; }
 
-        public static implicit operator Client(ClientDTO dto) => dto.Map<Client>();
+        public static implicit operator Domain.Client.Clients.Entity.Client(ClientDTO dto) => dto.Map<Domain.Client.Clients.Entity.Client>();
+        public static implicit operator ClientVO(ClientDTO                            dto) => dto.Map<ClientVO>();
     }
 }

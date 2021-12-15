@@ -9,6 +9,7 @@ using FS.Job;
 using FS.LinkTrack;
 using FS.Mapper;
 using FS.Modules;
+using FSS.Infrastructure;
 using FSS.Service.Background;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -29,7 +30,8 @@ namespace FSS.Service
                   typeof(ElasticSearchModule),
                   typeof(LinkTrackModule),
                   typeof(EventBusModule),
-                  typeof(JobModule)
+                  typeof(JobModule),
+                  typeof(InfrastructureModule)
               )]
     public class Startup : FarseerModule
     {

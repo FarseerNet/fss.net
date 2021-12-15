@@ -2,9 +2,9 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using FS.Core.LinkTrack;
-using FSS.Application.Clients.Interface;
-using FSS.Application.Log.TaskLog.Interface;
-using FSS.Application.Tasks.TaskGroup.Interface;
+using FSS.Application.Clients.Client;
+using FSS.Application.Log.TaskLog;
+using FSS.Application.Tasks.TaskGroup;
 using FSS.Domain.Tasks.TaskGroup.Entity;
 using Microsoft.Extensions.Logging;
 
@@ -15,16 +15,17 @@ namespace FSS.Service.Background
     /// </summary>
     public class CheckWorkStatusService : BackgroundServiceTrace
     {
-        public ITaskGroupApp TaskGroupApp { get; set; }
-        public IClientApp    ClientApp    { get; set; }
-        public ITaskLogApp   TaskLogApp   { get; set; }
+        public TaskGroupApp TaskGroupApp { get; set; }
+        public ClientApp    ClientApp    { get; set; }
+        public TaskLogApp   TaskLogApp   { get; set; }
+        public TaskQueryApp TaskQueryApp { get; set; }
 
         protected override async Task ExecuteJobAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
                 // 取出任务组
-                var lstTask = await TaskGroupApp.ToSchedulerWorkingListAsync();
+                var lstTask = await TaskQueryApp.ToSchedulerWorkingListAsync();
                 foreach (var taskGroupDO in lstTask)
                 {
                     if (await CheckTaskGroup(taskGroupDO: taskGroupDO)) continue;
@@ -44,8 +45,8 @@ namespace FSS.Service.Background
                     return true;
                 }
 
-                var client = await ClientApp.ToEntityAsync(taskGroupDO.Task.ClientId);
-                if (client == null) throw new Exception($"【客户端不存在】{taskGroupDO.Task.ClientId}，强制下线客户端");
+                var client = await ClientApp.ToEntityAsync(taskGroupDO.Task.Client.ClientId);
+                if (client == null) throw new Exception($"【客户端不存在】{taskGroupDO.Task.Client.ClientId}，强制下线客户端");
 
                 // 检查任务开启状态
                 await taskGroupDO.CheckClientOffline();
@@ -53,7 +54,7 @@ namespace FSS.Service.Background
             catch (Exception e)
             {
                 await TaskLogApp.AddAsync(taskGroupDO.Id, taskGroupDO.JobName, taskGroupDO.Caption, LogLevel.Warning, e.Message);
-                await taskGroupDO.CancelTask();
+                await taskGroupDO.CancelAsync();
             }
             return false;
         }

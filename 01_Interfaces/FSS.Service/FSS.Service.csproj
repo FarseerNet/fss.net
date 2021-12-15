@@ -21,6 +21,7 @@
         <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net\Farseer.Net.csproj" />
         <ProjectReference Include="..\..\02_Application\FSS.Application\FSS.Application.csproj" />
         <ProjectReference Include="..\..\03_Domain\FSS.Domain.Client\FSS.Domain.Client.csproj" />
+        <ProjectReference Include="..\..\04_Infrastructure\FSS.Infrastructure\FSS.Infrastructure.csproj" />
     </ItemGroup>
 
     <ItemGroup>

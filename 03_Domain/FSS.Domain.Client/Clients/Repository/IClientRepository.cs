@@ -1,9 +1,10 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FS.DI;
 
 namespace FSS.Domain.Client.Clients.Repository
 {
-    public interface IClientRepository
+    public interface IClientRepository: ISingletonDependency
     {
         /// <summary>
         /// 获取客户端列表

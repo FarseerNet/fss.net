@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using FSS.Infrastructure.Repository.Client.Interface;
+using FS.DI;
 using FSS.Infrastructure.Repository.Client.Model;
 
 namespace FSS.Infrastructure.Repository.Client
 {
-    public class ClientCache : IClientAgent
+    public class ClientCache : ISingletonDependency
     {
         /// <summary>
         /// 更新客户端调用的使用时间

@@ -21,10 +21,10 @@ namespace FSS.Domain.Tasks.TaskGroup.Event
 
             // 读取当前所有任务组的任务
             var lstTaskGroup    = await TaskGroupRepository.ToListAsync();
-            var cancelTaskGroup = lstTaskGroup.FindAll(o => o.Task != null && o.Task.ClientId == clientId && o.Task.Status is EumTaskType.Scheduler or EumTaskType.Working);
+            var cancelTaskGroup = lstTaskGroup.FindAll(o => o.Task != null && o.Task.Client.ClientId == clientId && o.Task.Status is EumTaskType.Scheduler or EumTaskType.Working);
             foreach (var taskGroupPO in cancelTaskGroup)
             {
-                await taskGroupPO.CancelTask();
+                await taskGroupPO.CancelAsync();
             }
             return true;
         }

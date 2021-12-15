@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FS.DI;
 using FSS.Domain.Tasks.TaskGroup.Entity;
 using FSS.Domain.Tasks.TaskGroup.Enum;
 
 namespace FSS.Domain.Tasks.TaskGroup.Repository
 {
-    public interface ITaskGroupRepository
+    public interface ITaskGroupRepository: ISingletonDependency
     {
         /// <summary>
         /// 获取任务组信息
@@ -60,7 +61,7 @@ namespace FSS.Domain.Tasks.TaskGroup.Repository
         /// <summary>
         /// 获取所有任务组中的任务
         /// </summary>
-        Task<List<TaskGroupDO>> GetMyCanSchedulerTaskGroup(string[] jobs, TimeSpan ts, int count);
+        Task<List<TaskGroupDO>> GetCanSchedulerTaskGroup(string[] jobs, TimeSpan ts, int count);
         /// <summary>
         /// 获取未执行的任务数量
         /// </summary>

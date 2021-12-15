@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using FS.Core.Job;
 using FS.Job;
-using FSS.Application.Tasks.TaskGroup.Interface;
+using FSS.Application.Tasks.TaskGroup;
 
 namespace FSS.Service.Job
 {
@@ -11,11 +11,12 @@ namespace FSS.Service.Job
     [FssJob(Name = "FSS.SyncTaskGroupAvgSpeed")]
     public class SyncTaskGroupAvgSpeedJob : IFssJob
     {
-        public ITaskGroupApp    TaskGroupApp    { get; set; }
+        public TaskQueryApp TaskQueryApp { get; set; }
+        public TaskGroupApp TaskGroupApp { get; set; }
 
         public async Task<bool> Execute(IFssContext context)
         {
-            var taskGroupVos = await TaskGroupApp.ToListAsync();
+            var taskGroupVos = await TaskQueryApp.ToListAsync();
             foreach (var taskGroupVo in taskGroupVos)
             {
                 // 先计算在更新

@@ -8,7 +8,6 @@ using FS.Utils.Common;
 using FS.Utils.Component;
 using FSS.Domain.Tasks.TaskGroup.Enum;
 using FSS.Domain.Tasks.TaskGroup.Repository;
-using Newtonsoft.Json;
 
 namespace FSS.Domain.Tasks.TaskGroup.Entity
 {
@@ -38,9 +37,9 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
         public string JobName { get; set; }
 
         /// <summary>
-        /// 传给客户端的参数，按逗号分隔
+        /// 本次执行任务时的Data数据
         /// </summary>
-        public string Data { get; set; }
+        public Dictionary<string, string> Data { get; set; }
 
         /// <summary>
         /// 开始时间
@@ -112,7 +111,6 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
 
             Caption = Caption.Trim();
             JobName = JobName.Trim();
-            Data    = Data.Trim();
             Cron    = Cron.Trim();
 
 
@@ -209,11 +207,6 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
         }
 
         /// <summary>
-        /// 保存
-        /// </summary>
-        public Task SaveAsync() => IocManager.GetService<ITaskGroupRepository>().SaveAsync(this);
-
-        /// <summary>
         /// 更改启用状态
         /// </summary>
         public async Task SetEnable(bool enable)
@@ -222,7 +215,7 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
             if (IsEnable && !enable)
             {
                 IsEnable = enable;
-                await CancelTask();
+                await CancelAsync();
             }
             // 重新开启了任务
             else if (!IsEnable && enable)
@@ -233,7 +226,7 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
                     // 进行中的任务，要先取消
                     case EumTaskType.Scheduler:
                     case EumTaskType.Working:
-                        await CancelTask();
+                        await CancelAsync();
                         break;
                     // 未开始的任务，直接保存
                     case EumTaskType.None:
@@ -249,7 +242,7 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
         /// <summary>
         /// 取消任务
         /// </summary>
-        public async Task CancelTask()
+        public async Task CancelAsync()
         {
             if (Task != null) Task.Status = EumTaskType.Fail;
 
@@ -307,13 +300,13 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
                 Caption     = Caption,
                 JobName     = JobName,
                 RunSpeed    = 0,
-                ClientId    = 0,
-                ClientIp    = "",
+                Client      = new ClientVO(),
                 Progress    = 0,
                 Status      = EumTaskType.None,
                 CreateAt    = DateTime.Now,
                 RunAt       = DateTime.Now,
-                SchedulerAt = DateTime.Now
+                SchedulerAt = DateTime.Now,
+                Data        = new()
             };
 
             await IocManager.GetService<ITaskGroupRepository>().SaveAsync(this);
@@ -322,9 +315,10 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
         /// <summary>
         /// 调度时设置客户端
         /// </summary>
-        public Task SetClient(long clientId, string clientIp, string clientName)
+        public Task SchedulerAsync(ClientVO client)
         {
-            Task.SetClient(clientId, clientIp, clientName);
+            Task.SetClient(client);
+            Task.Data = Data;
             return IocManager.GetService<ITaskGroupRepository>().SaveAsync(this);
         }
 
@@ -361,13 +355,13 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
             // 检查客户端
 
             // 找出当前客户端对应的所有任务、并且执行时间 已经到了
-            var lstClientTask = await IocManager.GetService<ITaskGroupRepository>().ToListAsync(Task.ClientId);
+            var lstClientTask = await IocManager.GetService<ITaskGroupRepository>().ToListAsync(Task.Client.ClientId);
             if (lstClientTask.Count == 0) return;
 
             // 全部处于调度、工作状态，说明客户端已经假死了
             if (lstClientTask.All(o => o.Task.Status is EumTaskType.Scheduler or EumTaskType.Working))
             {
-                throw new Exception($"【客户端假死】客户端：{Task.ClientId}，强制下线客户端");
+                throw new Exception($"【客户端假死】客户端：{Task.Client.ClientId}，强制下线客户端");
             }
         }
 
@@ -385,7 +379,7 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
                 LastRunAt = DateTime.Now;
             }
 
-            Data          = JsonConvert.SerializeObject(data);
+            Data          = data;
             ActivateAt    = DateTime.Now;
             Task.Progress = progress;
             Task.Status   = status;

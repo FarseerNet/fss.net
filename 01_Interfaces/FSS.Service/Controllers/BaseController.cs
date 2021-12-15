@@ -1,8 +1,8 @@
 using System;
 using FS.DI;
 using FS.Extends;
-using FSS.Application.Clients.Dto;
-using FSS.Application.Clients.Interface;
+using FSS.Application.Clients.Client;
+using FSS.Application.Clients.Client.Dto;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -45,7 +45,7 @@ namespace FSS.Service.Controllers
             };
 
             // 更新客户端的使用时间
-            IocManager.Instance.Resolve<IClientApp>().UpdateClient(Client);
+            IocManager.Instance.Resolve<ClientApp>().UpdateClient(Client);
         }
     }
 }

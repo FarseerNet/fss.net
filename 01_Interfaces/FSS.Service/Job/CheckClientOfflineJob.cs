@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using FS.Core.Job;
 using FS.Job;
-using FSS.Application.Clients.Interface;
+using FSS.Application.Clients.Client;
 
 namespace FSS.Service.Job
 {
@@ -11,7 +11,7 @@ namespace FSS.Service.Job
     [FssJob(Name = "FSS.CheckClientOffline")]
     public class CheckClientOfflineJob : IFssJob
     {
-        public IClientApp ClientApp { get; set; }
+        public ClientApp ClientApp { get; set; }
         public async Task<bool> Execute(IFssContext context)
         {
             await ClientApp.CheckTimeoutAsync();

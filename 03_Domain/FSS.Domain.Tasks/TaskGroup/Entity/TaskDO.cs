@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using FS.DI;
 using FSS.Domain.Tasks.TaskGroup.Enum;
@@ -11,11 +12,6 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
     /// </summary>
     public class TaskDO
     {
-        /// <summary>
-        /// 主键
-        /// </summary>
-        public int Id { get; set; }
-
         /// <summary>
         /// 任务组ID
         /// </summary>
@@ -47,19 +43,9 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
         public long RunSpeed { get; set; }
 
         /// <summary>
-        /// 客户端Id
+        /// 客户端
         /// </summary>
-        public long ClientId { get; set; }
-
-        /// <summary>
-        /// 客户端IP
-        /// </summary>
-        public string ClientIp { get; set; }
-
-        /// <summary>
-        /// 客户端名称
-        /// </summary>
-        public string ClientName { get; set; }
+        public ClientVO Client { get; set; }
 
         /// <summary>
         /// 进度0-100
@@ -82,6 +68,11 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
         public DateTime SchedulerAt { get; set; }
 
         /// <summary>
+        /// 本次执行任务时的Data数据
+        /// </summary>
+        public Dictionary<string, string> Data { get; set; }
+
+        /// <summary>
         /// 创建任务
         /// </summary>
         public Task AddQueueAsync()
@@ -92,13 +83,11 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
         /// <summary>
         /// 调度时设置客户端
         /// </summary>
-        public void SetClient(long clientId, string clientIp, string clientName)
+        public void SetClient(ClientVO client)
         {
             Status      = EumTaskType.Scheduler;
             SchedulerAt = DateTime.Now;
-            ClientIp    = clientIp;
-            ClientName  = clientName;
-            ClientId    = clientId;
+            Client      = client;
         }
     }
 }

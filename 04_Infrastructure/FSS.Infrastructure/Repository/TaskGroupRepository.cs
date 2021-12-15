@@ -33,7 +33,7 @@ namespace FSS.Infrastructure.Repository
         public async Task<List<TaskGroupDO>> ToListAsync(long clientId)
         {
             var lstTask = await TaskGroupCache.ToListAsync(EumCacheStoreType.Redis).MapAsync<TaskGroupDO, TaskGroupPO>();
-            return lstTask.FindAll(o => o.Task.ClientId == clientId && o.StartAt < DateTime.Now);
+            return lstTask.FindAll(o => o.Task.Client.ClientId == clientId && o.StartAt < DateTime.Now);
         }
 
         public async Task<int> AddAsync(TaskGroupDO taskGroupDO)
@@ -58,7 +58,15 @@ namespace FSS.Infrastructure.Repository
 
         public Task<List<TaskDO>> ToFinishListAsync(int taskGroupId, int top) => TaskAgent.ToFinishListAsync(taskGroupId, top).MapAsync<TaskDO, TaskPO>();
 
-        public Task AddTaskAsync(TaskDO taskDO) => TaskCache.AddQueueAsync(taskDO.Map<TaskPO>());
+        public Task AddTaskAsync(TaskDO taskDO)
+        {
+            var taskPO = taskDO.Map<TaskPO>();
+            taskPO.ClientId   = taskDO.Client.ClientId;
+            taskPO.ClientIp   = taskDO.Client.ClientIp;
+            taskPO.ClientName = taskDO.Client.ClientName;
+
+            return TaskCache.AddQueueAsync(taskPO);
+        }
 
         public async Task SyncToData()
         {
@@ -72,7 +80,7 @@ namespace FSS.Infrastructure.Repository
         /// <summary>
         /// 获取所有任务组中的任务
         /// </summary>
-        public async Task<List<TaskGroupDO>> GetMyCanSchedulerTaskGroup(string[] jobs, TimeSpan ts, int count)
+        public async Task<List<TaskGroupDO>> GetCanSchedulerTaskGroup(string[] jobs, TimeSpan ts, int count)
         {
             var lstTaskGroup = await ToListAsync();
             return lstTaskGroup.Where(o => o.IsEnable && jobs.Contains(o.JobName) && o.StartAt < DateTime.Now.Add(ts) && o.Task is { Status: EumTaskType.None }).OrderBy(o => o.StartAt).Take(count).ToList();
@@ -93,7 +101,7 @@ namespace FSS.Infrastructure.Repository
         public async Task<List<TaskGroupDO>> ToSchedulerWorkingListAsync()
         {
             var lst = await ToListAsync();
-            return lst.Where(o => o.Task != null && o.Task.Status == EumTaskType.Scheduler || o.Task.Status == EumTaskType.Working).ToList();
+            return lst.Where(o => o.Task != null && (o.Task.Status == EumTaskType.Scheduler || o.Task.Status == EumTaskType.Working)).ToList();
         }
 
         /// <summary>
