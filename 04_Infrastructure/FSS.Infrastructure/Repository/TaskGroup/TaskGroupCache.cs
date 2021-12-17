@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using FS.Cache;
 using FS.DI;
 using FS.Extends;
+using FSS.Domain.Tasks.TaskGroup.Entity;
 using FSS.Infrastructure.Repository.TaskGroup.Model;
 
 namespace FSS.Infrastructure.Repository.TaskGroup
@@ -13,52 +14,43 @@ namespace FSS.Infrastructure.Repository.TaskGroup
     public class TaskGroupCache : ISingletonDependency
     {
         public TaskGroupAgent TaskGroupAgent { get; set; }
-        
+
         /// <summary>
         /// 保存任务组信息
         /// </summary>
-        public Task SaveAsync(TaskGroupPO taskGroup)
+        public Task SaveAsync(TaskGroupDO taskGroup)
         {
-            var key = CacheKeys.TaskGroupKey(EumCacheStoreType.MemoryAndRedis);
+            var key = CacheKeys.TaskGroupKey(EumCacheStoreType.Redis);
             return RedisContext.Instance.CacheManager.SaveItemAsync(key, taskGroup);
         }
 
         /// <summary>
-        /// 保存任务组信息
+        /// 当前任务组的列表
         /// </summary>
-        public Task SaveAsync(List<TaskGroupPO> lstTaskGroup)
+        public Task<List<TaskGroupDO>> ToListAsync()
         {
-            var key = CacheKeys.TaskGroupKey(EumCacheStoreType.MemoryAndRedis);
-            return RedisContext.Instance.CacheManager.SaveListAsync(key, lstTaskGroup);
+            var key = CacheKeys.TaskGroupKey(EumCacheStoreType.Redis);
+            return RedisContext.Instance.CacheManager.GetListAsync(key, () => TaskGroupAgent.ToListAsync().MapAsync<TaskGroupDO, TaskGroupPO>());
         }
 
         /// <summary>
         /// 当前任务组的列表
         /// </summary>
-        public Task<List<TaskGroupPO>> ToListAsync(EumCacheStoreType cacheStoreType)
+        public List<TaskGroupDO> ToList()
         {
-            var key = CacheKeys.TaskGroupKey(cacheStoreType);
-            return RedisContext.Instance.CacheManager.GetListAsync(key, () => TaskGroupAgent.ToListAsync());
-        }
-
-        /// <summary>
-        /// 当前任务组的列表
-        /// </summary>
-        public List<TaskGroupPO> ToList(EumCacheStoreType cacheStoreType)
-        {
-            var key = CacheKeys.TaskGroupKey(cacheStoreType);
+            var key = CacheKeys.TaskGroupKey(EumCacheStoreType.Redis);
             return RedisContext.Instance.CacheManager.GetList(key);
         }
 
         /// <summary>
         /// 获取任务组
         /// </summary>
-        public Task<TaskGroupPO> ToEntityAsync(EumCacheStoreType cacheStoreType, int taskGroupId)
+        public Task<TaskGroupDO> ToEntityAsync(int taskGroupId)
         {
-            var key = CacheKeys.TaskGroupKey(cacheStoreType);
-            return RedisContext.Instance.CacheManager.GetItemAsync(key, taskGroupId, () => TaskGroupAgent.ToEntityAsync(taskGroupId).MapAsync<TaskGroupPO, TaskGroupPO>());
+            var key = CacheKeys.TaskGroupKey(EumCacheStoreType.Redis);
+            return RedisContext.Instance.CacheManager.GetItemAsync(key, taskGroupId, () => TaskGroupAgent.ToEntityAsync(taskGroupId).MapAsync<TaskGroupDO, TaskGroupPO>());
         }
-        
+
         /// <summary>
         /// 获取任务组数量
         /// </summary>

@@ -40,7 +40,6 @@ namespace FSS.Infrastructure.Repository.TaskGroup
         public async Task DeleteAsync(int taskGroupId)
         {
             await MysqlContext.Data.TaskGroup.Where(o => o.Id == taskGroupId).DeleteAsync();
-            await CacheKeys.TaskGroupClear(taskGroupId);
         }
     }
 }

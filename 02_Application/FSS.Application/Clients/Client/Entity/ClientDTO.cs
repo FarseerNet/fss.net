@@ -30,6 +30,6 @@ namespace FSS.Application.Clients.Client.Entity
         public DateTime ActivateAt { get; set; }
 
         public static implicit operator Domain.Client.Clients.Entity.Client(ClientDTO dto) => dto.Map<Domain.Client.Clients.Entity.Client>();
-        public static implicit operator ClientVO(ClientDTO                            dto) => dto.Map<ClientVO>();
+        public static implicit operator ClientVO(ClientDTO                            dto) => new(dto.Id, dto.ClientIp, dto.ClientName);
     }
 }

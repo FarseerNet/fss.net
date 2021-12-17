@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FS.Cache;
 using FS.Extends;
+using FSS.Application.Tasks.TaskGroup.Entity;
 using FSS.Domain.Tasks.TaskGroup.Entity;
 using FSS.Domain.Tasks.TaskGroup.Enum;
 using FSS.Domain.Tasks.TaskGroup.Repository;
@@ -22,58 +23,48 @@ namespace FSS.Infrastructure.Repository
         public TaskCache      TaskCache      { get; set; }
 
 
-        public Task SaveAsync(TaskGroupDO taskGroupDO) => TaskGroupCache.SaveAsync(taskGroupDO.Map<TaskGroupPO>());
+        public Task SaveAsync(TaskGroupDO taskGroupDO) => TaskGroupCache.SaveAsync(taskGroupDO);
 
-        public Task<TaskGroupDO> ToEntityAsync(int taskGroupId) => TaskGroupCache.ToEntityAsync(EumCacheStoreType.Redis, taskGroupId).MapAsync<TaskGroupDO, TaskGroupPO>();
+        public Task<TaskGroupDO> ToEntityAsync(int taskGroupId) => TaskGroupCache.ToEntityAsync(taskGroupId);
 
-        public Task<List<TaskGroupDO>> ToListAsync() => TaskGroupCache.ToListAsync(EumCacheStoreType.Redis).MapAsync<TaskGroupDO, TaskGroupPO>();
+        public Task<List<TaskGroupDO>> ToListAsync() => TaskGroupCache.ToListAsync();
 
         public Task<long> GetTaskGroupCountAsync() => TaskGroupCache.CountAsync();
 
         public async Task<List<TaskGroupDO>> ToListAsync(long clientId)
         {
-            var lstTask = await TaskGroupCache.ToListAsync(EumCacheStoreType.Redis).MapAsync<TaskGroupDO, TaskGroupPO>();
-            return lstTask.FindAll(o => o.Task.Client.ClientId == clientId && o.StartAt < DateTime.Now);
+            var lstTask = await TaskGroupCache.ToListAsync();
+            return lstTask.FindAll(o => o.Task != null && o.Task.Client != null && o.Task.Client.ClientId == clientId && o.StartAt < DateTime.Now);
         }
 
         public async Task<int> AddAsync(TaskGroupDO taskGroupDO)
         {
-            var taskGroupId = await TaskGroupAgent.AddAsync(taskGroupDO.Map<TaskGroupPO>());
-            await TaskGroupCache.ToEntityAsync(EumCacheStoreType.Redis, taskGroupId);
+            var taskGroupId = await TaskGroupAgent.AddAsync(taskGroupDO);
+            await TaskGroupCache.ToEntityAsync(taskGroupId);
             return taskGroupId;
         }
 
         public async Task DeleteAsync(int taskGroupId)
         {
             await TaskGroupAgent.DeleteAsync(taskGroupId);
+            await TaskAgent.DeleteAsync(taskGroupId);
             await CacheKeys.TaskGroupClear(taskGroupId);
         }
-
-
-
 
         public Task<int> TodayFailCountAsync() => TaskAgent.TodayFailCountAsync();
 
         public Task<List<long>> ToTaskSpeedListAsync(int taskGroupId) => TaskAgent.ToSpeedListAsync(taskGroupId);
 
-        public Task<List<TaskDO>> ToFinishListAsync(int taskGroupId, int top) => TaskAgent.ToFinishListAsync(taskGroupId, top).MapAsync<TaskDO, TaskPO>();
+        public Task<List<TaskDO>> ToFinishListAsync(int taskGroupId, int top) => TaskAgent.ToFinishListAsync(taskGroupId, top).MapAsync(TaskPO.MapToDO);
 
-        public Task AddTaskAsync(TaskDO taskDO)
-        {
-            var taskPO = taskDO.Map<TaskPO>();
-            taskPO.ClientId   = taskDO.Client.ClientId;
-            taskPO.ClientIp   = taskDO.Client.ClientIp;
-            taskPO.ClientName = taskDO.Client.ClientName;
-
-            return TaskCache.AddQueueAsync(taskPO);
-        }
+        public Task AddTaskAsync(TaskDO taskDO) => TaskCache.AddQueueAsync(taskDO);
 
         public async Task SyncToData()
         {
-            var lst = await TaskGroupCache.ToListAsync(EumCacheStoreType.Redis);
+            var lst = await TaskGroupCache.ToListAsync();
             foreach (var taskGroupPO in lst)
             {
-                await TaskGroupAgent.UpdateAsync(taskGroupPO.Id.GetValueOrDefault(), taskGroupPO);
+                await TaskGroupAgent.UpdateAsync(taskGroupPO.Id, taskGroupPO);
             }
         }
 
@@ -83,7 +74,7 @@ namespace FSS.Infrastructure.Repository
         public async Task<List<TaskGroupDO>> GetCanSchedulerTaskGroup(string[] jobs, TimeSpan ts, int count)
         {
             var lstTaskGroup = await ToListAsync();
-            return lstTaskGroup.Where(o => o.IsEnable && jobs.Contains(o.JobName) && o.StartAt < DateTime.Now.Add(ts) && o.Task is { Status: EumTaskType.None }).OrderBy(o => o.StartAt).Take(count).ToList();
+            return lstTaskGroup.Where(o => o.IsEnable && jobs.Contains(o.JobName) && o.Task != null && o.Task.StartAt < DateTime.Now.Add(ts) && o.Task.Status == EumTaskType.None).OrderBy(o => o.StartAt).Take(count).ToList();
         }
 
         /// <summary>
@@ -101,7 +92,7 @@ namespace FSS.Infrastructure.Repository
         public async Task<List<TaskGroupDO>> ToSchedulerWorkingListAsync()
         {
             var lst = await ToListAsync();
-            return lst.Where(o => o.Task != null && (o.Task.Status == EumTaskType.Scheduler || o.Task.Status == EumTaskType.Working)).ToList();
+            return lst.Where(o => o.Task is { Status: EumTaskType.Scheduler or EumTaskType.Working }).ToList();
         }
 
         /// <summary>
@@ -118,7 +109,7 @@ namespace FSS.Infrastructure.Repository
         /// </summary>
         public Task<List<TaskDO>> ToListAsync(int groupId, int pageSize, int pageIndex, out int totalCount)
         {
-            return TaskAgent.ToListAsync(groupId, pageSize, pageIndex, out totalCount).MapAsync<TaskDO, TaskPO>();
+            return TaskAgent.ToListAsync(groupId, pageSize, pageIndex, out totalCount).MapAsync(TaskPO.MapToDO);
         }
 
         /// <summary>
@@ -126,7 +117,7 @@ namespace FSS.Infrastructure.Repository
         /// </summary>
         public Task<List<TaskDO>> ToFinishListAsync(int pageSize, int pageIndex, out int totalCount)
         {
-            return TaskAgent.ToFinishListAsync(pageSize, pageIndex, out totalCount).MapAsync<TaskDO, TaskPO>();
+            return TaskAgent.ToFinishListAsync(pageSize, pageIndex, out totalCount).MapAsync(TaskPO.MapToDO);
         }
 
         /// <summary>
@@ -134,7 +125,7 @@ namespace FSS.Infrastructure.Repository
         /// </summary>
         public List<TaskGroupDO> GetEnableTaskList(EumTaskType? status, int pageSize, int pageIndex, out int totalCount)
         {
-            var lst = TaskGroupCache.ToList(EumCacheStoreType.Redis).Where(o => o.IsEnable == true).Map<TaskGroupDO>();
+            var lst = TaskGroupCache.ToList().Where(o => o.IsEnable).ToList();
 
             if (status.HasValue) lst = lst.Where(o => o.Task.Status == status.GetValueOrDefault()).ToList();
             totalCount = lst.Count;

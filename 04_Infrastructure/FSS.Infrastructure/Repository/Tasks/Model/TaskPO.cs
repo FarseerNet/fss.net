@@ -1,5 +1,6 @@
 using System;
 using FS.Core.Mapping.Attribute;
+using FS.Extends;
 using FS.Mapper;
 using FSS.Domain.Tasks.TaskGroup.Entity;
 using FSS.Domain.Tasks.TaskGroup.Enum;
@@ -22,13 +23,13 @@ namespace FSS.Infrastructure.Repository.Tasks.Model
         /// 任务组ID
         /// </summary>
         [Field(Name = "task_group_id")] public int? TaskGroupId { get; set; }
-        
+
         /// <summary>
         /// 任务组标题
         /// </summary>
         [Field(Name = "caption")]
         public string Caption { get; set; }
-        
+
         /// <summary>
         /// 实现Job的特性名称（客户端识别哪个实现类）
         /// </summary>
@@ -59,7 +60,7 @@ namespace FSS.Infrastructure.Repository.Tasks.Model
         /// 客户端IP
         /// </summary>
         [Field(Name = "client_ip")] public string ClientIp { get; set; }
-        
+
         /// <summary>
         /// 客户端名称
         /// </summary>
@@ -84,5 +85,21 @@ namespace FSS.Infrastructure.Repository.Tasks.Model
         /// 调度时间
         /// </summary>
         [Field(Name = "scheduler_at")] public DateTime? SchedulerAt { get; set; }
+
+
+        public static readonly Action<TaskPO, TaskDO> MapToPO = (po, taskDO) =>
+        {
+            po.ClientId   = taskDO.Client.ClientId;
+            po.ClientName = taskDO.Client.ClientName;
+            po.ClientIp   = taskDO.Client.ClientIp;
+        };
+        public static implicit operator TaskPO(TaskDO taskDO) => taskDO.Map(MapToPO);
+
+
+        public static readonly Action<TaskDO, TaskPO> MapToDO = (taskDO, po) =>
+        {
+            taskDO.Client = new ClientVO(po.ClientId, po.ClientIp, po.ClientName);
+        };
+        public static implicit operator TaskDO(TaskPO po) => po.Map(MapToDO);
     }
 }

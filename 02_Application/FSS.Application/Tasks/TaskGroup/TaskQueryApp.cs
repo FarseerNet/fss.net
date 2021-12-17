@@ -48,7 +48,7 @@ namespace FSS.Application.Tasks.TaskGroup
         public async Task<DataSplitList<TaskDTO>> ToListAsync(int groupId, int pageSize, int pageIndex)
         {
             var lst = await TaskGroupRepository.ToListAsync(groupId, pageSize, pageIndex, out var totalCount);
-            return new DataSplitList<TaskDTO>(lst.Map<TaskDTO>(), totalCount);
+            return new DataSplitList<TaskDTO>(lst.Map(TaskDTO.MapToDTO), totalCount);
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace FSS.Application.Tasks.TaskGroup
         public async Task<DataSplitList<TaskDTO>> ToFinishListAsync(int pageSize, int pageIndex)
         {
             var lst = await TaskGroupRepository.ToFinishListAsync(pageSize, pageIndex, out var totalCount);
-            return new DataSplitList<TaskDTO>(lst.Map<TaskDTO>(), totalCount);
+            return new DataSplitList<TaskDTO>(lst.Map(TaskDTO.MapToDTO), totalCount);
         }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace FSS.Application.Tasks.TaskGroup
         public async Task<List<TaskDTO>> GetTaskUnFinishList(int top)
         {
             var taskUnFinishList = await TaskGroupRepository.GetTaskUnFinishList(top);
-            return taskUnFinishList.Select(o => o.Task.Map<TaskDTO>()).ToList();
+            return taskUnFinishList.Select(o => (TaskDTO)o.Task).ToList();
         }
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace FSS.Application.Tasks.TaskGroup
         public DataSplitList<TaskDTO> GetEnableTaskList(EumTaskType? status, int pageSize, int pageIndex)
         {
             var lst = TaskGroupRepository.GetEnableTaskList(status, pageSize, pageIndex, out var totalCount);
-            return new DataSplitList<TaskDTO>(lst.Select(o => o.Task).Map<TaskDTO>(), totalCount);
+            return new DataSplitList<TaskDTO>(lst.Select(o => (TaskDTO)o.Task), totalCount);
         }
     }
 }

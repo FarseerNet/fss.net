@@ -22,7 +22,8 @@ namespace FSS.Infrastructure.Job
             foreach (var taskGroupVo in lstGroupByDb)
             {
                 // 强制从缓存中再读一次，可以实现当缓存丢失时，可以重新写入该条任务组到缓存
-                await TaskGroupCache.ToEntityAsync(EumCacheStoreType.Redis, taskGroupVo.Id.GetValueOrDefault());
+                var po = await TaskGroupCache.ToEntityAsync(taskGroupVo.Id.GetValueOrDefault());
+                await TaskGroupAgent.UpdateAsync(po.Id, po);
             }
             return true;
         }

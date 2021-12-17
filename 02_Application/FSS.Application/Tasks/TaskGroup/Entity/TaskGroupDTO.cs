@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using FS.Extends;
 using FS.Mapper;
 using FSS.Domain.Tasks.TaskGroup.Entity;
@@ -29,7 +30,7 @@ namespace FSS.Application.Tasks.TaskGroup.Entity
         /// <summary>
         /// 传给客户端的参数，按逗号分隔
         /// </summary>
-        public string Data { get; set; }
+        public Dictionary<string,string> Data { get; set; }
 
         /// <summary>
         /// 开始时间

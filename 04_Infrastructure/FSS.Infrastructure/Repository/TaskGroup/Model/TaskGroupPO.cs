@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using FS.Core.Mapping.Attribute;
+using FS.Extends;
 using FS.Mapper;
 using FSS.Domain.Tasks.TaskGroup.Entity;
 using FSS.Infrastructure.Repository.Tasks.Model;
@@ -21,7 +23,7 @@ namespace FSS.Infrastructure.Repository.TaskGroup.Model
         /// <summary>
         /// 任务
         /// </summary>
-        [Field(IsMap = false)]
+        [Field(StorageType = EumStorageType.Ignore)]
         public TaskPO Task { get; set; }
 
         /// <summary>
@@ -39,8 +41,9 @@ namespace FSS.Infrastructure.Repository.TaskGroup.Model
         /// <summary>
         /// 传给客户端的参数，按逗号分隔
         /// </summary>
-        [Field(Name = "data")]
-        public string Data { get; set; }
+        [Field(Name = "data", StorageType = EumStorageType.Json)]
+        //[MapField(IsIgnore = true)]
+        public Dictionary<string, string> Data { get; set; }
 
         /// <summary>
         /// 开始时间
@@ -95,5 +98,13 @@ namespace FSS.Infrastructure.Repository.TaskGroup.Model
         /// </summary>
         [Field(Name = "is_enable")]
         public bool? IsEnable { get; set; }
+
+        //public static readonly          Action<TaskGroupPO, TaskGroupDO> MapToPO = (po, taskGroupDO) => po.Data = JsonConvert.SerializeObject(taskGroupDO.Data);
+        //public static readonly          Action<TaskGroupPO, TaskGroupDO> MapToPO = (po, taskGroupDO) => po.Data = taskGroupDO.Data;
+        public static implicit operator TaskGroupPO(TaskGroupDO taskGroupDO) => taskGroupDO.Map<TaskGroupPO>();
+
+
+        //public static readonly          Action<TaskGroupDO, TaskGroupPO> MapToDO = (taskGroupDO, po) => taskGroupDO.Data = Jsons.ToObject<Dictionary<string, string>>(po.Data);
+        public static implicit operator TaskGroupDO(TaskGroupPO po) => po.Map<TaskGroupDO>();
     }
 }

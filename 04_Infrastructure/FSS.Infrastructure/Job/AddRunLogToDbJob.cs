@@ -31,7 +31,7 @@ namespace FSS.Infrastructure.Job
                 await LogAgent.AddAsync(lst);
                 result += lst.Count;
                 if (lst.Count != dataCount) break;
-                await context.SetProgressAsync(progress += 10);
+                context.SetProgress(progress += 10);
             }
             return true;
         }

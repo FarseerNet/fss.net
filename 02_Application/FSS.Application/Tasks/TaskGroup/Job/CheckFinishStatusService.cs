@@ -25,7 +25,7 @@ namespace FSS.Application.Tasks.TaskGroup.Job
                 foreach (var taskGroupDO in dicTaskGroup.Where(o => o.IsEnable))
                 {
                     // 加个时间，来限制并发
-                    if ((DateTime.Now - taskGroupDO.Task.RunAt).TotalSeconds < 3) continue;
+                    if ((DateTime.Now - taskGroupDO.Task.RunAt).TotalSeconds < 30) continue;
 
                     await taskGroupDO.CreateTask();
                     await Task.Delay(200, stoppingToken);

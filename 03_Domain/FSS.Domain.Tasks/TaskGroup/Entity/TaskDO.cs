@@ -13,6 +13,11 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
     public class TaskDO
     {
         /// <summary>
+        /// 主键
+        /// </summary>
+        public int Id { get; set; }
+        
+        /// <summary>
         /// 任务组ID
         /// </summary>
         public int TaskGroupId { get; set; }

@@ -22,7 +22,6 @@ namespace FSS.Infrastructure.Repository
 
         protected override void CreateModelInit(Dictionary<string, SetDataMap> map)
         {
-            //map["RunLog"].SetName("run_log");
             RunLog.SetName("run_log");
             Task.SetName("task");
             TaskGroup.SetName("task_group");

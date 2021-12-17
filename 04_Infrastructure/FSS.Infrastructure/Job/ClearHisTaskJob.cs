@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,18 +30,19 @@ namespace FSS.Infrastructure.Job
 
         public async Task<bool> Execute(IFssContext context)
         {
-            var lst      = await TaskGroupCache.ToListAsync(EumCacheStoreType.Redis);
+            var lst      = await TaskGroupCache.ToListAsync();
             var curIndex = 0;
             foreach (var taskGroupVO in lst)
             {
                 curIndex++;
-                var lstTask = await TaskAgent.ToFinishListAsync(taskGroupVO.Id.GetValueOrDefault(), _reservedTaskCount);
+                var lstTask = await TaskAgent.ToFinishListAsync(taskGroupVO.Id, _reservedTaskCount);
                 if (lstTask == null || lstTask.Count == 0) continue;
                 var taskId = lstTask.Min(o => o.Id.GetValueOrDefault());
 
+                Console.WriteLine($"清除任务：本次清除{lstTask.Count}条");
                 // 清除历史记录
-                await TaskAgent.ClearFinishAsync(taskGroupVO.Id.GetValueOrDefault(), taskId);
-                await context.SetProgressAsync(curIndex / lst.Count * 100);
+                await TaskAgent.ClearFinishAsync(taskGroupVO.Id, taskId);
+                context.SetProgress(curIndex / lst.Count * 100);
                 Thread.Sleep(100);
             }
             return true;

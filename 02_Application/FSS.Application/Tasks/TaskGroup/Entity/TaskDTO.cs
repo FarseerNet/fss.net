@@ -82,12 +82,13 @@ namespace FSS.Application.Tasks.TaskGroup.Entity
         /// 调度时间
         /// </summary>
         public DateTime SchedulerAt { get; set; }
-
-        /// <summary>
-        /// 本次执行任务时的Data数据
-        /// </summary>
-        public Dictionary<string, string> Data { get; set; }
-
-        public static implicit operator TaskDTO(TaskDO task) => task.Map<TaskDTO>();
+        
+        public static readonly Action<TaskDTO, TaskDO> MapToDTO = (dto, taskDO) =>
+        {
+            dto.ClientId   = taskDO.Client.ClientId;
+            dto.ClientName = taskDO.Client.ClientName;
+            dto.ClientIp   = taskDO.Client.ClientIp;
+        };
+        public static implicit operator TaskDTO(TaskDO task)   => task.Map(MapToDTO);
     }
 }

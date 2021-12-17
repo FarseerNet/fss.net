@@ -2,15 +2,12 @@ using System;
 using System.Threading.Tasks;
 using FSS.Domain.Log.TaskLog.Entity;
 using FSS.Domain.Log.TaskLog.Interface;
-using FSS.Domain.Log.TaskLog.Repository;
 using Microsoft.Extensions.Logging;
 
 namespace FSS.Domain.Log.TaskLog
 {
     public class TaskLogService : ITaskLogService
     {
-        public ITaskLogRepository TaskLogRepository { get; set; }
-
         /// <summary>
         /// 添加日志记录
         /// </summary>

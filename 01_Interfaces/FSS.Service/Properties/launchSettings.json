@@ -20,7 +20,7 @@
     "WebApplication": {
       "commandName": "Project",
       "dotnetRunMessages": "true",
-      "launchBrowser": true,
+      "launchBrowser": false,
       "launchUrl": "swagger",
       "applicationUrl": "http://localhost:888",
       "environmentVariables": {

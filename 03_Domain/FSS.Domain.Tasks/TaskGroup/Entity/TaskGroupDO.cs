@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FS.Core.Exception;
 using FS.DI;
 using FS.Extends;
 using FS.Utils.Common;
@@ -151,7 +152,7 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
             }
 
             await IocManager.GetService<ITaskGroupRepository>().DeleteAsync(Id);
-            
+
             // 发布删除任务组事件
             IocManager.GetService<IPublishDeleteTaskGroup>().Publish(this, Id);
         }
@@ -193,7 +194,7 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
                     NextAt     = cron.GetNext(DateTime.Now);
                 }
                 else
-                    throw new Exception("Cron格式错误");
+                    throw new RefuseException("Cron格式错误");
             }
 
             // 停止了任务，需要把任务取消掉
@@ -274,10 +275,7 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
                 }
             }
 
-            await IocManager.GetService<ITaskGroupRepository>().SaveAsync(this);
-
-            // 发布任务完成事件
-            IocManager.GetService<ITaskFinishPublish>().Publish(this, this);
+            await CreateTask();
         }
 
         /// <summary>
@@ -292,6 +290,7 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
             }
 
             if (Task != null && Task.Status != EumTaskType.Fail && Task.Status != EumTaskType.Success) return;
+            if (Task is { Status: EumTaskType.Success or EumTaskType.Fail }) await Task.AddQueueAsync();
 
             // 没查到时，自动创建一条对应的Task
             Task = new TaskDO
@@ -319,7 +318,8 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
         public Task SchedulerAsync(ClientVO client)
         {
             Task.SetClient(client);
-            Task.Data = Data;
+            Task.Data  = Data;
+            ActivateAt = DateTime.Now;
             return IocManager.GetService<ITaskGroupRepository>().SaveAsync(this);
         }
 
@@ -334,26 +334,30 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
                 return;
             }
 
-            if (!IsEnable && Task.Status is not EumTaskType.Success or EumTaskType.Fail)
+            if (Task.Status != EumTaskType.Scheduler && Task.Status != EumTaskType.Working)
             {
-                throw new Exception($"任务：{Id} {Caption} {JobName} 已被禁用，强制设为失败状态");
+                return;
             }
 
             // 任务组活动时间大于1分钟，判定为客户端下线
             if ((DateTime.Now - ActivateAt).TotalMinutes >= 1) // 大于1分钟，才检查
             {
-                throw new Exception($"【任务假死】{ActivateAt:yyyy-MM-dd HH:mm:ss}，任务：【{JobName}】 {Id} {Caption} ，强制设为失败状态");
+                var message = $"【任务假死】任务：【{JobName}】 {Id} {Caption} {Task.Status.ToString()} 在{(DateTime.Now - ActivateAt).GetDateDesc()}没有反应，强制设为失败状态";
+                await CancelAsync();
+                throw new RefuseException(message);
             }
 
             // 如果时间小于5分钟的，则按5分钟来判定
             var timeout = Math.Max(RunSpeedAvg * 2.5, (long)TimeSpan.FromMinutes(5).TotalMilliseconds);
-            if ((DateTime.Now - Task.RunAt).TotalMilliseconds > timeout) throw new Exception($"【任务超时】任务：【{JobName}】 {Id} {Caption} 超过平均运行时间：{timeout} ms，强制设为失败状态");
+            if ((DateTime.Now - Task.RunAt).TotalMilliseconds > timeout)
+            {
+                await CancelAsync();
+                throw new RefuseException($"【任务超时】任务：【{JobName}】 {Id} {Caption} 超过平均运行时间：{timeout} ms，强制设为失败状态");
+            }
 
             // 加个时间，来限制并发
             if (Task.Status == EumTaskType.Scheduler && (DateTime.Now - Task.StartAt).TotalSeconds < 5) return;
             if (Task.Status == EumTaskType.Working   && (DateTime.Now - Task.RunAt).TotalSeconds   < 5) return;
-
-            // 检查客户端
 
             // 找出当前客户端对应的所有任务、并且执行时间 已经到了
             var lstClientTask = await IocManager.GetService<ITaskGroupRepository>().ToListAsync(Task.Client.ClientId);
@@ -362,7 +366,8 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
             // 全部处于调度、工作状态，说明客户端已经假死了
             if (lstClientTask.All(o => o.Task.Status is EumTaskType.Scheduler or EumTaskType.Working))
             {
-                throw new Exception($"【客户端假死】客户端：{Task.Client.ClientId}，强制下线客户端");
+                await CancelAsync();
+                throw new RefuseException($"【客户端假死】客户端：{Task.Client.ClientId}，强制下线客户端");
             }
         }
 

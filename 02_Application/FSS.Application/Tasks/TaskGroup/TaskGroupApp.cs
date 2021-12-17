@@ -3,14 +3,17 @@ using System.Threading.Tasks;
 using FS.DI;
 using FS.Extends;
 using FSS.Application.Tasks.TaskGroup.Entity;
+using FSS.Domain.Log.TaskLog.Interface;
 using FSS.Domain.Tasks.TaskGroup.Entity;
 using FSS.Domain.Tasks.TaskGroup.Repository;
+using Microsoft.Extensions.Logging;
 
 namespace FSS.Application.Tasks.TaskGroup
 {
     public class TaskGroupApp : ISingletonDependency
     {
         public ITaskGroupRepository TaskGroupRepository { get; set; }
+        public ITaskLogService      TaskLogService      { get; set; }
 
         /// <summary>
         /// 添加任务组信息
@@ -35,6 +38,7 @@ namespace FSS.Application.Tasks.TaskGroup
         {
             var taskGroup = await TaskGroupRepository.ToEntityAsync(taskGroupId);
             await taskGroup.CancelAsync();
+            await TaskLogService.AddAsync(taskGroupId, taskGroup.JobName, taskGroup.Caption, LogLevel.Information, $"手动取消任务");
         }
 
         /// <summary>

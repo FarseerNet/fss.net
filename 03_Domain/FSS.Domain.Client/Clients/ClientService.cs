@@ -27,10 +27,5 @@ namespace FSS.Domain.Client.Clients
                 }
             }
         }
-
-        /// <summary>
-        /// 获取客户端
-        /// </summary>
-        public Task<Entity.Client> ToEntity(long clientId) => ClientRepository.ToEntityAsync(clientId);
     }
 }

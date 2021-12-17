@@ -12,7 +12,7 @@ namespace FSS.Application.Tasks.TaskGroup
     public class TaskSchedulerApp : ISingletonDependency
     {
         public ITaskGroupRepository TaskGroupRepository { get; set; }
-        
+
         /// <summary>
         /// 任务调度
         /// </summary>
