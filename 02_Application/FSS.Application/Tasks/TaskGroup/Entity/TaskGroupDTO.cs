@@ -67,6 +67,16 @@ namespace FSS.Application.Tasks.TaskGroup.Entity
         /// </summary>
         public bool IsEnable { get; set; }
 
+        /// <summary>
+        /// 运行平均耗时
+        /// </summary>
+        public long RunSpeedAvg { get; set; }
+
+        /// <summary>
+        /// 运行次数
+        /// </summary>
+        public int RunCount { get; set; }
+
         public static implicit operator TaskGroupDO(TaskGroupDTO dto) => dto.Map<TaskGroupDO>();
     }
 }

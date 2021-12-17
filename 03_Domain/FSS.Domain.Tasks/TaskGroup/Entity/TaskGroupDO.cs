@@ -275,7 +275,9 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
                 }
             }
 
-            await CreateTask();
+            // 如果是停止状态，创建任务不会执行。则需要在这里进行保存
+            if (!IsEnable) await IocManager.GetService<ITaskGroupRepository>().SaveAsync(this);
+            else await CreateTask();
         }
 
         /// <summary>
