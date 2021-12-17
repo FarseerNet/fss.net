@@ -179,24 +179,26 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
             StartAt = newTaskGroupDO.StartAt;
 
             // 是否为数字
-            if (IsType.IsInt(newTaskGroupDO.Cron))
+            if (Cron != newTaskGroupDO.Cron || IntervalMs != newTaskGroupDO.IntervalMs)
             {
-                IntervalMs = newTaskGroupDO.Cron.ConvertType(0L);
-                Cron       = "";
-                NextAt     = DateTime.Now.AddMilliseconds(IntervalMs);
-            }
-            else
-            {
-                var cron = new Cron(newTaskGroupDO.Cron);
-                if (cron.Parse())
+                if (IsType.IsInt(newTaskGroupDO.Cron))
                 {
-                    IntervalMs = 0;
-                    NextAt     = cron.GetNext(DateTime.Now);
+                    IntervalMs = newTaskGroupDO.Cron.ConvertType(0L);
+                    Cron       = "";
+                    NextAt     = DateTime.Now.AddMilliseconds(IntervalMs);
                 }
                 else
-                    throw new RefuseException("Cron格式错误");
+                {
+                    var cron = new Cron(newTaskGroupDO.Cron);
+                    if (cron.Parse())
+                    {
+                        IntervalMs = 0;
+                        NextAt     = cron.GetNext(DateTime.Now);
+                    }
+                    else
+                        throw new RefuseException("Cron格式错误");
+                }
             }
-
             // 停止了任务，需要把任务取消掉
             if (IsEnable != newTaskGroupDO.IsEnable)
             {
