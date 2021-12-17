@@ -355,20 +355,21 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
                 throw new RefuseException($"【任务超时】任务：【{JobName}】 {Id} {Caption} 超过平均运行时间：{timeout} ms，强制设为失败状态");
             }
 
-            // 加个时间，来限制并发
-            if (Task.Status == EumTaskType.Scheduler && (DateTime.Now - Task.StartAt).TotalSeconds < 5) return;
-            if (Task.Status == EumTaskType.Working   && (DateTime.Now - Task.RunAt).TotalSeconds   < 5) return;
-
-            // 找出当前客户端对应的所有任务、并且执行时间 已经到了
-            var lstClientTask = await IocManager.GetService<ITaskGroupRepository>().ToListAsync(Task.Client.ClientId);
-            if (lstClientTask.Count == 0) return;
-
-            // 全部处于调度、工作状态，说明客户端已经假死了
-            if (lstClientTask.All(o => o.Task.Status is EumTaskType.Scheduler or EumTaskType.Working))
-            {
-                await CancelAsync();
-                throw new RefuseException($"【客户端假死】客户端：{Task.Client.ClientId}，强制下线客户端");
-            }
+            // // 加个时间，来限制并发
+            // if (Task.Status == EumTaskType.Scheduler && (DateTime.Now - Task.StartAt).TotalSeconds < 5) return;
+            // if (Task.Status == EumTaskType.Working   && (DateTime.Now - Task.RunAt).TotalSeconds   < 5) return;
+            //
+            // // 找出当前客户端对应的所有任务、并且执行时间 已经到了
+            // var lstClientTask = await IocManager.GetService<ITaskGroupRepository>().ToListAsync(Task.Client.ClientId);
+            // if (lstClientTask.Count == 0) return;
+            //
+            // // 全部处于调度、工作状态，说明客户端已经假死了
+            // if (lstClientTask.All(o => o.Task.Status is EumTaskType.Scheduler or EumTaskType.Working))
+            // {
+            //     var message = $"【客户端假死】客户端：{Task.Client.ClientId}，强制下线客户端";
+            //     await CancelAsync();
+            //     throw new RefuseException(message);
+            // }
         }
 
         /// <summary>
