@@ -346,16 +346,13 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
             // 任务组活动时间大于1分钟，判定为客户端下线
             if ((DateTime.Now - ActivateAt).TotalMinutes >= 1) // 大于1分钟，才检查
             {
-                var message = $"【任务假死】任务：【{JobName}】 {Id} {Caption} {Task.Status.ToString()} 在{(DateTime.Now - ActivateAt).GetDateDesc()}没有反应，强制设为失败状态";
-                await CancelAsync();
-                throw new RefuseException(message);
+                throw new RefuseException( $"【任务假死】任务：【{JobName}】 {Id} {Caption} {Task.Status.ToString()} 在{(DateTime.Now - ActivateAt).GetDateDesc()}没有反应，强制设为失败状态");
             }
 
             // 如果时间小于5分钟的，则按5分钟来判定
             var timeout = Math.Max(RunSpeedAvg * 2.5, (long)TimeSpan.FromMinutes(5).TotalMilliseconds);
             if ((DateTime.Now - Task.RunAt).TotalMilliseconds > timeout)
             {
-                await CancelAsync();
                 throw new RefuseException($"【任务超时】任务：【{JobName}】 {Id} {Caption} 超过平均运行时间：{timeout} ms，强制设为失败状态");
             }
 

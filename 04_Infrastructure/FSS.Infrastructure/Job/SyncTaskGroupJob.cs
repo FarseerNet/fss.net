@@ -19,11 +19,14 @@ namespace FSS.Infrastructure.Job
         {
             // 数据库同步到缓存
             var lstGroupByDb = await TaskGroupAgent.ToListAsync();
+            var curIndex     = 0;
             foreach (var taskGroupVo in lstGroupByDb)
             {
+                curIndex++;
                 // 强制从缓存中再读一次，可以实现当缓存丢失时，可以重新写入该条任务组到缓存
                 var po = await TaskGroupCache.ToEntityAsync(taskGroupVo.Id.GetValueOrDefault());
                 await TaskGroupAgent.UpdateAsync(po.Id, po);
+                context.SetProgress(curIndex / lstGroupByDb.Count * 100);
             }
             return true;
         }
