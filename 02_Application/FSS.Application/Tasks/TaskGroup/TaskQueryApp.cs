@@ -5,16 +5,16 @@ using FS.Core;
 using FS.DI;
 using FS.Extends;
 using FSS.Application.Tasks.TaskGroup.Entity;
+using FSS.Domain.Tasks.TaskGroup;
 using FSS.Domain.Tasks.TaskGroup.Entity;
 using FSS.Domain.Tasks.TaskGroup.Enum;
-using FSS.Domain.Tasks.TaskGroup.Interface;
 using FSS.Domain.Tasks.TaskGroup.Repository;
 
 namespace FSS.Application.Tasks.TaskGroup
 {
     public class TaskQueryApp : ISingletonDependency
     {
-        public ITaskGroupService    TaskGroupService    { get; set; }
+        public TaskGroupService    TaskGroupService    { get; set; }
         public ITaskGroupRepository TaskGroupRepository { get; set; }
 
         /// <summary>

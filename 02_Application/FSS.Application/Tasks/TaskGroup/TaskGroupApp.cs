@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using FS.DI;
 using FS.Extends;
 using FSS.Application.Tasks.TaskGroup.Entity;
-using FSS.Domain.Log.TaskLog.Interface;
+using FSS.Domain.Log.TaskLog;
 using FSS.Domain.Tasks.TaskGroup.Entity;
 using FSS.Domain.Tasks.TaskGroup.Repository;
 using Microsoft.Extensions.Logging;
@@ -13,7 +13,7 @@ namespace FSS.Application.Tasks.TaskGroup
     public class TaskGroupApp : ISingletonDependency
     {
         public ITaskGroupRepository TaskGroupRepository { get; set; }
-        public ITaskLogService      TaskLogService      { get; set; }
+        public TaskLogService      TaskLogService      { get; set; }
 
         /// <summary>
         /// 添加任务组信息

@@ -3,7 +3,7 @@ using FS.Core;
 using FS.DI;
 using FS.Extends;
 using FSS.Application.Log.TaskLog.Entity;
-using FSS.Domain.Log.TaskLog.Interface;
+using FSS.Domain.Log.TaskLog;
 using FSS.Domain.Log.TaskLog.Repository;
 using FSS.Domain.Tasks.TaskGroup.Entity;
 using Microsoft.Extensions.Logging;
@@ -12,7 +12,7 @@ namespace FSS.Application.Log.TaskLog
 {
     public class TaskLogApp : ISingletonDependency
     {
-        public ITaskLogService    TaskLogService    { get; set; }
+        public TaskLogService    TaskLogService    { get; set; }
         public ITaskLogRepository TaskLogRepository { get; set; }
 
         /// <summary>

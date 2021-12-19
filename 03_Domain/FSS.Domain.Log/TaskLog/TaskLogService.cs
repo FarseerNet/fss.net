@@ -1,12 +1,12 @@
 using System;
 using System.Threading.Tasks;
+using FS.DI;
 using FSS.Domain.Log.TaskLog.Entity;
-using FSS.Domain.Log.TaskLog.Interface;
 using Microsoft.Extensions.Logging;
 
 namespace FSS.Domain.Log.TaskLog
 {
-    public class TaskLogService : ITaskLogService
+    public class TaskLogService : ISingletonDependency
     {
         /// <summary>
         /// 添加日志记录

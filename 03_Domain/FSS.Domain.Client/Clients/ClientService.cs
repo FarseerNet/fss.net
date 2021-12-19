@@ -1,13 +1,12 @@
 using System;
 using System.Threading.Tasks;
 using FS.DI;
-using FSS.Domain.Client.Clients.Interface;
 using FSS.Domain.Client.Clients.Publish;
 using FSS.Domain.Client.Clients.Repository;
 
 namespace FSS.Domain.Client.Clients
 {
-    public class ClientService : IClientService
+    public class ClientService : ISingletonDependency
     {
         public IClientRepository ClientRepository { get; set; }
 

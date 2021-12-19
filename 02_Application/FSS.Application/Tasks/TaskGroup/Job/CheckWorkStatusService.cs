@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using FS.Core.Exception;
 using FS.Core.LinkTrack;
 using FSS.Domain.Client.Clients.Repository;
-using FSS.Domain.Log.TaskLog.Interface;
+using FSS.Domain.Log.TaskLog;
 using FSS.Domain.Tasks.TaskGroup.Entity;
 using FSS.Domain.Tasks.TaskGroup.Repository;
 using Microsoft.Extensions.Logging;
@@ -18,7 +18,7 @@ namespace FSS.Application.Tasks.TaskGroup.Job
     {
         public ITaskGroupRepository TaskGroupRepository { get; set; }
         public IClientRepository    ClientRepository    { get; set; }
-        public ITaskLogService      TaskLogService      { get; set; }
+        public TaskLogService      TaskLogService      { get; set; }
 
         protected override async Task ExecuteJobAsync(CancellationToken stoppingToken)
         {

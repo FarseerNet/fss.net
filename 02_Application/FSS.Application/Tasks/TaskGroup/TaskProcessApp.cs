@@ -5,7 +5,7 @@ using FS.DI;
 using FSS.Application.Clients.Client.Entity;
 using FSS.Application.Log.TaskLog;
 using FSS.Application.Tasks.TaskGroup.Entity;
-using FSS.Domain.Log.TaskLog.Interface;
+using FSS.Domain.Log.TaskLog;
 using FSS.Domain.Tasks.TaskGroup.Entity;
 using FSS.Domain.Tasks.TaskGroup.Enum;
 using Microsoft.Extensions.Logging;
@@ -14,7 +14,7 @@ namespace FSS.Application.Tasks.TaskGroup
 {
     public class TaskProcessApp : ISingletonDependency
     {
-        public ITaskLogService TaskLogService { get; set; }
+        public TaskLogService TaskLogService { get; set; }
         public TaskLogApp      TaskLogApp     { get; set; }
 
         /// <summary>

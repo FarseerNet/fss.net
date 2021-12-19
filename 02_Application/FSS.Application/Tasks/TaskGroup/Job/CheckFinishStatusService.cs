@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FS.Core.LinkTrack;
-using FSS.Domain.Tasks.TaskGroup.Interface;
+using FSS.Domain.Tasks.TaskGroup;
 
 namespace FSS.Application.Tasks.TaskGroup.Job
 {
@@ -12,7 +12,7 @@ namespace FSS.Application.Tasks.TaskGroup.Job
     /// </summary>
     public class CheckFinishStatusService : BackgroundServiceTrace
     {
-        public ITaskGroupService TaskGroupService { get; set; }
+        public TaskGroupService TaskGroupService { get; set; }
 
         protected override async Task ExecuteJobAsync(CancellationToken stoppingToken)
         {

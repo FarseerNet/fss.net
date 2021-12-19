@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 using FS.Core.LinkTrack;
 using FS.DI;
 using FSS.Application.Tasks.TaskGroup.Entity;
+using FSS.Domain.Tasks.TaskGroup;
 using FSS.Domain.Tasks.TaskGroup.Entity;
-using FSS.Domain.Tasks.TaskGroup.Interface;
 using FSS.Domain.Tasks.TaskGroup.Repository;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace FSS.Application.Tasks.TaskGroup.Job
 {
@@ -20,13 +19,13 @@ namespace FSS.Application.Tasks.TaskGroup.Job
     public class InitSysTaskService : BackgroundServiceTrace
     {
         readonly ILogger              _logger;
-        readonly ITaskGroupService    _taskGroupService;
+        readonly TaskGroupService    _taskGroupService;
         readonly ITaskGroupRepository _taskGroupRepository;
 
         public InitSysTaskService(IIocManager ioc)
         {
             _logger              = ioc.Logger<InitSysTaskService>();
-            _taskGroupService    = ioc.Resolve<ITaskGroupService>();
+            _taskGroupService    = ioc.Resolve<TaskGroupService>();
             _taskGroupRepository = ioc.Resolve<ITaskGroupRepository>();
         }
 

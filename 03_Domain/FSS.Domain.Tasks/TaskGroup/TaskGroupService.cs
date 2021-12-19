@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FS.DI;
 using FSS.Domain.Tasks.TaskGroup.Entity;
-using FSS.Domain.Tasks.TaskGroup.Interface;
 using FSS.Domain.Tasks.TaskGroup.Repository;
 
 namespace FSS.Domain.Tasks.TaskGroup
 {
-    public class TaskGroupService : ITaskGroupService
+    public class TaskGroupService : ISingletonDependency
     {
         public ITaskGroupRepository TaskGroupRepository { get; set; }
 
