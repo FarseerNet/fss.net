@@ -11,6 +11,7 @@
         <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.Cache\Farseer.Net.Cache.csproj" />
         <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.EventBus\Farseer.Net.EventBus.csproj" />
         <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.Job\Farseer.Net.Job.csproj" />
+        <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.LinkTrack\Farseer.Net.LinkTrack.csproj" />
         <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.Mapper\Farseer.Net.Mapper.csproj" />
         <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net\Farseer.Net.csproj" />
         <ProjectReference Include="..\..\02_Application\FSS.Application\FSS.Application.csproj" />

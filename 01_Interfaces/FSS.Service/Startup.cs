@@ -9,6 +9,7 @@ using FS.Job;
 using FS.LinkTrack;
 using FS.Mapper;
 using FS.Modules;
+using FSS.Application;
 using FSS.Application.Tasks.TaskGroup.Job;
 using FSS.Infrastructure;
 using FSS.Service.Background;
@@ -24,14 +25,7 @@ using Microsoft.OpenApi.Models;
 namespace FSS.Service
 {
     [DependsOn(
-                  typeof(FarseerCoreModule),
-                  typeof(MapperModule),
-                  typeof(RedisModule),
-                  typeof(DataModule),
-                  typeof(ElasticSearchModule),
-                  typeof(LinkTrackModule),
-                  typeof(EventBusModule),
-                  typeof(JobModule),
+                  typeof(ApplicationModule),
                   typeof(InfrastructureModule)
               )]
     public class Startup : FarseerModule

@@ -1,12 +1,23 @@
-﻿using FS.Modules;
-using FSS.Application;
-using FSS.Domain.Client;
-using FSS.Domain.Log;
-using FSS.Domain.Tasks;
+﻿using FS.Cache.Redis;
+using FS.Core;
+using FS.Data;
+using FS.ElasticSearch;
+using FS.EventBus;
+using FS.Job;
+using FS.LinkTrack;
+using FS.Mapper;
+using FS.Modules;
 
 namespace FSS.Infrastructure
 {
-    [DependsOn(typeof(ClientModule), typeof(LogModule), typeof(TasksModule), typeof(ApplicationModule))]
+    [DependsOn(typeof(MapperModule),
+                  typeof(RedisModule),
+                  typeof(DataModule),
+                  typeof(ElasticSearchModule),
+                  typeof(LinkTrackModule),
+                  typeof(EventBusModule),
+                  typeof(JobModule),
+                  typeof(FarseerCoreModule))]
     public class InfrastructureModule : FarseerModule
     {
         /// <summary>
@@ -15,7 +26,7 @@ namespace FSS.Infrastructure
         public override void PreInitialize()
         {
         }
-        
+
         /// <summary>
         ///     初始化
         /// </summary>

@@ -1,9 +1,11 @@
-﻿using System.Reflection;
-using FS.DI;
-using FS.Modules;
+﻿using FS.Modules;
+using FSS.Domain.Client;
+using FSS.Domain.Log;
+using FSS.Domain.Tasks;
 
 namespace FSS.Application
 {
+    [DependsOn(typeof(ClientModule), typeof(LogModule), typeof(TasksModule))]
     public class ApplicationModule : FarseerModule
     {
         /// <summary>
