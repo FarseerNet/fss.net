@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-using FS.DI;
-using FS.Modules;
+﻿using FS.Modules;
 
 namespace FSS.Domain.Client
 {

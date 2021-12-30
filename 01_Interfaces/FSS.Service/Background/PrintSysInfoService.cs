@@ -24,7 +24,7 @@ namespace FSS.Service.Background
             _logger = _ioc.Logger<Startup>();
         }
 
-        protected override async Task ExecuteJobAsync(CancellationToken stoppingToken)
+        protected override Task ExecuteJobAsync(CancellationToken stoppingToken)
         {
             var ip = IpHelper.GetIps()[0].Address.MapToIPv4().ToString();
 
@@ -36,7 +36,8 @@ namespace FSS.Service.Background
             var elasticSearchItemConfig = ElasticSearchConfigRoot.Get().Find(o => o.Name == "es");
             var use                     = elasticSearchItemConfig != null ? $"Elasticsearch，{elasticSearchItemConfig.Server}" : "数据库";
             _logger.LogInformation($"使用 [ {use} ] 作为日志保存记录");
+            
+            return Task.FromResult(0);
         }
-
     }
 }

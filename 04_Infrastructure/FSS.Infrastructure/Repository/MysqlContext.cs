@@ -16,11 +16,11 @@ namespace FSS.Infrastructure.Repository
         {
         }
 
-        public TableSet<TaskLogPO>    RunLog    { get; set; }
+        public TableSet<TaskLogPO>   RunLog    { get; set; }
         public TableSet<TaskPO>      Task      { get; set; }
         public TableSet<TaskGroupPO> TaskGroup { get; set; }
 
-        protected override void CreateModelInit(Dictionary<string, SetDataMap> map)
+        protected override void CreateModelInit()
         {
             RunLog.SetName("run_log");
             Task.SetName("task");

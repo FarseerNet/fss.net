@@ -4,7 +4,7 @@ using FS.Job;
 using FSS.Domain.Tasks.TaskGroup;
 using FSS.Domain.Tasks.TaskGroup.Repository;
 
-namespace FSS.Application.Tasks.TaskGroup.Job
+namespace FSS.Application.Job
 {
     /// <summary>
     /// 计算任务组的平均耗时

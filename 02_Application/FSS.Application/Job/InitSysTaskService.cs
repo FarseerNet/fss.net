@@ -11,7 +11,7 @@ using FSS.Domain.Tasks.TaskGroup.Entity;
 using FSS.Domain.Tasks.TaskGroup.Repository;
 using Microsoft.Extensions.Logging;
 
-namespace FSS.Application.Tasks.TaskGroup.Job
+namespace FSS.Application.Job
 {
     /// <summary>
     /// 初始化系统任务

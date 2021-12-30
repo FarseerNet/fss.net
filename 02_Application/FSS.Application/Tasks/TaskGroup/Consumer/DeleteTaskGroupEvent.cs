@@ -13,11 +13,11 @@ namespace FSS.Application.Tasks.TaskGroup.Consumer
     public class DeleteTaskGroupEvent : IListenerMessage
     {
         public ITaskGroupRepository TaskGroupRepository { get; set; }
-        
-        public async Task<bool> Consumer(object message, DomainEventArgs ea)
+
+        public Task<bool> Consumer(object message, DomainEventArgs ea)
         {
             var taskGroupId = message.ConvertType(0);
-            return true;
+            return Task.FromResult(true);
         }
     }
 }

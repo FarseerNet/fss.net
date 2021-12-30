@@ -3,7 +3,7 @@ using FS.Core.Job;
 using FS.Job;
 using FSS.Domain.Client.Clients;
 
-namespace FSS.Application.Clients.Client.Job
+namespace FSS.Application.Job
 {
     /// <summary>
     /// 检查超时离线的客户端

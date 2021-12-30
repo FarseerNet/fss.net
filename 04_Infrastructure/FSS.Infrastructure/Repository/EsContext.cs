@@ -33,7 +33,6 @@ namespace FSS.Infrastructure.Repository
 
         protected override void CreateModelInit(Dictionary<string, SetDataMap> map)
         {
-            //map["RunLog"].SetName($"FssLog_{DateTime.Now.ToString(ElasticIndexFormat)}", 2, 0, 1, "FssLog");
             RunLog.SetName($"FssLog_{DateTime.Now.ToString(ElasticIndexFormat)}", 2, 0, 1, "FssLog");
         }
 

@@ -10,7 +10,7 @@ using FS.LinkTrack;
 using FS.Mapper;
 using FS.Modules;
 using FSS.Application;
-using FSS.Application.Tasks.TaskGroup.Job;
+using FSS.Application.Job;
 using FSS.Infrastructure;
 using FSS.Service.Background;
 using Microsoft.AspNetCore.Builder;

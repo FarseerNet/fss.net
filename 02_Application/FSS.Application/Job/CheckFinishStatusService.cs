@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using FS.Core.LinkTrack;
 using FSS.Domain.Tasks.TaskGroup;
 
-namespace FSS.Application.Tasks.TaskGroup.Job
+namespace FSS.Application.Job
 {
     /// <summary>
     /// 检测完成状态的任务

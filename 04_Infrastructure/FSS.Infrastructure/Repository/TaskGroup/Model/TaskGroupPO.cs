@@ -42,7 +42,6 @@ namespace FSS.Infrastructure.Repository.TaskGroup.Model
         /// 传给客户端的参数，按逗号分隔
         /// </summary>
         [Field(Name = "data", StorageType = EumStorageType.Json)]
-        //[MapField(IsIgnore = true)]
         public Dictionary<string, string> Data { get; set; }
 
         /// <summary>
@@ -99,12 +98,7 @@ namespace FSS.Infrastructure.Repository.TaskGroup.Model
         [Field(Name = "is_enable")]
         public bool? IsEnable { get; set; }
 
-        //public static readonly          Action<TaskGroupPO, TaskGroupDO> MapToPO = (po, taskGroupDO) => po.Data = JsonConvert.SerializeObject(taskGroupDO.Data);
-        //public static readonly          Action<TaskGroupPO, TaskGroupDO> MapToPO = (po, taskGroupDO) => po.Data = taskGroupDO.Data;
         public static implicit operator TaskGroupPO(TaskGroupDO taskGroupDO) => taskGroupDO.Map<TaskGroupPO>();
-
-
-        //public static readonly          Action<TaskGroupDO, TaskGroupPO> MapToDO = (taskGroupDO, po) => taskGroupDO.Data = Jsons.ToObject<Dictionary<string, string>>(po.Data);
         public static implicit operator TaskGroupDO(TaskGroupPO po) => po.Map<TaskGroupDO>();
     }
 }
