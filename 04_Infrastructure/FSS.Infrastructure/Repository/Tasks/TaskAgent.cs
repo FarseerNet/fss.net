@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FS.Core;
 using FS.DI;
 using FSS.Domain.Tasks.TaskGroup.Enum;
 using FSS.Infrastructure.Repository.Tasks.Model;
@@ -36,6 +37,16 @@ namespace FSS.Infrastructure.Repository.Tasks
         public Task<List<TaskPO>> ToFinishListAsync(int groupId, int top) => MysqlContext.Data.Task.Where(o => o.TaskGroupId == groupId && (o.Status == EumTaskType.Success || o.Status == EumTaskType.Fail)).Desc(o => o.CreateAt).ToListAsync(top);
 
         /// <summary>
+        /// 获取已完成的任务列表
+        /// </summary>
+        public Task<PageList<TaskPO>> ToFinishPageListAsync(int pageSize, int pageIndex)
+        {
+            return MysqlContext.Data.Task.Where(o => (o.Status == EumTaskType.Fail || o.Status == EumTaskType.Success) && o.CreateAt >= DateTime.Now.AddDays(-1))
+                               .Select(o => new { o.Id, o.Caption, o.Progress, o.Status, o.StartAt, o.CreateAt, o.ClientIp, o.RunSpeed, o.RunAt, o.JobName })
+                               .Desc(o => o.RunAt).ToPageListAsync(pageSize, pageIndex);
+        }
+        
+        /// <summary>
         /// 清除成功的任务记录（1天前）
         /// </summary>
         public Task ClearFinishAsync(int groupId, int taskId) => MysqlContext.Data.Task.Where(o => o.TaskGroupId == groupId && (o.Status == EumTaskType.Success || o.Status == EumTaskType.Fail) && o.CreateAt < DateTime.Now.AddDays(-1) && o.Id < taskId).DeleteAsync();
@@ -58,21 +69,11 @@ namespace FSS.Infrastructure.Repository.Tasks
         /// <summary>
         /// 获取指定任务组的任务列表（FOPS）
         /// </summary>
-        public Task<List<TaskPO>> ToListAsync(int groupId, int pageSize, int pageIndex, out int totalCount)
+        public Task<PageList<TaskPO>> ToListAsync(int groupId, int pageSize, int pageIndex)
         {
             return MysqlContext.Data.Task.Where(o => o.TaskGroupId == groupId)
                                   .Select(o => new { o.Id, o.Caption, o.Progress, o.Status, o.StartAt, o.CreateAt, o.ClientIp, o.RunSpeed, o.RunAt })
-                                  .Desc(o => o.CreateAt).ToListAsync(pageSize, pageIndex, out totalCount);
-        }
-
-        /// <summary>
-        /// 获取已完成的任务列表
-        /// </summary>
-        public Task<List<TaskPO>> ToFinishListAsync(int pageSize, int pageIndex, out int totalCount)
-        {
-            return MysqlContext.Data.Task.Where(o => (o.Status == EumTaskType.Fail || o.Status == EumTaskType.Success) && o.CreateAt >= DateTime.Now.AddDays(-1))
-                                  .Select(o => new { o.Id, o.Caption, o.Progress, o.Status, o.StartAt, o.CreateAt, o.ClientIp, o.RunSpeed, o.RunAt, o.JobName })
-                                  .Desc(o => o.RunAt).ToListAsync(pageSize, pageIndex, out totalCount);
+                                  .Desc(o => o.CreateAt).ToPageListAsync(pageSize, pageIndex);
         }
 
     }

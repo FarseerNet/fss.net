@@ -181,10 +181,10 @@ namespace FSS.Service.Controllers
         /// </summary>
         [HttpPost]
         [Route("GetEnableTaskList")]
-        public async Task<ApiResponseJson<DataSplitList<TaskDTO>>> GetEnableTaskList(GetAllTaskListRequest request)
+        public async Task<ApiResponseJson<PageList<TaskDTO>>> GetEnableTaskList(GetAllTaskListRequest request)
         {
             var lst = TaskQueryApp.GetEnableTaskList(request.Status, request.PageSize, request.PageIndex);
-            return await ApiResponseJson<DataSplitList<TaskDTO>>.SuccessAsync(lst);
+            return await ApiResponseJson<PageList<TaskDTO>>.SuccessAsync(lst);
         }
 
         /// <summary>
@@ -192,10 +192,10 @@ namespace FSS.Service.Controllers
         /// </summary>
         [HttpPost]
         [Route("GetTaskList")]
-        public async Task<ApiResponseJson<DataSplitList<TaskDTO>>> GetTaskList(GetTaskListRequest request)
+        public async Task<ApiResponseJson<PageList<TaskDTO>>> GetTaskList(GetTaskListRequest request)
         {
             var lst = await TaskQueryApp.ToListAsync(request.GroupId, request.PageSize, request.PageIndex);
-            return await ApiResponseJson<DataSplitList<TaskDTO>>.SuccessAsync(lst);
+            return await ApiResponseJson<PageList<TaskDTO>>.SuccessAsync(lst);
         }
 
         /// <summary>
@@ -203,10 +203,10 @@ namespace FSS.Service.Controllers
         /// </summary>
         [HttpPost]
         [Route("GetTaskFinishList")]
-        public async Task<ApiResponseJson<DataSplitList<TaskDTO>>> GetTaskFinishList(PageSizeRequest request)
+        public async Task<ApiResponseJson<PageList<TaskDTO>>> GetTaskFinishList(PageSizeRequest request)
         {
-            var lst = await TaskQueryApp.ToFinishListAsync(request.PageSize, request.PageIndex);
-            return await ApiResponseJson<DataSplitList<TaskDTO>>.SuccessAsync(lst);
+            var lst = await TaskQueryApp.ToFinishPageListAsync(request.PageSize, request.PageIndex);
+            return await ApiResponseJson<PageList<TaskDTO>>.SuccessAsync(lst);
         }
 
         /// <summary>
@@ -225,10 +225,10 @@ namespace FSS.Service.Controllers
         /// </summary>
         [HttpPost]
         [Route("GetRunLogList")]
-        public async Task<ApiResponseJson<DataSplitList<TaskLogDTO>>> GetRunLogList(GetRunLogRequest request)
+        public async Task<ApiResponseJson<PageList<TaskLogDTO>>> GetRunLogList(GetRunLogRequest request)
         {
             var lst = TaskLogApp.GetList(request.JobName, request.LogLevel, request.PageSize, request.PageIndex);
-            return await ApiResponseJson<DataSplitList<TaskLogDTO>>.SuccessAsync(lst);
+            return await ApiResponseJson<PageList<TaskLogDTO>>.SuccessAsync(lst);
         }
     }
 }

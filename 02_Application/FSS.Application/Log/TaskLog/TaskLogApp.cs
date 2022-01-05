@@ -34,10 +34,9 @@ namespace FSS.Application.Log.TaskLog
         /// <summary>
         /// 获取日志
         /// </summary>
-        public DataSplitList<TaskLogDTO> GetList(string jobName, LogLevel? logLevel, int pageSize, int pageIndex)
+        public PageList<TaskLogDTO> GetList(string jobName, LogLevel? logLevel, int pageSize, int pageIndex)
         {
-            var lst = TaskLogRepository.GetList(jobName, logLevel, pageSize, pageIndex, out var totalCount);
-            return new DataSplitList<TaskLogDTO>(lst.Map<TaskLogDTO>(), totalCount);
+            return TaskLogRepository.GetList(jobName, logLevel, pageSize, pageIndex).Map<TaskLogDTO>();
         }
     }
 }

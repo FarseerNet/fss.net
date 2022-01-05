@@ -31,7 +31,7 @@ namespace FSS.Infrastructure.Repository
         {
         }
 
-        protected override void CreateModelInit(Dictionary<string, SetDataMap> map)
+        protected override void CreateModelInit()
         {
             RunLog.SetName($"FssLog_{DateTime.Now.ToString(ElasticIndexFormat)}", 2, 0, 1, "FssLog");
         }

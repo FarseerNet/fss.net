@@ -45,19 +45,17 @@ namespace FSS.Application.Tasks.TaskGroup
         /// <summary>
         /// 获取指定任务组的任务列表（FOPS）
         /// </summary>
-        public async Task<DataSplitList<TaskDTO>> ToListAsync(int groupId, int pageSize, int pageIndex)
+        public Task<PageList<TaskDTO>> ToListAsync(int groupId, int pageSize, int pageIndex)
         {
-            var lst = await TaskGroupRepository.ToListAsync(groupId, pageSize, pageIndex, out var totalCount);
-            return new DataSplitList<TaskDTO>(lst.Map(TaskDTO.MapToDTO), totalCount);
+            return TaskGroupRepository.ToListAsync(groupId, pageSize, pageIndex).MapAsync(TaskDTO.MapToDTO);
         }
 
         /// <summary>
         /// 获取已完成的任务列表
         /// </summary>
-        public async Task<DataSplitList<TaskDTO>> ToFinishListAsync(int pageSize, int pageIndex)
+        public Task<PageList<TaskDTO>> ToFinishPageListAsync(int pageSize, int pageIndex)
         {
-            var lst = await TaskGroupRepository.ToFinishListAsync(pageSize, pageIndex, out var totalCount);
-            return new DataSplitList<TaskDTO>(lst.Map(TaskDTO.MapToDTO), totalCount);
+            return TaskGroupRepository.ToFinishPageListAsync(pageSize, pageIndex).MapAsync(TaskDTO.MapToDTO);
         }
 
         /// <summary>
@@ -72,10 +70,10 @@ namespace FSS.Application.Tasks.TaskGroup
         /// <summary>
         /// 获取在用的任务组
         /// </summary>
-        public DataSplitList<TaskDTO> GetEnableTaskList(EumTaskType? status, int pageSize, int pageIndex)
+        public PageList<TaskDTO> GetEnableTaskList(EumTaskType? status, int pageSize, int pageIndex)
         {
             var lst = TaskGroupRepository.GetEnableTaskList(status, pageSize, pageIndex, out var totalCount);
-            return new DataSplitList<TaskDTO>(lst.Select(o => (TaskDTO)o.Task), totalCount);
+            return new PageList<TaskDTO>(lst.Select(o => (TaskDTO)o.Task), totalCount);
         }
     }
 }

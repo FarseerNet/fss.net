@@ -30,12 +30,12 @@ namespace FSS.Infrastructure.Repository.Log
         /// <summary>
         /// 获取日志
         /// </summary>
-        public List<TaskLogPO> GetList(string jobName, LogLevel? logLevel, int pageSize, int pageIndex, out long recordCount)
+        public PageList<TaskLogPO> GetList(string jobName, LogLevel? logLevel, int pageSize, int pageIndex)
         {
-            List<TaskLogPO> lst;
+            PageList<TaskLogPO> lst;
             if (EsContext.UseEs)
             {
-                lst = EsContext.Data.RunLog.Where(o => o.JobName == jobName && o.LogLevel == logLevel).Desc(o => o.CreateAt).ToList(pageSize, pageIndex, out recordCount);
+                lst = EsContext.Data.RunLog.Where(o => o.JobName == jobName && o.LogLevel == logLevel).Desc(o => o.CreateAt).ToPageList(pageSize, pageIndex);
             }
             else
             {
@@ -50,7 +50,7 @@ namespace FSS.Infrastructure.Repository.Log
                     set.Where(o => o.LogLevel == logLevel);
                 }
 
-                lst = set.ToList(pageSize, pageIndex, out recordCount);
+                lst = set.ToPageList(pageSize, pageIndex);
             }
             return lst;
         }

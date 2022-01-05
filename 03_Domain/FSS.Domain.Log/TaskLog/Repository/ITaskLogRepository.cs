@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FS.Core;
 using FS.DI;
 using FSS.Domain.Log.TaskLog.Entity;
 using Microsoft.Extensions.Logging;
@@ -11,7 +12,7 @@ namespace FSS.Domain.Log.TaskLog.Repository
         /// <summary>
         /// 获取日志
         /// </summary>
-        List<TaskLogDO> GetList(string jobName, LogLevel? logLevel, int pageSize, int pageIndex, out long totalCount);
+        PageList<TaskLogDO> GetList(string jobName, LogLevel? logLevel, int pageSize, int pageIndex);
         /// <summary>
         /// 添加日志
         /// </summary>

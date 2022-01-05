@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FS.Core;
 using FS.Extends;
 using FSS.Domain.Log.TaskLog.Entity;
 using FSS.Domain.Log.TaskLog.Repository;
@@ -14,7 +15,7 @@ namespace FSS.Infrastructure.Repository
         public LogAgent LogAgent { get; set; }
         public LogQueue LogQueue { get; set; }
 
-        public List<TaskLogDO> GetList(string jobName, LogLevel? logLevel, int pageSize, int pageIndex, out long totalCount) => LogAgent.GetList(jobName, logLevel, pageSize, pageIndex, out totalCount).Map<TaskLogDO>();
+        public PageList<TaskLogDO> GetList(string jobName, LogLevel? logLevel, int pageSize, int pageIndex) => LogAgent.GetList(jobName, logLevel, pageSize, pageIndex).Map<TaskLogDO>();
 
         public Task AddAsync(TaskLogDO taskLogDO) => LogQueue.AddQueueAsync(taskLogDO.Map<TaskLogPO>());
     }

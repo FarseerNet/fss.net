@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FS.Cache;
+using FS.Core;
 using FS.Extends;
 using FSS.Application.Tasks.TaskGroup.Entity;
 using FSS.Domain.Tasks.TaskGroup.Entity;
@@ -107,17 +108,17 @@ namespace FSS.Infrastructure.Repository
         /// <summary>
         /// 获取指定任务组的任务列表（FOPS）
         /// </summary>
-        public Task<List<TaskDO>> ToListAsync(int groupId, int pageSize, int pageIndex, out int totalCount)
+        public Task<PageList<TaskDO>> ToListAsync(int groupId, int pageSize, int pageIndex)
         {
-            return TaskAgent.ToListAsync(groupId, pageSize, pageIndex, out totalCount).MapAsync(TaskPO.MapToDO);
+            return TaskAgent.ToListAsync(groupId, pageSize, pageIndex).MapAsync(TaskPO.MapToDO);
         }
 
         /// <summary>
         /// 获取已完成的任务列表
         /// </summary>
-        public Task<List<TaskDO>> ToFinishListAsync(int pageSize, int pageIndex, out int totalCount)
+        public Task<PageList<TaskDO>> ToFinishPageListAsync(int pageSize, int pageIndex)
         {
-            return TaskAgent.ToFinishListAsync(pageSize, pageIndex, out totalCount).MapAsync(TaskPO.MapToDO);
+            return TaskAgent.ToFinishPageListAsync(pageSize, pageIndex).MapAsync(TaskPO.MapToDO);
         }
 
         /// <summary>

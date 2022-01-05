@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FS.Core;
 using FS.DI;
 using FSS.Domain.Tasks.TaskGroup.Entity;
 using FSS.Domain.Tasks.TaskGroup.Enum;
@@ -73,11 +74,11 @@ namespace FSS.Domain.Tasks.TaskGroup.Repository
         /// <summary>
         /// 获取指定任务组的任务列表（FOPS）
         /// </summary>
-        Task<List<TaskDO>> ToListAsync(int groupId, int pageSize, int pageIndex, out int totalCount);
+        Task<PageList<TaskDO>> ToListAsync(int groupId, int pageSize, int pageIndex);
         /// <summary>
         /// 获取已完成的任务列表
         /// </summary>
-        Task<List<TaskDO>> ToFinishListAsync(int pageSize, int pageIndex, out int totalCount);
+        Task<PageList<TaskDO>> ToFinishPageListAsync(int pageSize, int pageIndex);
         Task<List<TaskGroupDO>> ToListAsync(long clientId);
         /// <summary>
         /// 获取进行中的任务
