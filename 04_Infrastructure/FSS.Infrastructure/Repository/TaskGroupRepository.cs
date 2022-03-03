@@ -32,7 +32,7 @@ public class TaskGroupRepository : ITaskGroupRepository
     public async Task<List<TaskGroupDO>> ToListAsync(long clientId)
     {
         var lstTask = await TaskGroupCache.ToListAsync();
-        return lstTask.FindAll(match: o => o.Task != null && o.Task.Client != null && o.Task.Client.ClientId == clientId && o.StartAt < DateTime.Now);
+        return lstTask.FindAll(match: o => o.Task != null && o.Task.Client != null && o.Task.Client.ClientId == clientId && o.Task.StartAt < DateTime.Now);
     }
 
     public async Task<int> AddAsync(TaskGroupDO taskGroupDO)
@@ -69,7 +69,7 @@ public class TaskGroupRepository : ITaskGroupRepository
     public async Task<List<TaskGroupDO>> GetCanSchedulerTaskGroup(string[] jobs, TimeSpan ts, int count)
     {
         var lstTaskGroup = await ToListAsync();
-        return lstTaskGroup.Where(predicate: o => o.IsEnable && jobs.Contains(value: o.JobName) && o.Task != null && o.Task.StartAt < DateTime.Now.Add(value: ts) && o.Task.Status == EumTaskType.None).OrderBy(keySelector: o => o.StartAt).Take(count: count).ToList();
+        return lstTaskGroup.Where(predicate: o => o.IsEnable && jobs.Contains(value: o.JobName) && o.Task != null && o.Task.StartAt < DateTime.Now.Add(value: ts) && o.Task.Status == EumTaskType.None).OrderBy(keySelector: o => o.Task.StartAt).Take(count: count).ToList();
     }
 
     /// <summary>
@@ -78,7 +78,7 @@ public class TaskGroupRepository : ITaskGroupRepository
     public async Task<int> ToUnRunCountAsync()
     {
         var lst = await ToListAsync();
-        return lst.Count(predicate: o => o.StartAt < DateTime.Now && (o.Task == null || o.Task.Status == EumTaskType.None || o.Task.Status == EumTaskType.Scheduler));
+        return lst.Count(predicate: o => o.Task == null || o.Task.Status is EumTaskType.None or EumTaskType.Scheduler || o.Task.CreateAt < DateTime.Now);
     }
 
     /// <summary>
@@ -96,7 +96,7 @@ public class TaskGroupRepository : ITaskGroupRepository
     public async Task<List<TaskGroupDO>> GetTaskUnFinishList(int top)
     {
         var lst = await ToListAsync();
-        return lst.Where(predicate: o => o.Task != null && o.Task.Status != EumTaskType.Success && o.Task.Status != EumTaskType.Fail).OrderBy(keySelector: o => o.StartAt).Take(count: top).ToList();
+        return lst.Where(predicate: o => o.Task != null && o.Task.Status != EumTaskType.Success && o.Task.Status != EumTaskType.Fail).OrderBy(keySelector: o => o.Task.StartAt).Take(count: top).ToList();
     }
 
     /// <summary>
