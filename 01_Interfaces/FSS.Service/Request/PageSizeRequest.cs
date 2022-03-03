@@ -1,8 +1,7 @@
-namespace FSS.Service.Request
+namespace FSS.Service.Request;
+
+public class PageSizeRequest
 {
-    public class PageSizeRequest
-    {
-        public int PageSize  { get; set; }
-        public int PageIndex { get; set; }
-    }
+    public int PageSize  { get; set; }
+    public int PageIndex { get; set; }
 }

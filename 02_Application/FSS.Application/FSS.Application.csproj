@@ -5,21 +5,21 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Log" />
-      <Folder Include="Tasks\TaskGroup\Job" />
+        <Folder Include="Log"/>
+        <Folder Include="Tasks\TaskGroup\Job"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.EventBus\Farseer.Net.EventBus.csproj" />
-      <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.Job\Farseer.Net.Job.csproj" />
-      <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.Mapper\Farseer.Net.Mapper.csproj" />
-      <ProjectReference Include="..\..\03_Domain\FSS.Domain.Client\FSS.Domain.Client.csproj" />
-      <ProjectReference Include="..\..\03_Domain\FSS.Domain.Log\FSS.Domain.Log.csproj" />
-      <ProjectReference Include="..\..\03_Domain\FSS.Domain.Tasks\FSS.Domain.Tasks.csproj" />
+        <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.EventBus\Farseer.Net.EventBus.csproj"/>
+        <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.Job\Farseer.Net.Job.csproj"/>
+        <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.Mapper\Farseer.Net.Mapper.csproj"/>
+        <ProjectReference Include="..\..\03_Domain\FSS.Domain.Client\FSS.Domain.Client.csproj"/>
+        <ProjectReference Include="..\..\03_Domain\FSS.Domain.Log\FSS.Domain.Log.csproj"/>
+        <ProjectReference Include="..\..\03_Domain\FSS.Domain.Tasks\FSS.Domain.Tasks.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0"/>
     </ItemGroup>
 
 </Project>

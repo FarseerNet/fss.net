@@ -1,44 +1,41 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using FS.DI;
 using FS.ElasticSearch;
-using FS.ElasticSearch.Map;
 using FSS.Infrastructure.Repository.Log.Model;
 using Microsoft.Extensions.Configuration;
 
-namespace FSS.Infrastructure.Repository
+namespace FSS.Infrastructure.Repository;
+
+/// <summary>
+///     ES日志上下文
+/// </summary>
+public class EsContext : EsContext<EsContext>
 {
     /// <summary>
-    /// ES日志上下文
+    ///     ES索引日期格式化
     /// </summary>
-    public class EsContext : EsContext<EsContext>
+    private static readonly string ElasticIndexFormat;
+    public static readonly bool UseEs;
+
+    static EsContext()
     {
-        /// <summary>
-        /// ES索引日期格式化
-        /// </summary>
-        private static readonly string ElasticIndexFormat;
-        public static readonly bool UseEs;
-        
-        static EsContext()
-        {
-            UseEs              = FS.DI.IocManager.Instance.Resolve<IConfigurationRoot>().GetSection("ElasticSearch").GetChildren().Any(o => o.Key == "es");
-            ElasticIndexFormat = IocManager.Instance.Resolve<IConfigurationRoot>().GetSection("FSS:ElasticIndexFormat").Value;
-            if (string.IsNullOrWhiteSpace(ElasticIndexFormat)) ElasticIndexFormat = "yyyy_MM";
-        }
+        UseEs              = IocManager.Instance.Resolve<IConfigurationRoot>().GetSection(key: "ElasticSearch").GetChildren().Any(predicate: o => o.Key == "es");
+        ElasticIndexFormat = IocManager.Instance.Resolve<IConfigurationRoot>().GetSection(key: "FSS:ElasticIndexFormat").Value;
+        if (string.IsNullOrWhiteSpace(value: ElasticIndexFormat)) ElasticIndexFormat = "yyyy_MM";
+    }
 
-        public EsContext() : base("es")
-        {
-        }
+    public EsContext() : base(configName: "es")
+    {
+    }
 
-        protected override void CreateModelInit()
-        {
-            RunLog.SetName($"FssLog_{DateTime.Now.ToString(ElasticIndexFormat)}", 2, 0, 1, "FssLog");
-        }
+    /// <summary>
+    ///     用户索引
+    /// </summary>
+    public IndexSet<TaskLogPO> RunLog { get; set; }
 
-        /// <summary>
-        /// 用户索引
-        /// </summary>
-        public IndexSet<TaskLogPO> RunLog { get; set; }
+    protected override void CreateModelInit()
+    {
+        RunLog.SetName(indexName: $"FssLog_{DateTime.Now.ToString(format: ElasticIndexFormat)}", shardsCount: 2, replicasCount: 0, refreshInterval: 1, "FssLog");
     }
 }

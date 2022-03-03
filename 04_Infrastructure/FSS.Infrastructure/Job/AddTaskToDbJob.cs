@@ -5,35 +5,34 @@ using FS.Job;
 using FSS.Infrastructure.Repository.Tasks;
 using Microsoft.Extensions.Logging;
 
-namespace FSS.Infrastructure.Job
+namespace FSS.Infrastructure.Job;
+
+/// <summary>
+///     任务写入数据库
+/// </summary>
+[FssJob(Name = "FSS.AddTaskToDb")]
+public class AddTaskToDbJob : IFssJob
 {
-    /// <summary>
-    /// 任务写入数据库
-    /// </summary>
-    [FssJob(Name = "FSS.AddTaskToDb")]
-    public class AddTaskToDbJob : IFssJob
+    public TaskCache TaskCache { get; set; }
+    public TaskAgent TaskAgent { get; set; }
+
+    public async Task<bool> Execute(IFssContext context)
     {
-        public TaskCache TaskCache { get; set; }
-        public TaskAgent TaskAgent { get; set; }
+        context.Meta.Data.TryGetValue(key: "DataCount", value: out var top);
+        var dataCount                = top.ConvertType(defValue: 200);
+        if (dataCount < 1) dataCount = 200;
 
-        public async Task<bool> Execute(IFssContext context)
+        var result = 0;
+        while (true)
         {
-            context.Meta.Data.TryGetValue("DataCount", out var top);
-            var dataCount                = top.ConvertType(200);
-            if (dataCount < 1) dataCount = 200;
+            var lstTask = await TaskCache.GetFinishTaskListAsync(top: dataCount);
+            if (lstTask.Count == 0) return true;
 
-            int result = 0;
-            while (true)
-            {
-                var lstTask = await TaskCache.GetFinishTaskListAsync(dataCount);
-                if (lstTask.Count == 0) return true;
-
-                var count = await TaskAgent.AddToDbAsync(lstTask);
-                result += count;
-                if (count != dataCount) break;
-            }
-            await context.LoggerAsync(LogLevel.Information, $"写入{result}条数据");
-            return true;
+            var count = await TaskAgent.AddToDbAsync(lstTask: lstTask);
+            result += count;
+            if (count != dataCount) break;
         }
+        await context.LoggerAsync(logLevel: LogLevel.Information, log: $"写入{result}条数据");
+        return true;
     }
 }

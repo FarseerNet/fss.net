@@ -1,7 +1,6 @@
-namespace FSS.Service.Request
+namespace FSS.Service.Request;
+
+public class OnlyIdRequest
 {
-    public class OnlyIdRequest
-    {
-        public int Id { get; set; }
-    }
+    public int Id { get; set; }
 }

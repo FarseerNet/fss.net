@@ -9,7 +9,7 @@ spec:
   replicas: 1
   revisionHistoryLimit: 1
   minReadySeconds: 10     # 这里需要估一个比较合理的值，从容器启动到应用正常提供服务
-  strategy:               # k8s 默认的 strategy 就是 RollingUpdate， 这里写明出来可以调节细节参数
+  strategy: # k8s 默认的 strategy 就是 RollingUpdate， 这里写明出来可以调节细节参数
     type: RollingUpdate
     rollingUpdate:
       maxSurge: 1         # 更新时允许最大激增的容器数，默认 replicas 的 1/4 向上取整
@@ -23,7 +23,7 @@ spec:
       labels:
         app: fss
     spec:
-      nodeSelector:   #节点筛选器
+      nodeSelector: #节点筛选器
         rt: middleware
       containers:
         - name: fss
@@ -33,7 +33,7 @@ spec:
             - name: regsecret
           ports:
             - containerPort: 80
-          envFrom:  #以密文的方式，把配置项写到env
+          envFrom: #以密文的方式，把配置项写到env
             - secretRef:
                 name: fss
           env:

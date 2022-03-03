@@ -1,33 +1,32 @@
-namespace FSS.Domain.Tasks.TaskGroup.Enum
+namespace FSS.Domain.Tasks.TaskGroup.Enum;
+
+/// <summary>
+///     任务状态
+/// </summary>
+public enum EumTaskType
 {
     /// <summary>
-    /// 任务状态
+    ///     未开始
     /// </summary>
-    public enum EumTaskType
-    {
-        /// <summary>
-        /// 未开始
-        /// </summary>
-        None = 0,
-        
-        /// <summary>
-        /// 已调度
-        /// </summary>
-        Scheduler = 1,
+    None = 0,
 
-        /// <summary>
-        /// 执行中
-        /// </summary>
-        Working = 2,
+    /// <summary>
+    ///     已调度
+    /// </summary>
+    Scheduler = 1,
 
-        /// <summary>
-        /// 失败
-        /// </summary>
-        Fail = 3,
+    /// <summary>
+    ///     执行中
+    /// </summary>
+    Working = 2,
 
-        /// <summary>
-        /// 完成
-        /// </summary>
-        Success = 4
-    }
+    /// <summary>
+    ///     失败
+    /// </summary>
+    Fail = 3,
+
+    /// <summary>
+    ///     完成
+    /// </summary>
+    Success = 4
 }

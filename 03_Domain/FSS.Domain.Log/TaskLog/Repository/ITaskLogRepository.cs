@@ -1,21 +1,18 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using FS.Core;
 using FS.DI;
 using FSS.Domain.Log.TaskLog.Entity;
 using Microsoft.Extensions.Logging;
 
-namespace FSS.Domain.Log.TaskLog.Repository
+namespace FSS.Domain.Log.TaskLog.Repository;
+
+public interface ITaskLogRepository : ISingletonDependency
 {
-    public interface ITaskLogRepository: ISingletonDependency
-    {
-        /// <summary>
-        /// 获取日志
-        /// </summary>
-        PageList<TaskLogDO> GetList(string jobName, LogLevel? logLevel, int pageSize, int pageIndex);
-        /// <summary>
-        /// 添加日志
-        /// </summary>
-        Task AddAsync(TaskLogDO taskLogDO);
-    }
+    /// <summary>
+    ///     获取日志
+    /// </summary>
+    PageList<TaskLogDO> GetList(string jobName, LogLevel? logLevel, int pageSize, int pageIndex);
+    /// <summary>
+    ///     添加日志
+    /// </summary>
+    Task AddAsync(TaskLogDO taskLogDO);
 }

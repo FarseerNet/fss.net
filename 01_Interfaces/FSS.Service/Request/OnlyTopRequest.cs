@@ -1,7 +1,6 @@
-namespace FSS.Service.Request
+namespace FSS.Service.Request;
+
+public class OnlyTopRequest
 {
-    public class OnlyTopRequest
-    {
-        public int Top { get; set; }
-    }
+    public int Top { get; set; }
 }

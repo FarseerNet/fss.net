@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net\Farseer.Net.csproj" />
+        <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net\Farseer.Net.csproj"/>
     </ItemGroup>
 
 </Project>

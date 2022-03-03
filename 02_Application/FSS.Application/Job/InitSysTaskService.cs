@@ -11,70 +11,69 @@ using FSS.Domain.Tasks.TaskGroup.Entity;
 using FSS.Domain.Tasks.TaskGroup.Repository;
 using Microsoft.Extensions.Logging;
 
-namespace FSS.Application.Job
+namespace FSS.Application.Job;
+
+/// <summary>
+///     初始化系统任务
+/// </summary>
+public class InitSysTaskService : BackgroundServiceTrace
 {
-    /// <summary>
-    /// 初始化系统任务
-    /// </summary>
-    public class InitSysTaskService : BackgroundServiceTrace
+    private readonly ILogger              _logger;
+    private readonly ITaskGroupRepository _taskGroupRepository;
+    private readonly TaskGroupService     _taskGroupService;
+
+    public InitSysTaskService(IIocManager ioc)
     {
-        readonly ILogger              _logger;
-        readonly TaskGroupService    _taskGroupService;
-        readonly ITaskGroupRepository _taskGroupRepository;
+        _logger              = ioc.Logger<InitSysTaskService>();
+        _taskGroupService    = ioc.Resolve<TaskGroupService>();
+        _taskGroupRepository = ioc.Resolve<ITaskGroupRepository>();
+    }
 
-        public InitSysTaskService(IIocManager ioc)
+    protected override async Task ExecuteJobAsync(CancellationToken stoppingToken)
+    {
+        _logger.LogInformation(message: "正在读取所有任务组信息");
+        var lstTaskGroup = await _taskGroupService.ToListAsync();
+
+        // 检查是否存在系统任务组
+        await CreateSysJob(lstTaskGroup: lstTaskGroup, jobName: "FSS.ClearHisTask", caption: "清除历史任务", intervalMs: TimeSpan.FromHours(value: 1));
+        await CreateSysJob(lstTaskGroup: lstTaskGroup, jobName: "FSS.SyncTaskGroupAvgSpeed", caption: "计算任务平均耗时", intervalMs: TimeSpan.FromHours(value: 1));
+        await CreateSysJob(lstTaskGroup: lstTaskGroup, jobName: "FSS.SyncTaskGroup", caption: "同步任务组缓存", intervalMs: TimeSpan.FromMinutes(value: 1));
+        await CreateSysJob(lstTaskGroup: lstTaskGroup, jobName: "FSS.AddTaskToDb", caption: "任务写入数据库", intervalMs: TimeSpan.FromMinutes(value: 1), data: new Dictionary<string, string>
+                           { { "DataCount", "100" } });
+        await CreateSysJob(lstTaskGroup: lstTaskGroup, jobName: "FSS.AddRunLogToDb", caption: "日志写入数据库", intervalMs: TimeSpan.FromSeconds(value: 10), data: new Dictionary<string, string>
+                           { { "DataCount", "100" } });
+        await CreateSysJob(lstTaskGroup: lstTaskGroup, jobName: "FSS.CheckClientOffline", caption: "检查超时离线的客户端", intervalMs: TimeSpan.FromMinutes(value: 1));
+
+        _logger.LogInformation(message: $"共获取到：{lstTaskGroup.Count} 条任务组信息");
+        foreach (var taskGroupVo in lstTaskGroup)
+        // 强制从缓存中再读一次，可以实现当缓存丢失时，可以重新写入该条任务组到缓存
+            await _taskGroupRepository.ToEntityAsync(taskGroupId: taskGroupVo.Id);
+    }
+
+    /// <summary>
+    ///     创建系统任务
+    /// </summary>
+    private async Task CreateSysJob(List<TaskGroupDO> lstTaskGroup, string jobName, string caption, TimeSpan intervalMs, Dictionary<string, string> data = null)
+    {
+        if (lstTaskGroup.All(predicate: o => o.JobName != jobName))
         {
-            _logger              = ioc.Logger<InitSysTaskService>();
-            _taskGroupService    = ioc.Resolve<TaskGroupService>();
-            _taskGroupRepository = ioc.Resolve<ITaskGroupRepository>();
+            var taskGroupDTO = new TaskGroupDTO
+            {
+                Caption = caption,
+                JobName = jobName,
+                Data    = data ?? new Dictionary<string, string>(), Cron = $"{(int)intervalMs.TotalMilliseconds}", StartAt = DateTime.Now, NextAt = DateTime.Now, ActivateAt = DateTime.Now, LastRunAt = DateTime.Now, IsEnable = true
+            };
+
+            taskGroupDTO.Id = await ((TaskGroupDO)taskGroupDTO).AddAsync();
+            lstTaskGroup.Add(item: taskGroupDTO);
         }
 
-        protected override async Task ExecuteJobAsync(CancellationToken stoppingToken)
+        foreach (var taskGroupVo in lstTaskGroup.FindAll(match: o => o.JobName == jobName && o.IsEnable == false))
         {
-            _logger.LogInformation($"正在读取所有任务组信息");
-            var lstTaskGroup = await _taskGroupService.ToListAsync();
-
-            // 检查是否存在系统任务组
-            await CreateSysJob(lstTaskGroup, "FSS.ClearHisTask", "清除历史任务", TimeSpan.FromHours(1));
-            await CreateSysJob(lstTaskGroup, "FSS.SyncTaskGroupAvgSpeed", "计算任务平均耗时", TimeSpan.FromHours(1));
-            await CreateSysJob(lstTaskGroup, "FSS.SyncTaskGroup", "同步任务组缓存", TimeSpan.FromMinutes(1));
-            await CreateSysJob(lstTaskGroup, "FSS.AddTaskToDb", "任务写入数据库", TimeSpan.FromMinutes(1), new Dictionary<string, string>() { { "DataCount", "100" } });
-            await CreateSysJob(lstTaskGroup, "FSS.AddRunLogToDb", "日志写入数据库", TimeSpan.FromSeconds(10), new Dictionary<string, string>() { { "DataCount", "100" } });
-            await CreateSysJob(lstTaskGroup, "FSS.CheckClientOffline", "检查超时离线的客户端", TimeSpan.FromMinutes(1));
-
-            _logger.LogInformation($"共获取到：{lstTaskGroup.Count} 条任务组信息");
-            foreach (var taskGroupVo in lstTaskGroup)
-            {
-                // 强制从缓存中再读一次，可以实现当缓存丢失时，可以重新写入该条任务组到缓存
-                await _taskGroupRepository.ToEntityAsync(taskGroupVo.Id);
-            }
-        }
-
-        /// <summary>
-        /// 创建系统任务
-        /// </summary>
-        private async Task CreateSysJob(List<TaskGroupDO> lstTaskGroup, string jobName, string caption, TimeSpan intervalMs, Dictionary<string, string> data = null)
-        {
-            if (lstTaskGroup.All(o => o.JobName != jobName))
-            {
-                var taskGroupDTO = new TaskGroupDTO
-                {
-                    Caption = caption,
-                    JobName = jobName,
-                    Data    = data ?? new Dictionary<string, string>(), Cron = $"{(int)intervalMs.TotalMilliseconds}", StartAt = DateTime.Now, NextAt = DateTime.Now, ActivateAt = DateTime.Now, LastRunAt = DateTime.Now, IsEnable = true
-                };
-
-                taskGroupDTO.Id = await ((TaskGroupDO)taskGroupDTO).AddAsync();
-                lstTaskGroup.Add(taskGroupDTO);
-            }
-
-            foreach (var taskGroupVo in lstTaskGroup.FindAll(o => o.JobName == jobName && o.IsEnable == false))
-            {
-                var taskGroupDO = await _taskGroupRepository.ToEntityAsync(taskGroupVo.Id);
-                if (taskGroupDO == null) throw new Exception("任务组不存在");
-                await taskGroupDO.SetEnable(true);
-                taskGroupVo.IsEnable = true;
-            }
+            var taskGroupDO = await _taskGroupRepository.ToEntityAsync(taskGroupId: taskGroupVo.Id);
+            if (taskGroupDO == null) throw new Exception(message: "任务组不存在");
+            await taskGroupDO.SetEnable(enable: true);
+            taskGroupVo.IsEnable = true;
         }
     }
 }

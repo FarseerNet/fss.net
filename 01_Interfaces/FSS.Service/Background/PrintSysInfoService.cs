@@ -8,36 +8,35 @@ using FS.Utils.Common;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace FSS.Service.Background
+namespace FSS.Service.Background;
+
+/// <summary>
+///     打印系统信息
+/// </summary>
+public class PrintSysInfoService : BackgroundServiceTrace
 {
-    /// <summary>
-    /// 打印系统信息
-    /// </summary>
-    public class PrintSysInfoService : BackgroundServiceTrace
+    private readonly IIocManager _ioc;
+    private readonly ILogger     _logger;
+
+    public PrintSysInfoService(IIocManager ioc)
     {
-        private readonly IIocManager _ioc;
-        readonly         ILogger     _logger;
+        _ioc    = ioc;
+        _logger = _ioc.Logger<Startup>();
+    }
 
-        public PrintSysInfoService(IIocManager ioc)
-        {
-            _ioc    = ioc;
-            _logger = _ioc.Logger<Startup>();
-        }
+    protected override Task ExecuteJobAsync(CancellationToken stoppingToken)
+    {
+        var ip = IpHelper.GetIps()[0].Address.MapToIPv4().ToString();
 
-        protected override Task ExecuteJobAsync(CancellationToken stoppingToken)
-        {
-            var ip = IpHelper.GetIps()[0].Address.MapToIPv4().ToString();
+        _logger.LogInformation(message: $"服务({ip})启动完成，监听 {_ioc.Resolve<IConfigurationRoot>().GetSection(key: "Kestrel:Endpoints:Http:Url").Value} ");
 
-            _logger.LogInformation($"服务({ip})启动完成，监听 {_ioc.Resolve<IConfigurationRoot>().GetSection("Kestrel:Endpoints:Http:Url").Value} ");
+        var reservedTaskCount = _ioc.Resolve<IConfigurationRoot>().GetSection(key: "FSS:ReservedTaskCount").Value.ConvertType(defValue: 20);
+        _logger.LogInformation(message: $"当前系统设置任务至少保留：{reservedTaskCount}条");
 
-            var reservedTaskCount = _ioc.Resolve<IConfigurationRoot>().GetSection("FSS:ReservedTaskCount").Value.ConvertType(20);
-            _logger.LogInformation($"当前系统设置任务至少保留：{reservedTaskCount}条");
+        var elasticSearchItemConfig = ElasticSearchConfigRoot.Get().Find(match: o => o.Name == "es");
+        var use                     = elasticSearchItemConfig != null ? $"Elasticsearch，{elasticSearchItemConfig.Server}" : "数据库";
+        _logger.LogInformation(message: $"使用 [ {use} ] 作为日志保存记录");
 
-            var elasticSearchItemConfig = ElasticSearchConfigRoot.Get().Find(o => o.Name == "es");
-            var use                     = elasticSearchItemConfig != null ? $"Elasticsearch，{elasticSearchItemConfig.Server}" : "数据库";
-            _logger.LogInformation($"使用 [ {use} ] 作为日志保存记录");
-            
-            return Task.FromResult(0);
-        }
+        return Task.FromResult(result: 0);
     }
 }

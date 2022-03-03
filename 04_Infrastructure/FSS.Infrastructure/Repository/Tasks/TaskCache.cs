@@ -8,27 +8,23 @@ using FS.Extends;
 using FSS.Infrastructure.Repository.Tasks.Model;
 using Newtonsoft.Json;
 
-namespace FSS.Infrastructure.Repository.Tasks
+namespace FSS.Infrastructure.Repository.Tasks;
+
+public class TaskCache : ISingletonDependency
 {
-    public class TaskCache: ISingletonDependency
+    private const string FinishTaskQueueKey = "FSS_FinishTaskQueue";
+
+    /// <summary>
+    ///     将Task写入队列中
+    /// </summary>
+    public Task AddQueueAsync(TaskPO task) => RedisContext.Instance.Db.SortedSetAddAsync(key: FinishTaskQueueKey, member: JsonConvert.SerializeObject(value: task), score: DateTime.Now.ToTimestamps());
+
+    /// <summary>
+    ///     队列中取出已完成的任务
+    /// </summary>
+    public async Task<List<TaskPO>> GetFinishTaskListAsync(int top)
     {
-        private const string FinishTaskQueueKey = "FSS_FinishTaskQueue";
-
-        /// <summary>
-        /// 将Task写入队列中
-        /// </summary>
-        public Task AddQueueAsync(TaskPO task)
-        {
-            return RedisContext.Instance.Db.SortedSetAddAsync(FinishTaskQueueKey, JsonConvert.SerializeObject(task), DateTime.Now.ToTimestamps());
-        }
-
-        /// <summary>
-        /// 队列中取出已完成的任务
-        /// </summary>
-        public async Task<List<TaskPO>> GetFinishTaskListAsync(int top)
-        {
-            var sortedSetEntries = await RedisContext.Instance.Db.SortedSetPopAsync(FinishTaskQueueKey, top);
-            return sortedSetEntries.Select(s => Jsons.ToObject<TaskPO>(s.Element)).ToList();
-        }
+        var sortedSetEntries = await RedisContext.Instance.Db.SortedSetPopAsync(key: FinishTaskQueueKey, count: top);
+        return sortedSetEntries.Select(selector: s => Jsons.ToObject<TaskPO>(obj: s.Element)).ToList();
     }
 }

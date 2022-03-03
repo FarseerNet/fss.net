@@ -1,10 +1,9 @@
-namespace FSS.Domain.Tasks.TaskGroup.Publish
+namespace FSS.Domain.Tasks.TaskGroup.Publish;
+
+public interface IPublishDeleteTaskGroup
 {
-    public interface IPublishDeleteTaskGroup
-    {
-        /// <summary>
-        /// 发布删除任务组事件
-        /// </summary>
-        void Publish(object sender, int taskGroupId);
-    }
+    /// <summary>
+    ///     发布删除任务组事件
+    /// </summary>
+    void Publish(object sender, int taskGroupId);
 }

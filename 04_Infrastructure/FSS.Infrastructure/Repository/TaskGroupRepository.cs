@@ -2,136 +2,123 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FS.Cache;
 using FS.Core;
 using FS.Extends;
-using FSS.Application.Tasks.TaskGroup.Entity;
 using FSS.Domain.Tasks.TaskGroup.Entity;
 using FSS.Domain.Tasks.TaskGroup.Enum;
 using FSS.Domain.Tasks.TaskGroup.Repository;
 using FSS.Infrastructure.Repository.TaskGroup;
-using FSS.Infrastructure.Repository.TaskGroup.Model;
 using FSS.Infrastructure.Repository.Tasks;
 using FSS.Infrastructure.Repository.Tasks.Model;
 
-namespace FSS.Infrastructure.Repository
+namespace FSS.Infrastructure.Repository;
+
+public class TaskGroupRepository : ITaskGroupRepository
 {
-    public class TaskGroupRepository : ITaskGroupRepository
+    public TaskGroupAgent TaskGroupAgent { get; set; }
+    public TaskGroupCache TaskGroupCache { get; set; }
+    public TaskAgent      TaskAgent      { get; set; }
+    public TaskCache      TaskCache      { get; set; }
+
+
+    public Task SaveAsync(TaskGroupDO taskGroupDO) => TaskGroupCache.SaveAsync(taskGroup: taskGroupDO);
+
+    public Task<TaskGroupDO> ToEntityAsync(int taskGroupId) => TaskGroupCache.ToEntityAsync(taskGroupId: taskGroupId);
+
+    public Task<List<TaskGroupDO>> ToListAsync() => TaskGroupCache.ToListAsync();
+
+    public Task<long> GetTaskGroupCountAsync() => TaskGroupCache.CountAsync();
+
+    public async Task<List<TaskGroupDO>> ToListAsync(long clientId)
     {
-        public TaskGroupAgent TaskGroupAgent { get; set; }
-        public TaskGroupCache TaskGroupCache { get; set; }
-        public TaskAgent      TaskAgent      { get; set; }
-        public TaskCache      TaskCache      { get; set; }
+        var lstTask = await TaskGroupCache.ToListAsync();
+        return lstTask.FindAll(match: o => o.Task != null && o.Task.Client != null && o.Task.Client.ClientId == clientId && o.StartAt < DateTime.Now);
+    }
 
+    public async Task<int> AddAsync(TaskGroupDO taskGroupDO)
+    {
+        var taskGroupId = await TaskGroupAgent.AddAsync(po: taskGroupDO);
+        await TaskGroupCache.ToEntityAsync(taskGroupId: taskGroupId);
+        return taskGroupId;
+    }
 
-        public Task SaveAsync(TaskGroupDO taskGroupDO) => TaskGroupCache.SaveAsync(taskGroupDO);
+    public async Task DeleteAsync(int taskGroupId)
+    {
+        await TaskGroupAgent.DeleteAsync(taskGroupId: taskGroupId);
+        await TaskAgent.DeleteAsync(taskGroupId: taskGroupId);
+        await TaskGroupCache.TaskGroupClear(taskGroupId: taskGroupId);
+    }
 
-        public Task<TaskGroupDO> ToEntityAsync(int taskGroupId) => TaskGroupCache.ToEntityAsync(taskGroupId);
+    public Task<int> TodayFailCountAsync() => TaskAgent.TodayFailCountAsync();
 
-        public Task<List<TaskGroupDO>> ToListAsync() => TaskGroupCache.ToListAsync();
+    public Task<List<long>> ToTaskSpeedListAsync(int taskGroupId) => TaskAgent.ToSpeedListAsync(taskGroupId: taskGroupId);
 
-        public Task<long> GetTaskGroupCountAsync() => TaskGroupCache.CountAsync();
+    public Task<List<TaskDO>> ToFinishListAsync(int taskGroupId, int top) => TaskAgent.ToFinishListAsync(groupId: taskGroupId, top: top).MapAsync(mapRule: TaskPO.MapToDO);
 
-        public async Task<List<TaskGroupDO>> ToListAsync(long clientId)
-        {
-            var lstTask = await TaskGroupCache.ToListAsync();
-            return lstTask.FindAll(o => o.Task != null && o.Task.Client != null && o.Task.Client.ClientId == clientId && o.StartAt < DateTime.Now);
-        }
+    public Task AddTaskAsync(TaskDO taskDO) => TaskCache.AddQueueAsync(task: taskDO);
 
-        public async Task<int> AddAsync(TaskGroupDO taskGroupDO)
-        {
-            var taskGroupId = await TaskGroupAgent.AddAsync(taskGroupDO);
-            await TaskGroupCache.ToEntityAsync(taskGroupId);
-            return taskGroupId;
-        }
+    public async Task SyncToData()
+    {
+        var lst = await TaskGroupCache.ToListAsync();
+        foreach (var taskGroupPO in lst) await TaskGroupAgent.UpdateAsync(id: taskGroupPO.Id, taskGroup: taskGroupPO);
+    }
 
-        public async Task DeleteAsync(int taskGroupId)
-        {
-            await TaskGroupAgent.DeleteAsync(taskGroupId);
-            await TaskAgent.DeleteAsync(taskGroupId);
-            await TaskGroupCache.TaskGroupClear(taskGroupId);
-        }
+    /// <summary>
+    ///     获取所有任务组中的任务
+    /// </summary>
+    public async Task<List<TaskGroupDO>> GetCanSchedulerTaskGroup(string[] jobs, TimeSpan ts, int count)
+    {
+        var lstTaskGroup = await ToListAsync();
+        return lstTaskGroup.Where(predicate: o => o.IsEnable && jobs.Contains(value: o.JobName) && o.Task != null && o.Task.StartAt < DateTime.Now.Add(value: ts) && o.Task.Status == EumTaskType.None).OrderBy(keySelector: o => o.StartAt).Take(count: count).ToList();
+    }
 
-        public Task<int> TodayFailCountAsync() => TaskAgent.TodayFailCountAsync();
+    /// <summary>
+    ///     获取未执行的任务数量
+    /// </summary>
+    public async Task<int> ToUnRunCountAsync()
+    {
+        var lst = await ToListAsync();
+        return lst.Count(predicate: o => o.StartAt < DateTime.Now && (o.Task == null || o.Task.Status == EumTaskType.None || o.Task.Status == EumTaskType.Scheduler));
+    }
 
-        public Task<List<long>> ToTaskSpeedListAsync(int taskGroupId) => TaskAgent.ToSpeedListAsync(taskGroupId);
+    /// <summary>
+    ///     获取执行中的任务
+    /// </summary>
+    public async Task<List<TaskGroupDO>> ToSchedulerWorkingListAsync()
+    {
+        var lst = await ToListAsync();
+        return lst.Where(predicate: o => o.Task is { Status: EumTaskType.Scheduler or EumTaskType.Working }).ToList();
+    }
 
-        public Task<List<TaskDO>> ToFinishListAsync(int taskGroupId, int top) => TaskAgent.ToFinishListAsync(taskGroupId, top).MapAsync(TaskPO.MapToDO);
+    /// <summary>
+    ///     获取进行中的任务
+    /// </summary>
+    public async Task<List<TaskGroupDO>> GetTaskUnFinishList(int top)
+    {
+        var lst = await ToListAsync();
+        return lst.Where(predicate: o => o.Task != null && o.Task.Status != EumTaskType.Success && o.Task.Status != EumTaskType.Fail).OrderBy(keySelector: o => o.StartAt).Take(count: top).ToList();
+    }
 
-        public Task AddTaskAsync(TaskDO taskDO) => TaskCache.AddQueueAsync(taskDO);
+    /// <summary>
+    ///     获取指定任务组的任务列表（FOPS）
+    /// </summary>
+    public Task<PageList<TaskDO>> ToListAsync(int groupId, int pageSize, int pageIndex) => TaskAgent.ToListAsync(groupId: groupId, pageSize: pageSize, pageIndex: pageIndex).MapAsync(mapRule: TaskPO.MapToDO);
 
-        public async Task SyncToData()
-        {
-            var lst = await TaskGroupCache.ToListAsync();
-            foreach (var taskGroupPO in lst)
-            {
-                await TaskGroupAgent.UpdateAsync(taskGroupPO.Id, taskGroupPO);
-            }
-        }
+    /// <summary>
+    ///     获取已完成的任务列表
+    /// </summary>
+    public Task<PageList<TaskDO>> ToFinishPageListAsync(int pageSize, int pageIndex) => TaskAgent.ToFinishPageListAsync(pageSize: pageSize, pageIndex: pageIndex).MapAsync(mapRule: TaskPO.MapToDO);
 
-        /// <summary>
-        /// 获取所有任务组中的任务
-        /// </summary>
-        public async Task<List<TaskGroupDO>> GetCanSchedulerTaskGroup(string[] jobs, TimeSpan ts, int count)
-        {
-            var lstTaskGroup = await ToListAsync();
-            return lstTaskGroup.Where(o => o.IsEnable && jobs.Contains(o.JobName) && o.Task != null && o.Task.StartAt < DateTime.Now.Add(ts) && o.Task.Status == EumTaskType.None).OrderBy(o => o.StartAt).Take(count).ToList();
-        }
+    /// <summary>
+    ///     获取在用的任务组
+    /// </summary>
+    public List<TaskGroupDO> GetEnableTaskList(EumTaskType? status, int pageSize, int pageIndex, out int totalCount)
+    {
+        var lst = TaskGroupCache.ToList().Where(predicate: o => o.IsEnable).ToList();
 
-        /// <summary>
-        /// 获取未执行的任务数量
-        /// </summary>
-        public async Task<int> ToUnRunCountAsync()
-        {
-            var lst = await ToListAsync();
-            return lst.Count(o => o.StartAt < DateTime.Now && (o.Task == null || o.Task.Status == EumTaskType.None || o.Task.Status == EumTaskType.Scheduler));
-        }
-
-        /// <summary>
-        /// 获取执行中的任务
-        /// </summary>
-        public async Task<List<TaskGroupDO>> ToSchedulerWorkingListAsync()
-        {
-            var lst = await ToListAsync();
-            return lst.Where(o => o.Task is { Status: EumTaskType.Scheduler or EumTaskType.Working }).ToList();
-        }
-
-        /// <summary>
-        /// 获取进行中的任务
-        /// </summary>
-        public async Task<List<TaskGroupDO>> GetTaskUnFinishList(int top)
-        {
-            var lst = await ToListAsync();
-            return lst.Where(o => o.Task != null && o.Task.Status != EumTaskType.Success && o.Task.Status != EumTaskType.Fail).OrderBy(o => o.StartAt).Take(top).ToList();
-        }
-
-        /// <summary>
-        /// 获取指定任务组的任务列表（FOPS）
-        /// </summary>
-        public Task<PageList<TaskDO>> ToListAsync(int groupId, int pageSize, int pageIndex)
-        {
-            return TaskAgent.ToListAsync(groupId, pageSize, pageIndex).MapAsync(TaskPO.MapToDO);
-        }
-
-        /// <summary>
-        /// 获取已完成的任务列表
-        /// </summary>
-        public Task<PageList<TaskDO>> ToFinishPageListAsync(int pageSize, int pageIndex)
-        {
-            return TaskAgent.ToFinishPageListAsync(pageSize, pageIndex).MapAsync(TaskPO.MapToDO);
-        }
-
-        /// <summary>
-        /// 获取在用的任务组
-        /// </summary>
-        public List<TaskGroupDO> GetEnableTaskList(EumTaskType? status, int pageSize, int pageIndex, out int totalCount)
-        {
-            var lst = TaskGroupCache.ToList().Where(o => o.IsEnable).ToList();
-
-            if (status.HasValue) lst = lst.Where(o => o.Task.Status == status.GetValueOrDefault()).ToList();
-            totalCount = lst.Count;
-            lst        = lst.OrderBy(o => o.JobName).ToList(pageSize, pageIndex);
-            return lst;
-        }
+        if (status.HasValue) lst = lst.Where(predicate: o => o.Task.Status == status.GetValueOrDefault()).ToList();
+        totalCount = lst.Count;
+        lst        = lst.OrderBy(keySelector: o => o.JobName).ToList(pageSize: pageSize, pageIndex: pageIndex);
+        return lst;
     }
 }

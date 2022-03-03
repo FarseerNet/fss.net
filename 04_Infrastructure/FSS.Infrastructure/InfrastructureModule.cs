@@ -8,31 +8,30 @@ using FS.LinkTrack;
 using FS.Mapper;
 using FS.Modules;
 
-namespace FSS.Infrastructure
-{
-    [DependsOn(typeof(MapperModule),
-                  typeof(RedisModule),
-                  typeof(DataModule),
-                  typeof(ElasticSearchModule),
-                  typeof(LinkTrackModule),
-                  typeof(EventBusModule),
-                  typeof(JobModule),
-                  typeof(FarseerCoreModule))]
-    public class InfrastructureModule : FarseerModule
-    {
-        /// <summary>
-        ///     初始化之前
-        /// </summary>
-        public override void PreInitialize()
-        {
-        }
+namespace FSS.Infrastructure;
 
-        /// <summary>
-        ///     初始化
-        /// </summary>
-        public override void Initialize()
-        {
-            IocManager.RegisterAssemblyByConvention(GetType());
-        }
+[DependsOn(typeof(MapperModule),
+              typeof(RedisModule),
+              typeof(DataModule),
+              typeof(ElasticSearchModule),
+              typeof(LinkTrackModule),
+              typeof(EventBusModule),
+              typeof(JobModule),
+              typeof(FarseerCoreModule))]
+public class InfrastructureModule : FarseerModule
+{
+    /// <summary>
+    ///     初始化之前
+    /// </summary>
+    public override void PreInitialize()
+    {
+    }
+
+    /// <summary>
+    ///     初始化
+    /// </summary>
+    public override void Initialize()
+    {
+        IocManager.RegisterAssemblyByConvention(type: GetType());
     }
 }
