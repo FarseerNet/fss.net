@@ -49,7 +49,7 @@ namespace FSS.Infrastructure.Repository
         {
             await TaskGroupAgent.DeleteAsync(taskGroupId);
             await TaskAgent.DeleteAsync(taskGroupId);
-            await CacheKeys.TaskGroupClear(taskGroupId);
+            await TaskGroupCache.TaskGroupClear(taskGroupId);
         }
 
         public Task<int> TodayFailCountAsync() => TaskAgent.TodayFailCountAsync();

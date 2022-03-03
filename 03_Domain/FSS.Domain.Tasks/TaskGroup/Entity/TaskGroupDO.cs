@@ -199,6 +199,7 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity
                         throw new RefuseException("Cron格式错误");
                 }
             }
+            
             // 停止了任务，需要把任务取消掉
             if (IsEnable != newTaskGroupDO.IsEnable)
             {

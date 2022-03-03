@@ -13,7 +13,7 @@ namespace FSS.Infrastructure.Repository
 
         public Task<List<Domain.Client.Clients.Entity.Client>> ToListAsync() => ClientCache.ToListAsync().MapAsync<Domain.Client.Clients.Entity.Client, ClientPO>();
 
-        public Task RemoveClientAsync(Domain.Client.Clients.Entity.Client client) => ClientCache.RemoveClientAsync(client.Id);
+        public Task RemoveClientAsync(Domain.Client.Clients.Entity.Client client) => ClientCache.ClientClear(client.Id);
 
         public Task<Domain.Client.Clients.Entity.Client> ToEntityAsync(long clientId) => ClientCache.ToInfoAsync(clientId).MapAsync<Domain.Client.Clients.Entity.Client, ClientPO>();
 

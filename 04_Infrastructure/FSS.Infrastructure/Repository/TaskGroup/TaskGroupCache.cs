@@ -15,12 +15,15 @@ namespace FSS.Infrastructure.Repository.TaskGroup
     {
         public TaskGroupAgent TaskGroupAgent { get; set; }
 
+        /// <summary> 任务组缓存 </summary>
+        private CacheKey<TaskGroupDO, int> TaskGroupKey(EumCacheStoreType cacheStoreType) => new($"FSS_TaskGroup", o => o.Id, cacheStoreType);
+        
         /// <summary>
         /// 保存任务组信息
         /// </summary>
         public Task SaveAsync(TaskGroupDO taskGroup)
         {
-            var key = CacheKeys.TaskGroupKey(EumCacheStoreType.Redis);
+            var key = TaskGroupKey(EumCacheStoreType.Redis);
             return RedisContext.Instance.CacheManager.SaveItemAsync(key, taskGroup);
         }
 
@@ -29,7 +32,7 @@ namespace FSS.Infrastructure.Repository.TaskGroup
         /// </summary>
         public Task<List<TaskGroupDO>> ToListAsync()
         {
-            var key = CacheKeys.TaskGroupKey(EumCacheStoreType.Redis);
+            var key = TaskGroupKey(EumCacheStoreType.Redis);
             return RedisContext.Instance.CacheManager.GetListAsync(key, () => TaskGroupAgent.ToListAsync().MapAsync<TaskGroupDO, TaskGroupPO>());
         }
 
@@ -38,7 +41,7 @@ namespace FSS.Infrastructure.Repository.TaskGroup
         /// </summary>
         public List<TaskGroupDO> ToList()
         {
-            var key = CacheKeys.TaskGroupKey(EumCacheStoreType.Redis);
+            var key = TaskGroupKey(EumCacheStoreType.Redis);
             return RedisContext.Instance.CacheManager.GetList(key);
         }
 
@@ -47,7 +50,7 @@ namespace FSS.Infrastructure.Repository.TaskGroup
         /// </summary>
         public Task<TaskGroupDO> ToEntityAsync(int taskGroupId)
         {
-            var key = CacheKeys.TaskGroupKey(EumCacheStoreType.Redis);
+            var key = TaskGroupKey(EumCacheStoreType.Redis);
             return RedisContext.Instance.CacheManager.GetItemAsync(key, taskGroupId, () => TaskGroupAgent.ToEntityAsync(taskGroupId).MapAsync<TaskGroupDO, TaskGroupPO>());
         }
 
@@ -56,8 +59,11 @@ namespace FSS.Infrastructure.Repository.TaskGroup
         /// </summary>
         public Task<long> CountAsync()
         {
-            var key = CacheKeys.TaskGroupKey(EumCacheStoreType.Redis);
+            var key = TaskGroupKey(EumCacheStoreType.Redis);
             return RedisContext.Instance.CacheManager.GetCountAsync(key);
         }
+        
+        public Task TaskGroupClear(int taskGroupId) => RedisContext.Instance.CacheManager.RemoveItemAsync(TaskGroupKey(EumCacheStoreType.MemoryAndRedis), taskGroupId);
+
     }
 }
