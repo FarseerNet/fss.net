@@ -80,7 +80,7 @@ public interface ITaskGroupRepository : ISingletonDependency
     /// <summary>
     ///     获取进行中的任务
     /// </summary>
-    Task<List<TaskGroupDO>> GetTaskUnFinishList(int top);
+    Task<List<TaskGroupDO>> GetTaskUnFinishList(IEnumerable<string> jobsName, int top);
     /// <summary>
     ///     获取在用的任务组
     /// </summary>

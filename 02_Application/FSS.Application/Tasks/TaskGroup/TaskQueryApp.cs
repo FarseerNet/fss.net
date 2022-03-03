@@ -5,6 +5,7 @@ using FS.Core;
 using FS.DI;
 using FS.Extends;
 using FSS.Application.Tasks.TaskGroup.Entity;
+using FSS.Domain.Client.Clients.Repository;
 using FSS.Domain.Tasks.TaskGroup;
 using FSS.Domain.Tasks.TaskGroup.Entity;
 using FSS.Domain.Tasks.TaskGroup.Enum;
@@ -16,6 +17,7 @@ public class TaskQueryApp : ISingletonDependency
 {
     public TaskGroupService     TaskGroupService    { get; set; }
     public ITaskGroupRepository TaskGroupRepository { get; set; }
+    public IClientRepository    ClientRepository    { get; set; }
 
     /// <summary>
     ///     获取任务组信息
@@ -57,7 +59,10 @@ public class TaskQueryApp : ISingletonDependency
     /// </summary>
     public async Task<List<TaskDTO>> GetTaskUnFinishList(int top)
     {
-        var taskUnFinishList = await TaskGroupRepository.GetTaskUnFinishList(top: top);
+        var lstClient = await ClientRepository.ToListAsync();
+        if (lstClient.Count == 0) return new List<TaskDTO>();
+
+        var taskUnFinishList = await TaskGroupRepository.GetTaskUnFinishList(lstClient.SelectMany(o => o.Jobs), top: top);
         return taskUnFinishList.Select(selector: o => (TaskDTO)o.Task).ToList();
     }
 

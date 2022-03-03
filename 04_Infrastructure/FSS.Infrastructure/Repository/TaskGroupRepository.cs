@@ -93,10 +93,10 @@ public class TaskGroupRepository : ITaskGroupRepository
     /// <summary>
     ///     获取进行中的任务
     /// </summary>
-    public async Task<List<TaskGroupDO>> GetTaskUnFinishList(int top)
+    public async Task<List<TaskGroupDO>> GetTaskUnFinishList(IEnumerable<string> jobsName, int top)
     {
         var lst = await ToListAsync();
-        return lst.Where(predicate: o => o.Task != null && o.Task.Status != EumTaskType.Success && o.Task.Status != EumTaskType.Fail).OrderBy(keySelector: o => o.Task.StartAt).Take(count: top).ToList();
+        return lst.Where(predicate: o => jobsName.Contains(o.JobName) && o.Task != null && o.Task.Status != EumTaskType.Success && o.Task.Status != EumTaskType.Fail).OrderBy(keySelector: o => o.Task.StartAt).Take(count: top).ToList();
     }
 
     /// <summary>
