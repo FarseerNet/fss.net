@@ -295,7 +295,7 @@ public class TaskGroupDO
             CreateAt    = DateTime.Now,
             RunAt       = DateTime.Now,
             SchedulerAt = DateTime.Now,
-            Data        = new Dictionary<string, string>()
+            Data        = this.Data
         };
 
         await IocManager.GetService<ITaskGroupRepository>().SaveAsync(taskGroupDO: this);

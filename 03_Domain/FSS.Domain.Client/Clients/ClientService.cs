@@ -14,12 +14,11 @@ public class ClientService : ISingletonDependency
     public async Task CheckTimeoutAsync()
     {
         var lst = await ClientRepository.ToListAsync();
-        foreach (var client in lst)
         // 心跳大于1分钟，认为已经下线了
-            if ((DateTime.Now - client.ActivateAt).TotalMinutes >= 1)
-            {
-                await client.RemoveAsync();
-                IocManager.GetService<IClientOfflinePublish>().Publish(sender: this, message: client);
-            }
+        foreach (var client in lst.Where(client => (DateTime.Now - client.ActivateAt).TotalMinutes >= 1))
+        {
+            await client.RemoveAsync();
+            IocManager.GetService<IClientOfflinePublish>().Publish(sender: this, message: client);
+        }
     }
 }
