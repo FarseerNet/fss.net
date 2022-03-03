@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using FS.Extends;
 using FS.Mapper;
 using FSS.Domain.Tasks.TaskGroup.Entity;
@@ -88,5 +89,11 @@ public class TaskDTO
     ///     调度时间
     /// </summary>
     public DateTime SchedulerAt { get; set; }
+
+    /// <summary>
+    ///     数据
+    /// </summary>
+    public Dictionary<string, string> Data { get; set; }
+    
     public static implicit operator TaskDTO(TaskDO task) => task.Map(mapRule: MapToDTO);
 }
