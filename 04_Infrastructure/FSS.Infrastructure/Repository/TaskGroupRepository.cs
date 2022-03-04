@@ -64,21 +64,21 @@ public class TaskGroupRepository : ITaskGroupRepository
     }
 
     /// <summary>
-    ///     获取所有任务组中的任务
+    ///     获取能调度的任务
     /// </summary>
-    public async Task<List<TaskGroupDO>> GetCanSchedulerTaskGroup(string[] jobs, TimeSpan ts, int count)
+    public async Task<List<TaskGroupDO>> GetCanSchedulerTaskGroup(string[] jobsName, TimeSpan ts, int count)
     {
         var lstTaskGroup = await ToListAsync();
-        return lstTaskGroup.Where(predicate: o => o.IsEnable && jobs.Contains(value: o.JobName) && o.Task != null && o.Task.StartAt < DateTime.Now.Add(value: ts) && o.Task.Status == EumTaskType.None).OrderBy(keySelector: o => o.Task.StartAt).Take(count: count).ToList();
+        return lstTaskGroup.Where(predicate: o => o.IsEnable && jobsName.Contains(value: o.JobName) && o.Task != null && o.Task.Status == EumTaskType.None && o.Task.StartAt < DateTime.Now.Add(value: ts)).OrderBy(keySelector: o => o.Task.StartAt).Take(count: count).ToList();
     }
 
     /// <summary>
-    ///     获取未执行的任务数量
+    ///     获取进行中的任务
     /// </summary>
-    public async Task<int> ToUnRunCountAsync()
+    public async Task<List<TaskGroupDO>> GetTaskUnFinishList(IEnumerable<string> jobsName, int top)
     {
-        var lst = await ToListAsync();
-        return lst.Count(predicate: o => o.Task == null || o.Task.Status is EumTaskType.None or EumTaskType.Scheduler || o.Task.CreateAt < DateTime.Now);
+        var lstTaskGroup = await ToListAsync();
+        return lstTaskGroup.Where(predicate: o => o.IsEnable && jobsName.Contains(o.JobName) && o.Task != null && o.Task.Status != EumTaskType.Success && o.Task.Status != EumTaskType.Fail).OrderBy(keySelector: o => o.Task.StartAt).Take(count: top).ToList();
     }
 
     /// <summary>
@@ -91,12 +91,12 @@ public class TaskGroupRepository : ITaskGroupRepository
     }
 
     /// <summary>
-    ///     获取进行中的任务
+    ///     获取未执行的任务数量
     /// </summary>
-    public async Task<List<TaskGroupDO>> GetTaskUnFinishList(IEnumerable<string> jobsName, int top)
+    public async Task<int> ToUnRunCountAsync()
     {
         var lst = await ToListAsync();
-        return lst.Where(predicate: o => jobsName.Contains(o.JobName) && o.Task != null && o.Task.Status != EumTaskType.Success && o.Task.Status != EumTaskType.Fail).OrderBy(keySelector: o => o.Task.StartAt).Take(count: top).ToList();
+        return lst.Count(predicate: o => o.Task == null || o.Task.Status is EumTaskType.None or EumTaskType.Scheduler || o.Task.CreateAt < DateTime.Now);
     }
 
     /// <summary>

@@ -21,7 +21,7 @@ public class TaskSchedulerApp : ISingletonDependency
 
         var lst = new List<TaskDTO>();
 
-        var lstTaskGroup = await TaskGroupRepository.GetCanSchedulerTaskGroup(jobs: client.Jobs, ts: TimeSpan.FromSeconds(value: 15), count: requestTaskCount);
+        var lstTaskGroup = await TaskGroupRepository.GetCanSchedulerTaskGroup(jobsName: client.Jobs, ts: TimeSpan.FromSeconds(value: 15), count: requestTaskCount);
         foreach (var taskGroupDO in lstTaskGroup)
         {
             // 设为调度状态
