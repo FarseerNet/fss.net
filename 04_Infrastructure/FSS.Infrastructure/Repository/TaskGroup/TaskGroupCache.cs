@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using FS.Cache;
 using FS.DI;
 using FS.Extends;
+using FSS.Domain.Tasks.TaskGroup;
 using FSS.Domain.Tasks.TaskGroup.Entity;
 using FSS.Infrastructure.Repository.TaskGroup.Model;
 

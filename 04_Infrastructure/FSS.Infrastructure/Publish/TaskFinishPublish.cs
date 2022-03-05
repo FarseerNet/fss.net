@@ -1,5 +1,6 @@
 using FS.DI;
 using FS.EventBus;
+using FSS.Domain.Tasks.TaskGroup;
 using FSS.Domain.Tasks.TaskGroup.Entity;
 using FSS.Domain.Tasks.TaskGroup.Publish;
 

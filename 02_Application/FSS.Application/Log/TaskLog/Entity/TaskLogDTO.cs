@@ -1,6 +1,6 @@
 using System;
 using FS.Mapper;
-using FSS.Domain.Log.TaskLog.Entity;
+using FSS.Domain.Log.TaskLog;
 using Microsoft.Extensions.Logging;
 
 namespace FSS.Application.Log.TaskLog.Entity;

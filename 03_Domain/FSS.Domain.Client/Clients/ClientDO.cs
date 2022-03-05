@@ -1,9 +1,9 @@
 using FS.DI;
 using FSS.Domain.Client.Clients.Repository;
 
-namespace FSS.Domain.Client.Clients.Entity;
+namespace FSS.Domain.Client.Clients;
 
-public class Client
+public class ClientDO
 {
     /// <summary>
     ///     客户端ID
@@ -29,10 +29,10 @@ public class Client
     /// <summary>
     ///     移除客户端
     /// </summary>
-    public Task RemoveAsync() => IocManager.GetService<IClientRepository>().RemoveClientAsync(client: this);
+    public Task RemoveAsync() => IocManager.GetService<IClientRepository>().RemoveClientAsync(clientDO: this);
 
     /// <summary>
     ///     更新客户端的使用时间
     /// </summary>
-    public void Update() => IocManager.GetService<IClientRepository>().Update(client: this);
+    public void Update() => IocManager.GetService<IClientRepository>().Update(clientDO: this);
 }

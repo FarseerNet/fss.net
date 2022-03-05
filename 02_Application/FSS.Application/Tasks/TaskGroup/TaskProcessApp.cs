@@ -6,6 +6,7 @@ using FSS.Application.Clients.Client.Entity;
 using FSS.Application.Log.TaskLog;
 using FSS.Application.Tasks.TaskGroup.Entity;
 using FSS.Domain.Log.TaskLog;
+using FSS.Domain.Tasks.TaskGroup;
 using FSS.Domain.Tasks.TaskGroup.Entity;
 using FSS.Domain.Tasks.TaskGroup.Enum;
 using Microsoft.Extensions.Logging;

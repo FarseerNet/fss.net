@@ -1,9 +1,10 @@
 using System;
 using FS.Mapper;
+using FSS.Domain.Client.Clients;
 
 namespace FSS.Infrastructure.Repository.Client.Model;
 
-[Map(typeof(Domain.Client.Clients.Entity.Client))]
+[Map(typeof(ClientDO))]
 public class ClientPO
 {
     /// <summary>

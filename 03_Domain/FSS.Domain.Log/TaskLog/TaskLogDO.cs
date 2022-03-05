@@ -2,7 +2,7 @@ using FS.DI;
 using FSS.Domain.Log.TaskLog.Repository;
 using Microsoft.Extensions.Logging;
 
-namespace FSS.Domain.Log.TaskLog.Entity;
+namespace FSS.Domain.Log.TaskLog;
 
 /// <summary>
 ///     运行日志

@@ -9,6 +9,7 @@ using FSS.Application.Log.TaskLog;
 using FSS.Application.Log.TaskLog.Entity;
 using FSS.Application.Tasks.TaskGroup;
 using FSS.Application.Tasks.TaskGroup.Entity;
+using FSS.Domain.Tasks.TaskGroup;
 using FSS.Domain.Tasks.TaskGroup.Entity;
 using FSS.Service.Request;
 using Microsoft.AspNetCore.Mvc;

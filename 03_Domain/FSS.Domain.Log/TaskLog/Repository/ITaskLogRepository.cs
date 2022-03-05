@@ -1,6 +1,5 @@
 using FS.Core;
 using FS.DI;
-using FSS.Domain.Log.TaskLog.Entity;
 using Microsoft.Extensions.Logging;
 
 namespace FSS.Domain.Log.TaskLog.Repository;

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using FS.DI;
 using FS.Extends;
 using FSS.Application.Clients.Client.Entity;
+using FSS.Domain.Client.Clients;
 using FSS.Domain.Client.Clients.Repository;
 
 namespace FSS.Application.Clients.Client;
@@ -14,12 +15,12 @@ public class ClientApp : ISingletonDependency
     /// <summary>
     ///     取出全局客户端列表
     /// </summary>
-    public Task<List<ClientDTO>> ToListAsync() => ClientRepository.ToListAsync().MapAsync<ClientDTO, Domain.Client.Clients.Entity.Client>();
+    public Task<List<ClientDTO>> ToListAsync() => ClientRepository.ToListAsync().MapAsync<ClientDTO, ClientDO>();
 
     /// <summary>
     ///     更新客户端的使用时间
     /// </summary>
-    public void UpdateClient(Domain.Client.Clients.Entity.Client client) => client.Update();
+    public void UpdateClient(ClientDO clientDO) => clientDO.Update();
 
     /// <summary>
     ///     客户端数量

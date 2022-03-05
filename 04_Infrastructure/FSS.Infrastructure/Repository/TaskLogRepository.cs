@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using FS.Core;
 using FS.Extends;
-using FSS.Domain.Log.TaskLog.Entity;
+using FSS.Domain.Log.TaskLog;
 using FSS.Domain.Log.TaskLog.Repository;
 using FSS.Infrastructure.Repository.Log;
 using FSS.Infrastructure.Repository.Log.Model;

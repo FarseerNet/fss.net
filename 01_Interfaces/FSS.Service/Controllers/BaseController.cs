@@ -24,7 +24,7 @@ public class BaseController : ControllerBase
         };
 
         // 更新客户端的使用时间
-        IocManager.Instance.Resolve<ClientApp>().UpdateClient(client: Client);
+        IocManager.Instance.Resolve<ClientApp>().UpdateClient(clientDO: Client);
     }
     protected IHttpContextAccessor HttpContextAccessor { get; }
 

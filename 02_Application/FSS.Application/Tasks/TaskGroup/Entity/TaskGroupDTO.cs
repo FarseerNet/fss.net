@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using FS.Extends;
 using FS.Mapper;
+using FSS.Domain.Tasks.TaskGroup;
 using FSS.Domain.Tasks.TaskGroup.Entity;
 
 namespace FSS.Application.Tasks.TaskGroup.Entity;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using FS.Core.Mapping.Attribute;
 using FS.Extends;
 using FS.Mapper;
+using FSS.Domain.Tasks.TaskGroup;
 using FSS.Domain.Tasks.TaskGroup.Entity;
 using FSS.Infrastructure.Repository.Tasks.Model;
 

@@ -1,7 +1,7 @@
 using System;
 using FS.Core.Mapping.Attribute;
 using FS.Mapper;
-using FSS.Domain.Log.TaskLog.Entity;
+using FSS.Domain.Log.TaskLog;
 using Nest;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
