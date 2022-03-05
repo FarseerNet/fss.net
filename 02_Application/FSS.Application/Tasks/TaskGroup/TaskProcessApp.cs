@@ -40,7 +40,10 @@ public class TaskProcessApp : ISingletonDependency
         }
         catch (RefuseException e)
         {
-            if (taskGroup != null) await TaskLogService.AddAsync(taskGroupId: dto.TaskGroupId, jobName: taskGroup.JobName, caption: taskGroup.Caption, logLevel: LogLevel.Warning, content: e.Message);
+            if (taskGroup != null)
+            {
+                await TaskLogService.AddAsync(taskGroupId: dto.TaskGroupId, jobName: taskGroup.JobName, caption: taskGroup.Caption, logLevel: LogLevel.Warning, content: e.Message);
+            }
             throw;
         }
         catch (Exception e)

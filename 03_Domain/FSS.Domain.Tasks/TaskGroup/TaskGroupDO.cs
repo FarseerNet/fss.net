@@ -321,7 +321,7 @@ public class TaskGroupDO
         if (Task == null)
         {
             await CreateTask();
-            return;
+            return;          
         }
 
         if (Task.Status != EumTaskType.Scheduler && Task.Status != EumTaskType.Working) return;
@@ -385,15 +385,5 @@ public class TaskGroupDO
                 await IocManager.GetService<ITaskGroupRepository>().SaveAsync(taskGroupDO: this);
                 break;
         }
-    }
-
-    /// <summary>
-    ///     计算平均耗时
-    /// </summary>
-    public async Task UpdateAvgSpeed()
-    {
-        var speedList = await IocManager.GetService<ITaskGroupRepository>().ToTaskSpeedListAsync(taskGroupId: Id);
-        RunSpeedAvg = new TaskSpeed(speedList: speedList).GetAvgSpeed();
-        if (RunSpeedAvg > 0) await IocManager.GetService<ITaskGroupRepository>().SaveAsync(taskGroupDO: this);
     }
 }
