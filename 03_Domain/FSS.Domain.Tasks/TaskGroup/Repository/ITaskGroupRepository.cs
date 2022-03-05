@@ -59,7 +59,7 @@ public interface ITaskGroupRepository : ISingletonDependency
     /// <summary>
     ///     获取所有任务组中的任务
     /// </summary>
-    Task<List<TaskGroupDO>> GetCanSchedulerTaskGroup(string[] jobsName, TimeSpan ts, int count);
+    Task<List<TaskDO>> GetCanSchedulerTaskGroup(string[] jobsName, TimeSpan ts, int count, ClientVO client);
     /// <summary>
     ///     获取未执行的任务数量
     /// </summary>

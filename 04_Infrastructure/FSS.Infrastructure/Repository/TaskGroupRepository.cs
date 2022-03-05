@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using FS.Core;
 using FS.Extends;
+using FSS.Application.Clients.Client.Entity;
+using FSS.Application.Tasks.TaskGroup.Entity;
 using FSS.Domain.Tasks.TaskGroup;
 using FSS.Domain.Tasks.TaskGroup.Entity;
 using FSS.Domain.Tasks.TaskGroup.Enum;
@@ -11,6 +13,7 @@ using FSS.Domain.Tasks.TaskGroup.Repository;
 using FSS.Infrastructure.Repository.TaskGroup;
 using FSS.Infrastructure.Repository.Tasks;
 using FSS.Infrastructure.Repository.Tasks.Model;
+using StackExchange.Redis;
 
 namespace FSS.Infrastructure.Repository;
 
@@ -67,10 +70,26 @@ public class TaskGroupRepository : ITaskGroupRepository
     /// <summary>
     ///     获取能调度的任务
     /// </summary>
-    public async Task<List<TaskGroupDO>> GetCanSchedulerTaskGroup(string[] jobsName, TimeSpan ts, int count)
+    public async Task<List<TaskDO>> GetCanSchedulerTaskGroup(string[] jobsName, TimeSpan ts, int count, ClientVO client)
     {
-        var lstTaskGroup = await ToListAsync();
-        return lstTaskGroup.Where(predicate: o => o.IsEnable && jobsName.Contains(value: o.JobName) && o.Task != null && o.Task.Status == EumTaskType.None && o.Task.StartAt < DateTime.Now.Add(value: ts) && o.Task.Client?.ClientId == 0).OrderBy(keySelector: o => o.Task.StartAt).Take(count: count).ToList();
+        using (var locker = RedisContext.Instance.GetLocker("FSS_Scheduler", TimeSpan.FromSeconds(5)))
+        {
+            if (!locker.TryLock()) return new List<TaskDO>();
+            
+            var lstTaskGroup = await ToListAsync();
+            lstTaskGroup = lstTaskGroup.Where(predicate: o => o.IsEnable && jobsName.Contains(value: o.JobName) && o.Task != null && o.Task.Status == EumTaskType.None && o.Task.StartAt < DateTime.Now.Add(value: ts) && o.Task.Client?.ClientId == 0).OrderBy(keySelector: o => o.Task.StartAt).Take(count: count).ToList();
+
+            var lst = new List<TaskDO>();
+            foreach (var taskGroupDO in lstTaskGroup)
+            {
+                // 设为调度状态
+                await taskGroupDO.SchedulerAsync(client: client);
+
+                // 如果不相等，说明被其它客户端拿了
+                if (taskGroupDO.Task.Client.ClientId == client.ClientId) lst.Add(item: taskGroupDO.Task);
+            }
+            return lst;
+        }
     }
 
     /// <summary>
