@@ -26,7 +26,9 @@ public class TaskSchedulerApp : ISingletonDependency
         {
             // 设为调度状态
             await taskGroupDO.SchedulerAsync(client: client);
-            lst.Add(item: taskGroupDO.Task);
+            
+            // 如果不相等，说明被其它客户端拿了
+            if (taskGroupDO.Task.Client.ClientId == client.Id) lst.Add(item: taskGroupDO.Task);
         }
         return lst;
     }

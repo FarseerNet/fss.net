@@ -70,7 +70,7 @@ public class TaskGroupRepository : ITaskGroupRepository
     public async Task<List<TaskGroupDO>> GetCanSchedulerTaskGroup(string[] jobsName, TimeSpan ts, int count)
     {
         var lstTaskGroup = await ToListAsync();
-        return lstTaskGroup.Where(predicate: o => o.IsEnable && jobsName.Contains(value: o.JobName) && o.Task != null && o.Task.Status == EumTaskType.None && o.Task.StartAt < DateTime.Now.Add(value: ts)).OrderBy(keySelector: o => o.Task.StartAt).Take(count: count).ToList();
+        return lstTaskGroup.Where(predicate: o => o.IsEnable && jobsName.Contains(value: o.JobName) && o.Task != null && o.Task.Status == EumTaskType.None && o.Task.StartAt < DateTime.Now.Add(value: ts) && o.Task.Client?.ClientId == 0).OrderBy(keySelector: o => o.Task.StartAt).Take(count: count).ToList();
     }
 
     /// <summary>

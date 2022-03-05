@@ -307,10 +307,14 @@ public class TaskGroupDO
     /// </summary>
     public Task SchedulerAsync(ClientVO client)
     {
-        Task.SetClient(client: client);
-        Task.Data  = Data;
-        ActivateAt = DateTime.Now;
-        return IocManager.GetService<ITaskGroupRepository>().SaveAsync(taskGroupDO: this);
+        if (Task.Status == EumTaskType.None)
+        {
+            Task.SetClient(client: client);
+            Task.Data  = Data;
+            ActivateAt = DateTime.Now;
+            return IocManager.GetService<ITaskGroupRepository>().SaveAsync(taskGroupDO: this);
+        }
+        return System.Threading.Tasks.Task.FromResult(0);
     }
 
     /// <summary>
@@ -321,7 +325,7 @@ public class TaskGroupDO
         if (Task == null)
         {
             await CreateTask();
-            return;          
+            return;
         }
 
         if (Task.Status != EumTaskType.Scheduler && Task.Status != EumTaskType.Working) return;
