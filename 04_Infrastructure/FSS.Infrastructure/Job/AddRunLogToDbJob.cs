@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using FS.Core.Job;
 using FS.Extends;
-using FS.Job;
+using FS.Fss;
 using FSS.Infrastructure.Repository.Log;
 
 namespace FSS.Infrastructure.Job;

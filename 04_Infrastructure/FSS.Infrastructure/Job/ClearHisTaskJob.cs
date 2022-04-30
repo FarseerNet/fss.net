@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using FS.Core.Job;
 using FS.DI;
 using FS.Extends;
-using FS.Job;
+using FS.Fss;
 using FSS.Infrastructure.Repository.TaskGroup;
 using FSS.Infrastructure.Repository.Tasks;
 using Microsoft.Extensions.Configuration;

@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FS.Core.LinkTrack;
@@ -33,7 +34,7 @@ public class PrintSysInfoService : BackgroundServiceTrace
         var reservedTaskCount = _ioc.Resolve<IConfigurationRoot>().GetSection(key: "FSS:ReservedTaskCount").Value.ConvertType(defValue: 20);
         _logger.LogInformation(message: $"当前系统设置任务至少保留：{reservedTaskCount}条");
 
-        var elasticSearchItemConfig = ElasticSearchConfigRoot.Get().Find(match: o => o.Name == "es");
+        var elasticSearchItemConfig = ElasticSearchConfigRoot.Get().FirstOrDefault(o => o.Name == "es");
         var use                     = elasticSearchItemConfig != null ? $"Elasticsearch，{elasticSearchItemConfig.Server}" : "数据库";
         _logger.LogInformation(message: $"使用 [ {use} ] 作为日志保存记录");
 

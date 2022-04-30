@@ -3,6 +3,7 @@
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <ServerGarbageCollection>false</ServerGarbageCollection>
     </PropertyGroup>
 
     <ItemGroup>
@@ -17,7 +18,6 @@
         <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.Data\Farseer.Net.Data.csproj"/>
         <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.ElasticSearch\Farseer.Net.ElasticSearch.csproj"/>
         <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.EventBus\Farseer.Net.EventBus.csproj"/>
-        <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.Job\Farseer.Net.Job.csproj"/>
         <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.Mapper\Farseer.Net.Mapper.csproj"/>
         <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net\Farseer.Net.csproj"/>
         <ProjectReference Include="..\..\02_Application\FSS.Application\FSS.Application.csproj"/>

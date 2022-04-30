@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 using FS.Core.Job;
-using FS.Job;
+using FS.Fss;
 using FSS.Domain.Client.Clients;
 
 namespace FSS.Application.Job;

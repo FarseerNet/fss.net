@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 using FS.Core.Job;
-using FS.Job;
+using FS.Fss;
 using FSS.Infrastructure.Repository.TaskGroup;
 
 namespace FSS.Infrastructure.Job;

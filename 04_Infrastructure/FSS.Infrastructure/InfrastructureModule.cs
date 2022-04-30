@@ -3,7 +3,7 @@ using FS.Core;
 using FS.Data;
 using FS.ElasticSearch;
 using FS.EventBus;
-using FS.Job;
+using FS.Fss;
 using FS.LinkTrack;
 using FS.Mapper;
 using FS.Modules;
@@ -16,7 +16,7 @@ namespace FSS.Infrastructure;
               typeof(ElasticSearchModule),
               typeof(LinkTrackModule),
               typeof(EventBusModule),
-              typeof(JobModule),
+              typeof(FssModule),
               typeof(FarseerCoreModule))]
 public class InfrastructureModule : FarseerModule
 {

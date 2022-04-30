@@ -10,7 +10,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.EventBus\Farseer.Net.EventBus.csproj" />
-        <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.Job\Farseer.Net.Job.csproj" />
+        <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.Fss\Farseer.Net.Fss.csproj" />
         <ProjectReference Include="..\..\..\Farseer.Net\Framework\Farseer.Net.Mapper\Farseer.Net.Mapper.csproj" />
         <ProjectReference Include="..\..\03_Domain\FSS.Domain.Client\FSS.Domain.Client.csproj" />
         <ProjectReference Include="..\..\03_Domain\FSS.Domain.Log\FSS.Domain.Log.csproj" />
