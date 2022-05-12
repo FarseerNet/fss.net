@@ -47,13 +47,13 @@ public class TaskLogDO
     /// <summary>
     ///     添加日志到队列
     /// </summary>
-    public Task AddAsync()
+    public void Add()
     {
         if (LogLevel is LogLevel.Error or LogLevel.Warning) IocManager.Instance.Logger<TaskLogDO>().Log(logLevel: LogLevel, message: Content);
         Caption  ??= "";
         JobName  ??= "";
         CreateAt =   DateTime.Now;
 
-        return IocManager.GetService<ITaskLogRepository>().AddAsync(taskLogDO: this);
+        IocManager.GetService<ITaskLogRepository>().Add(taskLogDO: this);
     }
 }

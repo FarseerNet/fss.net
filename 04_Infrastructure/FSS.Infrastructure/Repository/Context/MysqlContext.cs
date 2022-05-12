@@ -3,7 +3,7 @@ using FSS.Infrastructure.Repository.Log.Model;
 using FSS.Infrastructure.Repository.TaskGroup.Model;
 using FSS.Infrastructure.Repository.Tasks.Model;
 
-namespace FSS.Infrastructure.Repository;
+namespace FSS.Infrastructure.Repository.Context;
 
 /// <summary>
 ///     元信息上下文

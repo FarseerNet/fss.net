@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using FS.Cache;
 using FS.DI;
 using FSS.Infrastructure.Repository.Client.Model;
+using FSS.Infrastructure.Repository.Context;
 
 namespace FSS.Infrastructure.Repository.Client;
 

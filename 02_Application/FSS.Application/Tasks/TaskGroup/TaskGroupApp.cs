@@ -39,7 +39,7 @@ public class TaskGroupApp : ISingletonDependency
     {
         var taskGroup = await TaskGroupRepository.ToEntityAsync(taskGroupId: taskGroupId);
         await taskGroup.CancelAsync();
-        await TaskLogService.AddAsync(taskGroupId: taskGroupId, jobName: taskGroup.JobName, caption: taskGroup.Caption, logLevel: LogLevel.Information, content: "手动取消任务");
+        TaskLogService.Add(taskGroupId: taskGroupId, jobName: taskGroup.JobName, caption: taskGroup.Caption, logLevel: LogLevel.Information, content: "手动取消任务");
     }
 
     /// <summary>

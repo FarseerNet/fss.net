@@ -19,12 +19,12 @@ public class TaskLogApp : ISingletonDependency
     /// <summary>
     ///     添加日志记录
     /// </summary>
-    public Task AddAsync(int taskGroupId, string jobName, string caption, LogLevel logLevel, string content) => TaskLogService.AddAsync(taskGroupId: taskGroupId, jobName: jobName, caption: caption, logLevel: logLevel, content: content);
+    public void Add(int taskGroupId, string jobName, string caption, LogLevel logLevel, string content) => TaskLogService.Add(taskGroupId: taskGroupId, jobName: jobName, caption: caption, logLevel: logLevel, content: content);
 
     /// <summary>
     ///     添加日志记录
     /// </summary>
-    public Task AddAsync(TaskGroupDO taskGroupDO, LogLevel logLevel, string content) => TaskLogService.AddAsync(taskGroupId: taskGroupDO.Id, jobName: taskGroupDO.JobName, caption: taskGroupDO.Caption, logLevel: logLevel, content: content);
+    public void Add(TaskGroupDO taskGroupDO, LogLevel logLevel, string content) => TaskLogService.Add(taskGroupId: taskGroupDO.Id, jobName: taskGroupDO.JobName, caption: taskGroupDO.Caption, logLevel: logLevel, content: content);
 
     /// <summary>
     ///     获取日志

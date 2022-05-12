@@ -48,7 +48,7 @@ public class TaskController : BaseController
         var taskGroup = await TaskQueryApp.ToEntityAsync(taskGroupId: dto.TaskGroupId);
         if (taskGroup == null)
         {
-            await TaskLogApp.AddAsync(taskGroupId: dto.TaskGroupId, jobName: "", caption: "", logLevel: LogLevel.Warning, content: $"所属的任务组：{dto.TaskGroupId} 不存在");
+            TaskLogApp.Add(taskGroupId: dto.TaskGroupId, jobName: "", caption: "", logLevel: LogLevel.Warning, content: $"所属的任务组：{dto.TaskGroupId} 不存在");
             return await ApiResponseJson.ErrorAsync(statusMessage: $"所属的任务组：{dto.TaskGroupId} 不存在");
         }
 

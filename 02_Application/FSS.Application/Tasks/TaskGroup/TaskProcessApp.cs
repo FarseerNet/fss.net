@@ -28,7 +28,7 @@ public class TaskProcessApp : ISingletonDependency
             if (taskGroup == null) throw new RefuseException(message: $"所属的任务组：{dto.TaskGroupId} 不存在");
 
             // 如果有日志
-            if (dto.Log != null && !string.IsNullOrWhiteSpace(value: dto.Log.Log)) await TaskLogApp.AddAsync(taskGroupDO: taskGroup, logLevel: dto.Log.LogLevel, content: dto.Log.Log);
+            if (dto.Log != null && !string.IsNullOrWhiteSpace(value: dto.Log.Log)) TaskLogApp.Add(taskGroupDO: taskGroup, logLevel: dto.Log.LogLevel, content: dto.Log.Log);
 
             // 不相等，说明被覆盖了（JOB请求慢了。被调度重新执行了）
             if (taskGroup.Task.Client.ClientId > 0 && taskGroup.Task.Client.ClientId != client.Id) throw new RefuseException(message: $"任务： {taskGroup.Caption}（{taskGroup.JobName}） ，{taskGroup.Task.Client.ClientId}与本次请求的客户端{client.Id} 不一致，忽略本次请求");
@@ -42,7 +42,7 @@ public class TaskProcessApp : ISingletonDependency
         {
             if (taskGroup != null)
             {
-                await TaskLogService.AddAsync(taskGroupId: dto.TaskGroupId, jobName: taskGroup.JobName, caption: taskGroup.Caption, logLevel: LogLevel.Warning, content: e.Message);
+                TaskLogService.Add(taskGroupId: dto.TaskGroupId, jobName: taskGroup.JobName, caption: taskGroup.Caption, logLevel: LogLevel.Warning, content: e.Message);
             }
             throw;
         }
@@ -52,7 +52,7 @@ public class TaskProcessApp : ISingletonDependency
             if (taskGroup != null)
             {
                 await taskGroup.CancelAsync();
-                await TaskLogService.AddAsync(taskGroupId: taskGroup.Id, jobName: taskGroup.JobName, caption: taskGroup.Caption, logLevel: LogLevel.Error, content: e.ToString());
+                TaskLogService.Add(taskGroupId: taskGroup.Id, jobName: taskGroup.JobName, caption: taskGroup.Caption, logLevel: LogLevel.Error, content: e.ToString());
             }
             throw e;
         }

@@ -53,7 +53,7 @@ public class CheckWorkStatusService : BackgroundServiceTrace
         }
         catch (RefuseException e)
         {
-            await TaskLogService.AddAsync(taskGroupId: taskGroupDO.Id, jobName: taskGroupDO.JobName, caption: taskGroupDO.Caption, logLevel: LogLevel.Warning, content: e.Message);
+            TaskLogService.Add(taskGroupId: taskGroupDO.Id, jobName: taskGroupDO.JobName, caption: taskGroupDO.Caption, logLevel: LogLevel.Warning, content: e.Message);
             await taskGroupDO.CancelAsync();
         }
         return false;

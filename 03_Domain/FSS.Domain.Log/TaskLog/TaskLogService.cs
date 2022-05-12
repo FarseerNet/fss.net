@@ -8,7 +8,7 @@ public class TaskLogService : ISingletonDependency
     /// <summary>
     ///     添加日志记录
     /// </summary>
-    public Task AddAsync(int taskGroupId, string jobName, string caption, LogLevel logLevel, string content) => new TaskLogDO
+    public void Add(int taskGroupId, string jobName, string caption, LogLevel logLevel, string content) => new TaskLogDO
     {
         TaskGroupId = taskGroupId,
         Caption     = caption ?? "",
@@ -16,5 +16,5 @@ public class TaskLogService : ISingletonDependency
         LogLevel    = logLevel,
         Content     = content,
         CreateAt    = DateTime.Now
-    }.AddAsync();
+    }.Add();
 }

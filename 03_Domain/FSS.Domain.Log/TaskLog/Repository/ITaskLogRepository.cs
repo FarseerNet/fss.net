@@ -13,5 +13,5 @@ public interface ITaskLogRepository : ISingletonDependency
     /// <summary>
     ///     添加日志
     /// </summary>
-    Task AddAsync(TaskLogDO taskLogDO);
+    void Add(TaskLogDO taskLogDO);
 }

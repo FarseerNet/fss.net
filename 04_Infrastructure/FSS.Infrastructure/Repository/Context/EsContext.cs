@@ -5,7 +5,7 @@ using FS.ElasticSearch;
 using FSS.Infrastructure.Repository.Log.Model;
 using Microsoft.Extensions.Configuration;
 
-namespace FSS.Infrastructure.Repository;
+namespace FSS.Infrastructure.Repository.Context;
 
 /// <summary>
 ///     ES日志上下文

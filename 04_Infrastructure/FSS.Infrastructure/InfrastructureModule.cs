@@ -7,10 +7,12 @@ using FS.Fss;
 using FS.LinkTrack;
 using FS.Mapper;
 using FS.Modules;
+using FS.MQ.Queue;
 
 namespace FSS.Infrastructure;
 
 [DependsOn(typeof(MapperModule),
+              typeof(QueueModule),
               typeof(RedisModule),
               typeof(DataModule),
               typeof(ElasticSearchModule),

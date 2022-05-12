@@ -1,7 +1,7 @@
 using FS.Cache.Redis;
 using FS.DI;
 
-namespace FSS.Infrastructure.Repository;
+namespace FSS.Infrastructure.Repository.Context;
 
 public class RedisContext
 {

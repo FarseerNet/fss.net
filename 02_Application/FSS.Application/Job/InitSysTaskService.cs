@@ -40,8 +40,6 @@ public class InitSysTaskService : BackgroundServiceTrace
         await CreateSysJob(lstTaskGroup: lstTaskGroup, jobName: "FSS.SyncTaskGroup", caption: "同步任务组缓存", intervalMs: TimeSpan.FromMinutes(value: 1));
         await CreateSysJob(lstTaskGroup: lstTaskGroup, jobName: "FSS.AddTaskToDb", caption: "任务写入数据库", intervalMs: TimeSpan.FromMinutes(value: 1), data: new Dictionary<string, string>
                            { { "DataCount", "100" } });
-        await CreateSysJob(lstTaskGroup: lstTaskGroup, jobName: "FSS.AddRunLogToDb", caption: "日志写入数据库", intervalMs: TimeSpan.FromSeconds(value: 10), data: new Dictionary<string, string>
-                           { { "DataCount", "100" } });
         await CreateSysJob(lstTaskGroup: lstTaskGroup, jobName: "FSS.CheckClientOffline", caption: "检查超时离线的客户端", intervalMs: TimeSpan.FromMinutes(value: 1));
 
         _logger.LogInformation(message: $"共获取到：{lstTaskGroup.Count} 条任务组信息");
