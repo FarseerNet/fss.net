@@ -1,11 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FS;
-using FS.Core.LinkTrack;
-using FS.DI;
-using FS.LinkTrack;
-using FS.LinkTrack.Dal;
 using FS.MQ.Queue;
 using FS.MQ.Queue.Attr;
 using FSS.Infrastructure.Repository.Log;
@@ -17,7 +12,7 @@ namespace FSS.Infrastructure.Consumer
     ///     添加任务日志
     /// </summary>
     [Consumer(Enable = true, Name = "TaskLogQueue", PullCount = 1000, SleepTime = 500)]
-    public class TaskLogConsumer : IListenerMessage
+    public class TaskLogQueueConsumer : IListenerMessage
     {
         public LogAgent LogAgent { get; set; }
         

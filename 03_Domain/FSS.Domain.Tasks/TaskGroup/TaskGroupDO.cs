@@ -280,7 +280,7 @@ public class TaskGroupDO
         }
 
         if (Task != null && Task.Status != EumTaskType.Fail && Task.Status != EumTaskType.Success) return;
-        if (Task is { Status: EumTaskType.Success or EumTaskType.Fail }) await Task.AddQueueAsync();
+        if (Task is { Status: EumTaskType.Success or EumTaskType.Fail }) Task.AddTask();
 
         // 没查到时，自动创建一条对应的Task
         Task = new TaskDO

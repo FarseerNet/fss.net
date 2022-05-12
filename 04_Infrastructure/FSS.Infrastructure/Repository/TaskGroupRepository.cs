@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FS.Core;
+using FS.DI;
 using FS.Extends;
+using FS.MQ.Queue;
 using FSS.Application.Clients.Client.Entity;
 using FSS.Application.Tasks.TaskGroup.Entity;
 using FSS.Domain.Tasks.TaskGroup;
@@ -14,6 +16,7 @@ using FSS.Infrastructure.Repository.Context;
 using FSS.Infrastructure.Repository.TaskGroup;
 using FSS.Infrastructure.Repository.Tasks;
 using FSS.Infrastructure.Repository.Tasks.Model;
+using Mapster;
 using StackExchange.Redis;
 
 namespace FSS.Infrastructure.Repository;
@@ -23,7 +26,6 @@ public class TaskGroupRepository : ITaskGroupRepository
     public TaskGroupAgent TaskGroupAgent { get; set; }
     public TaskGroupCache TaskGroupCache { get; set; }
     public TaskAgent      TaskAgent      { get; set; }
-    public TaskCache      TaskCache      { get; set; }
 
 
     public Task SaveAsync(TaskGroupDO taskGroupDO) => TaskGroupCache.SaveAsync(taskGroup: taskGroupDO);
@@ -60,7 +62,7 @@ public class TaskGroupRepository : ITaskGroupRepository
 
     public Task<List<TaskDO>> ToFinishListAsync(int taskGroupId, int top) => TaskAgent.ToFinishListAsync(groupId: taskGroupId, top: top).MapAsync(mapRule: TaskPO.MapToDO);
 
-    public Task AddTaskAsync(TaskDO taskDO) => TaskCache.AddQueueAsync(task: taskDO);
+    public void AddTask(TaskDO taskDO) => IocManager.GetService<IQueueManager>(name: "TaskQueue").Product.Send(taskDO.Adapt<TaskPO>());
 
     public async Task SyncToData()
     {

@@ -13,14 +13,8 @@ namespace FSS.Infrastructure.Repository;
 public class TaskLogRepository : ITaskLogRepository
 {
     public   LogAgent      LogAgent { get; set; }
-    
-    readonly IQueueProduct _queueProduct;
-    public TaskLogRepository()
-    {
-        _queueProduct = IocManager.GetService<IQueueManager>(name: "TaskLogQueue").Product;
-    }
 
     public PageList<TaskLogDO> GetList(string jobName, LogLevel? logLevel, int pageSize, int pageIndex) => LogAgent.GetList(jobName: jobName, logLevel: logLevel, pageSize: pageSize, pageIndex: pageIndex).Map<TaskLogDO>();
 
-    public void Add(TaskLogDO taskLogDO) => _queueProduct.Send(taskLogDO.Map<TaskLogPO>());
+    public void Add(TaskLogDO taskLogDO) => IocManager.GetService<IQueueManager>(name: "TaskLogQueue").Product.Send(taskLogDO.Map<TaskLogPO>());
 }

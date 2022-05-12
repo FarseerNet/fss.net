@@ -38,7 +38,7 @@ public interface ITaskGroupRepository : ISingletonDependency
     /// <summary>
     ///     创建任务
     /// </summary>
-    Task AddTaskAsync(TaskDO taskDO);
+    void AddTask(TaskDO taskDO);
 
     /// <summary>
     ///     添加任务组

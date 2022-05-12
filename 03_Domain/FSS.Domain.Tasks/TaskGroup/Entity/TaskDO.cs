@@ -77,7 +77,7 @@ public class TaskDO
     /// <summary>
     ///     创建任务
     /// </summary>
-    public Task AddQueueAsync() => IocManager.GetService<ITaskGroupRepository>().AddTaskAsync(taskDO: this);
+    public void AddTask() => IocManager.GetService<ITaskGroupRepository>().AddTask(taskDO: this);
 
     /// <summary>
     ///     调度时设置客户端
