@@ -29,7 +29,7 @@ public class ClientDO
     /// <summary>
     ///     移除客户端
     /// </summary>
-    public Task RemoveAsync() => IocManager.GetService<IClientRepository>().RemoveClientAsync(clientDO: this);
+    public void Remove() => IocManager.GetService<IClientRepository>().RemoveClient(Id);
 
     /// <summary>
     ///     更新客户端的使用时间

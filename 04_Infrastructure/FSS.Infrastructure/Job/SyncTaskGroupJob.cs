@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
-using FS.Core.Job;
+using FS.Core.Abstract.Fss;
 using FS.Fss;
+using FSS.Domain.Tasks.TaskGroup.Repository;
 using FSS.Infrastructure.Repository.TaskGroup;
 
 namespace FSS.Infrastructure.Job;
@@ -11,8 +12,8 @@ namespace FSS.Infrastructure.Job;
 [FssJob(Name = "FSS.SyncTaskGroup")]
 public class SyncTaskGroupJob : IFssJob
 {
-    public TaskGroupCache TaskGroupCache { get; set; }
-    public TaskGroupAgent TaskGroupAgent { get; set; }
+    public ITaskGroupRepository TaskGroupRepository { get; set; }
+    public TaskGroupAgent       TaskGroupAgent      { get; set; }
 
     public async Task<bool> Execute(IFssContext context)
     {
@@ -23,7 +24,7 @@ public class SyncTaskGroupJob : IFssJob
         {
             curIndex++;
             // 强制从缓存中再读一次，可以实现当缓存丢失时，可以重新写入该条任务组到缓存
-            var po = await TaskGroupCache.ToEntityAsync(taskGroupId: taskGroupVo.Id.GetValueOrDefault());
+            var po = await TaskGroupRepository.ToEntityAsync(taskGroupId: taskGroupVo.Id.GetValueOrDefault());
             await TaskGroupAgent.UpdateAsync(id: po.Id, taskGroup: po);
             context.SetProgress(rate: curIndex / lstGroupByDb.Count * 100);
         }

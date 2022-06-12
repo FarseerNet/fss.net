@@ -13,13 +13,6 @@ namespace FSS.Application.Tasks.TaskGroup.Entity;
 [Map(typeof(TaskDO))]
 public class TaskDTO
 {
-
-    public static readonly Action<TaskDTO, TaskDO> MapToDTO = (dto, taskDO) =>
-    {
-        dto.ClientId   = taskDO.Client.ClientId;
-        dto.ClientName = taskDO.Client.ClientName;
-        dto.ClientIp   = taskDO.Client.ClientIp;
-    };
     /// <summary>
     ///     主键
     /// </summary>
@@ -94,6 +87,13 @@ public class TaskDTO
     ///     数据
     /// </summary>
     public Dictionary<string, string> Data { get; set; }
+    
+    public static readonly Action<TaskDTO, TaskDO> MapToDTO = (dto, taskDO) =>
+    {
+        dto.ClientId   = taskDO.Client.ClientId;
+        dto.ClientName = taskDO.Client.ClientName;
+        dto.ClientIp   = taskDO.Client.ClientIp;
+    };
     
     public static implicit operator TaskDTO(TaskDO task) => task.Map(mapRule: MapToDTO);
 }

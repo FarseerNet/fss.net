@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using FS.EventBus;
+using FS.Core.Abstract.EventBus;
 using FS.EventBus.Attr;
 using FS.Extends;
 using FSS.Domain.Tasks.TaskGroup.Repository;

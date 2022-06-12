@@ -1,4 +1,6 @@
+using Collections.Pooled;
 using FS.Core;
+using FS.Core.Abstract.Data;
 using FS.DI;
 using FSS.Domain.Tasks.TaskGroup.Entity;
 using FSS.Domain.Tasks.TaskGroup.Enum;
@@ -19,22 +21,22 @@ public interface ITaskGroupRepository : ISingletonDependency
     /// <summary>
     ///     当前任务组下所有任务的执行速度
     /// </summary>
-    Task<List<long>> ToTaskSpeedListAsync(int taskGroupId);
+    Task<PooledList<long>> ToTaskSpeedListAsync(int taskGroupId);
 
     /// <summary>
     ///     获取所有任务组中的任务
     /// </summary>
-    Task<List<TaskGroupDO>> ToListAsync();
+    Task<PooledList<TaskGroupDO>> ToListAsync();
 
     /// <summary>
     ///     获取任务组数量
     /// </summary>
-    Task<long> GetTaskGroupCountAsync();
+    Task<int> GetTaskGroupCountAsync();
 
     /// <summary>
     ///     获取指定任务组执行成功的任务列表
     /// </summary>
-    Task<List<TaskDO>> ToFinishListAsync(int taskGroupId, int top);
+    Task<PooledList<TaskDO>> ToFinishListAsync(int taskGroupId, int top);
     /// <summary>
     ///     创建任务
     /// </summary>
@@ -43,11 +45,11 @@ public interface ITaskGroupRepository : ISingletonDependency
     /// <summary>
     ///     添加任务组
     /// </summary>
-    Task<int> AddAsync(TaskGroupDO taskGroupDO);
+    Task<TaskGroupDO> AddAsync(TaskGroupDO taskGroupDO);
     /// <summary>
     ///     保存任务组信息
     /// </summary>
-    Task SaveAsync(TaskGroupDO taskGroupDO);
+    TaskGroupDO Save(TaskGroupDO taskGroupDO);
     /// <summary>
     ///     删除任务组
     /// </summary>
@@ -59,7 +61,7 @@ public interface ITaskGroupRepository : ISingletonDependency
     /// <summary>
     ///     获取所有任务组中的任务
     /// </summary>
-    Task<List<TaskDO>> GetCanSchedulerTaskGroup(string[] jobsName, TimeSpan ts, int count, ClientVO client);
+    Task<PooledList<TaskDO>> GetCanSchedulerTaskGroup(string[] jobsName, TimeSpan ts, int count, ClientVO client);
     /// <summary>
     ///     获取未执行的任务数量
     /// </summary>
@@ -76,7 +78,7 @@ public interface ITaskGroupRepository : ISingletonDependency
     ///     获取已完成的任务列表
     /// </summary>
     Task<PageList<TaskDO>> ToFinishPageListAsync(int pageSize, int pageIndex);
-    Task<List<TaskGroupDO>> ToListAsync(long clientId);
+    Task<PooledList<TaskGroupDO>> ToListAsync(long clientId);
     /// <summary>
     ///     获取进行中的任务
     /// </summary>
@@ -84,5 +86,5 @@ public interface ITaskGroupRepository : ISingletonDependency
     /// <summary>
     ///     获取在用的任务组
     /// </summary>
-    List<TaskGroupDO> GetEnableTaskList(EumTaskType? status, int pageSize, int pageIndex, out int totalCount);
+    PageList<TaskDO> GetEnableTaskList(EumTaskType? status, int pageSize, int pageIndex);
 }

@@ -1,24 +1,42 @@
+using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using FS.Extends;
+using FS.Cache.Attribute;
 using FSS.Domain.Client.Clients;
 using FSS.Domain.Client.Clients.Repository;
-using FSS.Infrastructure.Repository.Client;
-using FSS.Infrastructure.Repository.Client.Model;
 
 namespace FSS.Infrastructure.Repository;
 
 public class ClientRepository : IClientRepository
 {
-    public ClientCache ClientCache { get; set; }
+    private const string cacheKey = "FSS_ClientList";
 
-    public Task<List<ClientDO>> ToListAsync() => ClientCache.ToListAsync().MapAsync<ClientDO, ClientPO>();
+    [Cache(cacheKey)]
+    private List<ClientDO> ToListInternal() => new();
 
-    public Task RemoveClientAsync(ClientDO clientDO) => ClientCache.ClientClear(clientId: clientDO.Id);
+    public List<ClientDO> ToList()
+    {
+        var lst = ToListInternal();
+        for (var i = 0; i < lst.Count; i++)
+        {
+            if ((DateTime.Now - lst[index: i].ActivateAt).TotalMinutes >= 1) // 心跳大于1秒中，任为已经下线了
+            {
+                RemoveClient(clientId: lst[index: i].Id);
+                lst.RemoveAt(index: i);
+                i--;
+            }
+        }
+        return lst;
+    }
 
-    public Task<ClientDO> ToEntityAsync(long clientId) => ClientCache.ToInfoAsync(clientId: clientId).MapAsync<ClientDO, ClientPO>();
+    [CacheRemove(cacheKey)]
+    public void RemoveClient(long clientId) { }
 
-    public void Update(ClientDO clientDO) => ClientCache.UpdateClient(client: clientDO.Map<ClientPO>());
+    [CacheItem(cacheKey)]
+    public ClientDO ToEntity(long clientId) => null;
 
-    public Task<long> GetCountAsync() => ClientCache.GetCountAsync();
+    [CacheUpdate(cacheKey)]
+    public ClientDO Update(ClientDO clientDO) => clientDO;
+
+    [CacheCount(cacheKey)]
+    public long GetCount() => 0;
 }

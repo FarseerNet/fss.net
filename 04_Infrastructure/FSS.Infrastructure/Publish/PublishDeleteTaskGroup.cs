@@ -1,5 +1,5 @@
 using FS.DI;
-using FS.EventBus;
+using FS.Core.Abstract.EventBus;
 using FSS.Domain.Tasks.TaskGroup.Publish;
 
 namespace FSS.Infrastructure.Publish;

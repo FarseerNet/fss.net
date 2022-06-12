@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using FS.DI;
 using FS.Extends;
 using FSS.Application.Clients.Client.Entity;
@@ -15,7 +14,7 @@ public class ClientApp : ISingletonDependency
     /// <summary>
     ///     取出全局客户端列表
     /// </summary>
-    public Task<List<ClientDTO>> ToListAsync() => ClientRepository.ToListAsync().MapAsync<ClientDTO, ClientDO>();
+    public List<ClientDTO> ToList() => ClientRepository.ToList().Map<ClientDTO>();
 
     /// <summary>
     ///     更新客户端的使用时间
@@ -25,5 +24,5 @@ public class ClientApp : ISingletonDependency
     /// <summary>
     ///     客户端数量
     /// </summary>
-    public Task<long> GetCountAsync() => ClientRepository.GetCountAsync();
+    public long GetCount() => ClientRepository.GetCount();
 }

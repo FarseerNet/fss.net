@@ -44,12 +44,12 @@ public class CheckWorkStatusService : BackgroundServiceTrace
             // 任务不存在
             if (taskGroupDO.Task != null && taskGroupDO.Task.Client.ClientId > 0)
             {
-                var client = await ClientRepository.ToEntityAsync(clientId: taskGroupDO.Task.Client.ClientId);
+                var client = ClientRepository.ToEntity(clientId: taskGroupDO.Task.Client.ClientId);
                 if (client == null) throw new RefuseException(message: $"【客户端不存在】{taskGroupDO.Task.Client.ClientId}，强制下线客户端");
             }
 
             // 检查任务开启状态
-            await taskGroupDO.CheckClientOffline();
+            taskGroupDO.CheckClientOffline();
         }
         catch (RefuseException e)
         {

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Collections.Pooled;
 using FS.DI;
 using FSS.Infrastructure.Repository.Context;
 using FSS.Infrastructure.Repository.TaskGroup.Model;
@@ -14,7 +15,11 @@ public class TaskGroupAgent : ISingletonDependency
     /// <summary>
     ///     获取所有任务组列表
     /// </summary>
-    public Task<List<TaskGroupPO>> ToListAsync() => MysqlContext.Data.TaskGroup.ToListAsync();
+    public Task<PooledList<TaskGroupPO>> ToListAsync() => MysqlContext.Data.TaskGroup.ToListAsync();
+    /// <summary>
+    ///     获取所有任务组列表
+    /// </summary>
+    public PooledList<TaskGroupPO> ToList() => MysqlContext.Data.TaskGroup.ToList();
 
     /// <summary>
     ///     获取任务组信息
@@ -42,4 +47,9 @@ public class TaskGroupAgent : ISingletonDependency
     {
         await MysqlContext.Data.TaskGroup.Where(where: o => o.Id == taskGroupId).DeleteAsync();
     }
+
+    /// <summary>
+    ///     删除当前任务组下的所有
+    /// </summary>
+    public Task<int> Count() => MysqlContext.Data.TaskGroup.CountAsync();
 }

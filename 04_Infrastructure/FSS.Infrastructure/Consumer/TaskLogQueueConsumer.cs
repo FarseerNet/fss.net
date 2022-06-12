@@ -1,8 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FS.MQ.Queue;
-using FS.MQ.Queue.Attr;
+using FS.Core.Abstract.MQ.Queue;
 using FSS.Infrastructure.Repository.Log;
 using FSS.Infrastructure.Repository.Log.Model;
 
@@ -16,7 +15,7 @@ namespace FSS.Infrastructure.Consumer
     {
         public LogAgent LogAgent { get; set; }
         
-        public async Task<bool> Consumer(List<object> queueList)
+        public async Task<bool> Consumer(IEnumerable<object> queueList)
         {
             var lst = queueList.Select(o => (TaskLogPO)o).ToList();
             await LogAgent.AddAsync(lst);
@@ -24,6 +23,6 @@ namespace FSS.Infrastructure.Consumer
             return true;
         }
 
-        public Task<bool> FailureHandling(List<object> messages) => Task.FromResult(false);
+        public Task<bool> FailureHandling(IEnumerable<object> messages) => Task.FromResult(false);
     }
 }

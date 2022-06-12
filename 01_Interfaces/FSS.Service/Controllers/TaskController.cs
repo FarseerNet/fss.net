@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Collections.Pooled;
 using FS.Core.Net;
 using FSS.Application.Log.TaskLog;
 using FSS.Application.Tasks.TaskGroup;
@@ -31,11 +32,11 @@ public class TaskController : BaseController
     /// </summary>
     [HttpPost]
     [Route(template: "Pull")]
-    public async Task<ApiResponseJson<List<TaskDTO>>> Pull(PullDTO dto)
+    public async Task<ApiResponseJson<PooledList<TaskDTO>>> Pull(PullDTO dto)
     {
         // 拉取任务
-        var lstTask = await TaskSchedulerApp.TaskSchedulerAsync(client: Client, requestTaskCount: dto.TaskCount) ?? new List<TaskDTO>();
-        return await ApiResponseJson<List<TaskDTO>>.SuccessAsync(statusMessage: "默认", data: lstTask);
+        var lstTask = await TaskSchedulerApp.TaskSchedulerAsync(client: Client, requestTaskCount: dto.TaskCount) ?? new();
+        return await ApiResponseJson<PooledList<TaskDTO>>.SuccessAsync(statusMessage: "默认", data: lstTask);
     }
 
     /// <summary>

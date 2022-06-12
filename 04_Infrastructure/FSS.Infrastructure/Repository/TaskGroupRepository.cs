@@ -2,91 +2,101 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FS.Core;
+using Collections.Pooled;
+using FS.Cache.Attribute;
+using FS.Core.Abstract.Data;
+using FS.Core.Abstract.MQ.Queue;
+using FS.Core.AOP.Data;
 using FS.DI;
 using FS.Extends;
-using FS.MQ.Queue;
-using FSS.Application.Clients.Client.Entity;
-using FSS.Application.Tasks.TaskGroup.Entity;
 using FSS.Domain.Tasks.TaskGroup;
 using FSS.Domain.Tasks.TaskGroup.Entity;
 using FSS.Domain.Tasks.TaskGroup.Enum;
 using FSS.Domain.Tasks.TaskGroup.Repository;
 using FSS.Infrastructure.Repository.Context;
 using FSS.Infrastructure.Repository.TaskGroup;
+using FSS.Infrastructure.Repository.TaskGroup.Model;
 using FSS.Infrastructure.Repository.Tasks;
 using FSS.Infrastructure.Repository.Tasks.Model;
-using Mapster;
-using StackExchange.Redis;
 
 namespace FSS.Infrastructure.Repository;
 
 public class TaskGroupRepository : ITaskGroupRepository
 {
+    private const string cacheKey = "FSS_TaskGroup";
+
     public TaskGroupAgent TaskGroupAgent { get; set; }
-    public TaskGroupCache TaskGroupCache { get; set; }
     public TaskAgent      TaskAgent      { get; set; }
 
 
-    public Task SaveAsync(TaskGroupDO taskGroupDO) => TaskGroupCache.SaveAsync(taskGroup: taskGroupDO);
+    [Cache(cacheKey)]
+    public Task<PooledList<TaskGroupDO>> ToListAsync() => TaskGroupAgent.ToListAsync().MapAsync<TaskGroupDO, TaskGroupPO>();
 
-    public Task<TaskGroupDO> ToEntityAsync(int taskGroupId) => TaskGroupCache.ToEntityAsync(taskGroupId: taskGroupId);
+    [Cache(cacheKey)]
+    public List<TaskGroupDO> ToList() => TaskGroupAgent.ToList().Map<TaskGroupDO>();
 
-    public Task<List<TaskGroupDO>> ToListAsync() => TaskGroupCache.ToListAsync();
+    [CacheUpdate(cacheKey)]
+    public TaskGroupDO Save(TaskGroupDO taskGroupDO) => taskGroupDO; // 直接返回，是因为暂时不直接更新到数据库，减少数据库IO
 
-    public Task<long> GetTaskGroupCountAsync() => TaskGroupCache.CountAsync();
+    [CacheCount(cacheKey)]
+    public Task<int> GetTaskGroupCountAsync() => TaskGroupAgent.Count();
 
-    public async Task<List<TaskGroupDO>> ToListAsync(long clientId)
-    {
-        var lstTask = await TaskGroupCache.ToListAsync();
-        return lstTask.FindAll(match: o => o.Task != null && o.Task.Client != null && o.Task.Client.ClientId == clientId && o.Task.StartAt < DateTime.Now);
-    }
-
-    public async Task<int> AddAsync(TaskGroupDO taskGroupDO)
-    {
-        var taskGroupId = await TaskGroupAgent.AddAsync(po: taskGroupDO);
-        await TaskGroupCache.ToEntityAsync(taskGroupId: taskGroupId);
-        return taskGroupId;
-    }
-
+    [CacheRemove(cacheKey)]
+    [Transaction(typeof(MysqlContext))]
     public async Task DeleteAsync(int taskGroupId)
     {
         await TaskGroupAgent.DeleteAsync(taskGroupId: taskGroupId);
         await TaskAgent.DeleteAsync(taskGroupId: taskGroupId);
-        await TaskGroupCache.TaskGroupClear(taskGroupId: taskGroupId);
+    }
+
+    [CacheItem(cacheKey)]
+    public Task<TaskGroupDO> ToEntityAsync(int taskGroupId) => TaskGroupAgent.ToEntityAsync(taskGroupId).MapAsync<TaskGroupDO, TaskGroupPO>();
+
+    [CacheUpdate(cacheKey)]
+    public async Task<TaskGroupDO> AddAsync(TaskGroupDO taskGroupDO)
+    {
+        var taskGroupId = await TaskGroupAgent.AddAsync(po: taskGroupDO);
+        taskGroupDO.Id = taskGroupId;
+        return taskGroupDO;
+    }
+
+    public async Task<PooledList<TaskGroupDO>> ToListAsync(long clientId)
+    {
+        var lstTask = await ToListAsync();
+        return lstTask.FindAll(match: o => o.Task != null && o.Task.Client != null && o.Task.Client.ClientId == clientId && o.Task.StartAt < DateTime.Now);
     }
 
     public Task<int> TodayFailCountAsync() => TaskAgent.TodayFailCountAsync();
 
-    public Task<List<long>> ToTaskSpeedListAsync(int taskGroupId) => TaskAgent.ToSpeedListAsync(taskGroupId: taskGroupId);
+    public Task<PooledList<long>> ToTaskSpeedListAsync(int taskGroupId) => TaskAgent.ToSpeedListAsync(taskGroupId: taskGroupId);
 
-    public Task<List<TaskDO>> ToFinishListAsync(int taskGroupId, int top) => TaskAgent.ToFinishListAsync(groupId: taskGroupId, top: top).MapAsync(mapRule: TaskPO.MapToDO);
+    public Task<PooledList<TaskDO>> ToFinishListAsync(int taskGroupId, int top) => TaskAgent.ToFinishListAsync(groupId: taskGroupId, top: top).MapAsync(mapRule: TaskPO.MapToDO);
 
-    public void AddTask(TaskDO taskDO) => IocManager.GetService<IQueueManager>(name: "TaskQueue").Product.Send(taskDO.Adapt<TaskPO>());
+    public void AddTask(TaskDO taskDO) => IocManager.GetService<IQueueProduct>(name: "TaskQueue").Send(taskDO.Map<TaskPO>());
 
     public async Task SyncToData()
     {
-        var lst = await TaskGroupCache.ToListAsync();
+        var lst = await ToListAsync();
         foreach (var taskGroupPO in lst) await TaskGroupAgent.UpdateAsync(id: taskGroupPO.Id, taskGroup: taskGroupPO);
     }
 
     /// <summary>
     ///     获取能调度的任务
     /// </summary>
-    public async Task<List<TaskDO>> GetCanSchedulerTaskGroup(string[] jobsName, TimeSpan ts, int count, ClientVO client)
+    public async Task<PooledList<TaskDO>> GetCanSchedulerTaskGroup(string[] jobsName, TimeSpan ts, int count, ClientVO client)
     {
         using (var locker = RedisContext.Instance.GetLocker("FSS_Scheduler", TimeSpan.FromSeconds(5)))
         {
-            if (!locker.TryLock()) return new List<TaskDO>();
-            
-            var lstTaskGroup = await ToListAsync();
-            lstTaskGroup = lstTaskGroup.Where(predicate: o => o.IsEnable && jobsName.Contains(value: o.JobName) && o.Task != null && o.Task.Status == EumTaskType.None && o.Task.StartAt < DateTime.Now.Add(value: ts) && o.Task.Client?.ClientId == 0).OrderBy(keySelector: o => o.Task.StartAt).Take(count: count).ToList();
+            if (!locker.TryLock()) return new PooledList<TaskDO>();
 
-            var lst = new List<TaskDO>();
+            var lstTaskGroup = await ToListAsync();
+            lstTaskGroup = lstTaskGroup.Where(predicate: o => o.IsEnable && jobsName.Contains(value: o.JobName) && o.Task != null && o.Task.Status == EumTaskType.None && o.Task.StartAt < DateTime.Now.Add(value: ts) && o.Task.Client?.ClientId == 0).OrderBy(keySelector: o => o.Task.StartAt).Take(count: count).ToPooledList();
+
+            var lst = new PooledList<TaskDO>();
             foreach (var taskGroupDO in lstTaskGroup)
             {
                 // 设为调度状态
-                await taskGroupDO.SchedulerAsync(client: client);
+                taskGroupDO.SchedulerAsync(client: client);
 
                 // 如果不相等，说明被其它客户端拿了
                 if (taskGroupDO.Task.Client.ClientId == client.ClientId) lst.Add(item: taskGroupDO.Task);
@@ -135,13 +145,14 @@ public class TaskGroupRepository : ITaskGroupRepository
     /// <summary>
     ///     获取在用的任务组
     /// </summary>
-    public List<TaskGroupDO> GetEnableTaskList(EumTaskType? status, int pageSize, int pageIndex, out int totalCount)
+    public PageList<TaskDO> GetEnableTaskList(EumTaskType? status, int pageSize, int pageIndex)
     {
-        var lst = TaskGroupCache.ToList().Where(predicate: o => o.IsEnable).ToList();
+        var lst = ToList().Where(predicate: o => o.IsEnable).ToPooledList();
 
-        if (status.HasValue) lst = lst.Where(predicate: o => o.Task.Status == status.GetValueOrDefault()).ToList();
-        totalCount = lst.Count;
-        lst        = lst.OrderBy(keySelector: o => o.JobName).ToList(pageSize: pageSize, pageIndex: pageIndex);
-        return lst;
+        if (status.HasValue) lst = lst.Where(predicate: o => o.Task.Status == status.GetValueOrDefault()).ToPooledList();
+        var totalCount           = lst.Count;
+        lst = lst.OrderBy(keySelector: o => o.JobName).ToList(pageSize: pageSize, pageIndex: pageIndex);
+
+        return new PageList<TaskDO>(lst.Select(o => o.Task).ToPooledList(), totalCount);
     }
 }

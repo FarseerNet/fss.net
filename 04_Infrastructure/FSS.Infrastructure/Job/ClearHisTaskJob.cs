@@ -1,10 +1,11 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using FS.Core.Job;
+using FS.Core.Abstract.Fss;
 using FS.DI;
 using FS.Extends;
 using FS.Fss;
+using FSS.Domain.Tasks.TaskGroup.Repository;
 using FSS.Infrastructure.Repository.TaskGroup;
 using FSS.Infrastructure.Repository.Tasks;
 using Microsoft.Extensions.Configuration;
@@ -24,12 +25,12 @@ public class ClearHisTaskJob : IFssJob
     {
         _reservedTaskCount = IocManager.GetService<IConfigurationRoot>().GetSection(key: "FSS:ReservedTaskCount").Value.ConvertType(defValue: 20);
     }
-    public TaskAgent      TaskAgent      { get; set; }
-    public TaskGroupCache TaskGroupCache { get; set; }
+    public TaskAgent            TaskAgent           { get; set; }
+    public ITaskGroupRepository TaskGroupRepository { get; set; }
 
     public async Task<bool> Execute(IFssContext context)
     {
-        var lst      = await TaskGroupCache.ToListAsync();
+        var lst      = await TaskGroupRepository.ToListAsync();
         var curIndex = 0;
         var result   = 0;
         foreach (var taskGroupVO in lst)

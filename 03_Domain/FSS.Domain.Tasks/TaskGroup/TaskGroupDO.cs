@@ -114,17 +114,17 @@ public class TaskGroupDO
 
 
         // 添加到数据库
-        Id = await IocManager.GetService<ITaskGroupRepository>().AddAsync(taskGroupDO: this);
+        await IocManager.GetService<ITaskGroupRepository>().AddAsync(taskGroupDO: this);
 
         // 创建任务
-        await CreateTask();
+        CreateTask();
         return Id;
     }
 
     /// <summary>
     ///     复制任务组
     /// </summary>
-    public Task<int> CopyAsync()
+    public async Task<int> CopyAsync()
     {
         Caption     += "复制";
         Id          =  0;
@@ -133,7 +133,8 @@ public class TaskGroupDO
         LastRunAt   =  DateTime.MinValue;
         RunSpeedAvg =  0;
 
-        return IocManager.GetService<ITaskGroupRepository>().AddAsync(taskGroupDO: this);
+        await IocManager.GetService<ITaskGroupRepository>().AddAsync(taskGroupDO: this);
+        return Id;
     }
 
     /// <summary>
@@ -145,7 +146,7 @@ public class TaskGroupDO
         if (IsEnable)
         {
             IsEnable = false;
-            await IocManager.GetService<ITaskGroupRepository>().SaveAsync(taskGroupDO: this);
+            IocManager.GetService<ITaskGroupRepository>().Save(taskGroupDO: this);
         }
 
         await IocManager.GetService<ITaskGroupRepository>().DeleteAsync(taskGroupId: Id);
@@ -197,7 +198,7 @@ public class TaskGroupDO
         if (IsEnable != newTaskGroupDO.IsEnable)
             await SetEnable(enable: newTaskGroupDO.IsEnable);
         else
-            await taskGroupRepository.SaveAsync(taskGroupDO: this);
+            taskGroupRepository.Save(taskGroupDO: this);
     }
 
     /// <summary>
@@ -264,14 +265,14 @@ public class TaskGroupDO
         }
 
         // 如果是停止状态，创建任务不会执行。则需要在这里进行保存
-        if (!IsEnable) await IocManager.GetService<ITaskGroupRepository>().SaveAsync(taskGroupDO: this);
-        else await CreateTask();
+        if (!IsEnable) IocManager.GetService<ITaskGroupRepository>().Save(taskGroupDO: this);
+        else CreateTask();
     }
 
     /// <summary>
     ///     创建新的Task
     /// </summary>
-    public async Task CreateTask()
+    public void CreateTask()
     {
         if (!IsEnable)
         {
@@ -299,32 +300,31 @@ public class TaskGroupDO
             Data        = this.Data
         };
 
-        await IocManager.GetService<ITaskGroupRepository>().SaveAsync(taskGroupDO: this);
+        IocManager.GetService<ITaskGroupRepository>().Save(taskGroupDO: this);
     }
 
     /// <summary>
     ///     调度时设置客户端
     /// </summary>
-    public Task SchedulerAsync(ClientVO client)
+    public void SchedulerAsync(ClientVO client)
     {
         if (Task.Status == EumTaskType.None)
         {
             Task.SetClient(client: client);
             Task.Data  = Data;
             ActivateAt = DateTime.Now;
-            return IocManager.GetService<ITaskGroupRepository>().SaveAsync(taskGroupDO: this);
+            IocManager.GetService<ITaskGroupRepository>().Save(taskGroupDO: this);
         }
-        return System.Threading.Tasks.Task.FromResult(0);
     }
 
     /// <summary>
     ///     检测进行中状态的任务
     /// </summary>
-    public async Task CheckClientOffline()
+    public void CheckClientOffline()
     {
         if (Task == null)
         {
-            await CreateTask();
+            CreateTask();
             return;
         }
 
@@ -386,7 +386,7 @@ public class TaskGroupDO
                 await FinishAsync();
                 break;
             default:
-                await IocManager.GetService<ITaskGroupRepository>().SaveAsync(taskGroupDO: this);
+                IocManager.GetService<ITaskGroupRepository>().Save(taskGroupDO: this);
                 break;
         }
     }

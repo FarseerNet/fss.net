@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Collections.Pooled;
 using FS.Core;
+using FS.Core.Abstract.Data;
 using FS.DI;
 using FSS.Domain.Tasks.TaskGroup.Enum;
 using FSS.Infrastructure.Repository.Context;
@@ -35,7 +37,7 @@ public class TaskAgent : ISingletonDependency
     /// <summary>
     ///     获取指定任务组执行成功的任务列表
     /// </summary>
-    public Task<List<TaskPO>> ToFinishListAsync(int groupId, int top) => MysqlContext.Data.Task.Where(where: o => o.TaskGroupId == groupId && (o.Status == EumTaskType.Success || o.Status == EumTaskType.Fail)).Desc(desc: o => o.CreateAt).ToListAsync(top: top);
+    public Task<PooledList<TaskPO>> ToFinishListAsync(int groupId, int top) => MysqlContext.Data.Task.Where(where: o => o.TaskGroupId == groupId && (o.Status == EumTaskType.Success || o.Status == EumTaskType.Fail)).Desc(desc: o => o.CreateAt).ToListAsync(top: top);
 
     /// <summary>
     ///     获取已完成的任务列表
@@ -55,7 +57,7 @@ public class TaskAgent : ISingletonDependency
     /// <summary>
     ///     取前100条的运行速度
     /// </summary>
-    public Task<List<long>> ToSpeedListAsync(int taskGroupId) => MysqlContext.Data.Task.Where(where: o => o.TaskGroupId == taskGroupId && o.Status == EumTaskType.Success).Desc(desc: o => o.CreateAt).ToSelectListAsync(top: 100, select: o => o.RunSpeed.GetValueOrDefault());
+    public Task<PooledList<long>> ToSpeedListAsync(int taskGroupId) => MysqlContext.Data.Task.Where(where: o => o.TaskGroupId == taskGroupId && o.Status == EumTaskType.Success).Desc(desc: o => o.CreateAt).ToSelectListAsync(top: 100, select: o => o.RunSpeed.GetValueOrDefault());
 
     /// <summary>
     ///     今日执行失败数量

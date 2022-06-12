@@ -24,14 +24,14 @@ public class CheckFinishStatusService : BackgroundServiceTrace
             var dicTaskGroup = await TaskGroupService.ToListAsync();
 
             // 只检测Enable状态的任务组
-            foreach (var taskGroupId in dicTaskGroup.Where(predicate: o => o.IsEnable).Select(o=>o.Id))
+            foreach (var taskGroupId in dicTaskGroup.Where(predicate: o => o.IsEnable).Select(o => o.Id))
             {
                 var taskGroup = await TaskGroupRepository.ToEntityAsync(taskGroupId);
-                
+
                 // 加个时间，来限制并发
                 if ((DateTime.Now - taskGroup.Task.RunAt).TotalSeconds < 30) continue;
 
-                await taskGroup.CreateTask();
+                taskGroup.CreateTask();
                 await Task.Delay(millisecondsDelay: 200, cancellationToken: stoppingToken);
             }
             await Task.Delay(delay: TimeSpan.FromSeconds(value: 30), cancellationToken: stoppingToken);

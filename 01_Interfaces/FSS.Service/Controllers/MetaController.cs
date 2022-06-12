@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Collections.Pooled;
 using FS.Core;
+using FS.Core.Abstract.Data;
 using FS.Core.Net;
 using FS.Extends;
 using FSS.Application.Clients.Client;
@@ -33,11 +35,10 @@ public class MetaController : ControllerBase
     /// </summary>
     [HttpPost]
     [Route(template: "GetClientList")]
-    public async Task<ApiResponseJson<List<ClientDTO>>> GetClientList()
+    public Task<ApiResponseJson<List<ClientDTO>>> GetClientList()
     {
         // 取出全局客户端列表
-        var lst = await ClientApp.ToListAsync();
-        return await ApiResponseJson<List<ClientDTO>>.SuccessAsync(data: lst);
+        return ApiResponseJson<List<ClientDTO>>.SuccessAsync(data: ClientApp.ToList());
     }
 
     /// <summary>
@@ -48,8 +49,7 @@ public class MetaController : ControllerBase
     public async Task<ApiResponseJson<long>> GetClientCount()
     {
         // 取出全局客户端列表
-        var count = await ClientApp.GetCountAsync();
-        return await ApiResponseJson<long>.SuccessAsync(data: count);
+        return await ApiResponseJson<long>.SuccessAsync(data: ClientApp.GetCount());
     }
 
     /// <summary>
@@ -101,10 +101,10 @@ public class MetaController : ControllerBase
     /// </summary>
     [HttpPost]
     [Route(template: "GetTaskGroupList")]
-    public async Task<ApiResponseJson<List<TaskGroupDTO>>> GetTaskGroupList()
+    public async Task<ApiResponseJson<PooledList<TaskGroupDTO>>> GetTaskGroupList()
     {
         var lst = await TaskQueryApp.ToListAsync().MapAsync<TaskGroupDTO, TaskGroupDO>();
-        return await ApiResponseJson<List<TaskGroupDTO>>.SuccessAsync(data: lst);
+        return await ApiResponseJson<PooledList<TaskGroupDTO>>.SuccessAsync(data: lst);
     }
 
     /// <summary>

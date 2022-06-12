@@ -1,4 +1,4 @@
-using FS.Core;
+using FS.Core.Abstract.Data;
 using FS.DI;
 using Microsoft.Extensions.Logging;
 

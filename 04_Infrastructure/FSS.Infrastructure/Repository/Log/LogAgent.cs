@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FS.Core;
+using FS.Core.Abstract.Data;
 using FS.DI;
 using FSS.Infrastructure.Repository.Context;
 using FSS.Infrastructure.Repository.Log.Model;

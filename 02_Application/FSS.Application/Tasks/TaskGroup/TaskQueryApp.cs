@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Collections.Pooled;
 using FS.Core;
+using FS.Core.Abstract.Data;
 using FS.DI;
 using FS.Extends;
 using FSS.Application.Tasks.TaskGroup.Entity;
@@ -10,6 +12,7 @@ using FSS.Domain.Tasks.TaskGroup;
 using FSS.Domain.Tasks.TaskGroup.Entity;
 using FSS.Domain.Tasks.TaskGroup.Enum;
 using FSS.Domain.Tasks.TaskGroup.Repository;
+using Mapster;
 
 namespace FSS.Application.Tasks.TaskGroup;
 
@@ -27,7 +30,7 @@ public class TaskQueryApp : ISingletonDependency
     /// <summary>
     ///     获取所有任务组中的任务
     /// </summary>
-    public Task<List<TaskGroupDO>> ToListAsync() => TaskGroupService.ToListAsync();
+    public Task<PooledList<TaskGroupDO>> ToListAsync() => TaskGroupService.ToListAsync();
 
     /// <summary>
     ///     今日执行失败数量
@@ -37,7 +40,7 @@ public class TaskQueryApp : ISingletonDependency
     /// <summary>
     ///     获取任务组数量
     /// </summary>
-    public Task<long> GetTaskGroupCount() => TaskGroupRepository.GetTaskGroupCountAsync();
+    public Task<int> GetTaskGroupCount() => TaskGroupRepository.GetTaskGroupCountAsync();
 
     /// <summary>
     ///     获取未执行的任务数量
@@ -59,7 +62,7 @@ public class TaskQueryApp : ISingletonDependency
     /// </summary>
     public async Task<List<TaskDTO>> GetTaskUnFinishList(int top)
     {
-        var lstClient = await ClientRepository.ToListAsync();
+        var lstClient = ClientRepository.ToList();
         if (lstClient.Count == 0) return new List<TaskDTO>();
 
         var taskUnFinishList = await TaskGroupRepository.GetTaskUnFinishList(lstClient.SelectMany(o => o.Jobs), top: top);
@@ -71,7 +74,7 @@ public class TaskQueryApp : ISingletonDependency
     /// </summary>
     public PageList<TaskDTO> GetEnableTaskList(EumTaskType? status, int pageSize, int pageIndex)
     {
-        var lst = TaskGroupRepository.GetEnableTaskList(status: status, pageSize: pageSize, pageIndex: pageIndex, totalCount: out var totalCount);
-        return new PageList<TaskDTO>(list: lst.Select(selector: o => (TaskDTO)o.Task), recordCount: totalCount);
+        var lst = TaskGroupRepository.GetEnableTaskList(status: status, pageSize: pageSize, pageIndex: pageIndex);
+        return new PageList<TaskDTO>(lst.List.Select(o => (TaskDTO)o).ToPooledList(), lst.RecordCount);
     }
 }

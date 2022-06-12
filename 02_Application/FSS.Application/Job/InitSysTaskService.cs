@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Collections.Pooled;
 using FS.Core.LinkTrack;
 using FS.DI;
 using FSS.Application.Tasks.TaskGroup.Entity;
@@ -49,7 +50,7 @@ public class InitSysTaskService : BackgroundServiceTrace
     /// <summary>
     ///     创建系统任务
     /// </summary>
-    private async Task CreateSysJob(List<TaskGroupDO> lstTaskGroup, string jobName, string caption, TimeSpan intervalMs, Dictionary<string, string> data = null)
+    private async Task CreateSysJob(PooledList<TaskGroupDO> lstTaskGroup, string jobName, string caption, TimeSpan intervalMs, Dictionary<string, string> data = null)
     {
         if (lstTaskGroup.All(predicate: o => o.JobName != jobName))
         {

@@ -1,3 +1,4 @@
+using Collections.Pooled;
 using FS.DI;
 using FSS.Domain.Tasks.TaskGroup.Entity;
 using FSS.Domain.Tasks.TaskGroup.Repository;
@@ -11,16 +12,16 @@ public class TaskGroupService : ISingletonDependency
     /// <summary>
     ///     获取所有任务组中的任务
     /// </summary>
-    public async Task<List<TaskGroupDO>> ToListAsync()
+    public async Task<PooledList<TaskGroupDO>> ToListAsync()
     {
         var lstTaskGroup = await TaskGroupRepository.ToListAsync();
 
         foreach (var taskGroupPO in lstTaskGroup)
             if (taskGroupPO.Task == null)
-                await taskGroupPO.CreateTask();
+                taskGroupPO.CreateTask();
         return lstTaskGroup;
     }
-    
+
 
     /// <summary>
     ///     计算平均耗时
@@ -28,13 +29,13 @@ public class TaskGroupService : ISingletonDependency
     public async Task UpdateAvgSpeed(int taskGroupId)
     {
         var speedList   = await IocManager.GetService<ITaskGroupRepository>().ToTaskSpeedListAsync(taskGroupId: taskGroupId);
-        var runSpeedAvg = new TaskSpeed(speedList: speedList).GetAvgSpeed();
-        
+        var runSpeedAvg = new TaskSpeed(speedList).GetAvgSpeed();
+
         if (runSpeedAvg > 0)
         {
             var taskGroup = await TaskGroupRepository.ToEntityAsync(taskGroupId);
             taskGroup.RunSpeedAvg = runSpeedAvg;
-            await IocManager.GetService<ITaskGroupRepository>().SaveAsync(taskGroup);
+            IocManager.GetService<ITaskGroupRepository>().Save(taskGroup);
         }
     }
 }

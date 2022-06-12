@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using FS.Core.Job;
+using FS.Core.Abstract.Fss;
 using FS.Fss;
 using FSS.Domain.Client.Clients;
 
@@ -12,9 +12,9 @@ namespace FSS.Application.Job;
 public class CheckClientOfflineJob : IFssJob
 {
     public ClientService ClientService { get; set; }
-    public async Task<bool> Execute(IFssContext context)
+    public Task<bool> Execute(IFssContext context)
     {
-        await ClientService.CheckTimeoutAsync();
-        return true;
+        ClientService.CheckTimeout();
+        return Task.FromResult(true);
     }
 }

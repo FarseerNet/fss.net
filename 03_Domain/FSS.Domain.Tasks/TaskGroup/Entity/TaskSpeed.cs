@@ -8,9 +8,9 @@ public class TaskSpeed
     /// <summary>
     ///     任务的所有执行速度
     /// </summary>
-    private readonly List<long> _speedList;
+    private readonly IList<long> _speedList;
 
-    public TaskSpeed(List<long> speedList)
+    public TaskSpeed(IList<long> speedList)
     {
         _speedList = speedList;
     }

@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using FS.Core;
+using FS.Core.Abstract.Data;
 using FS.DI;
 using FS.Extends;
 using FSS.Application.Log.TaskLog.Entity;

@@ -11,13 +11,13 @@ public class ClientService : ISingletonDependency
     /// <summary>
     ///     检查超时离线的客户端
     /// </summary>
-    public async Task CheckTimeoutAsync()
+    public void CheckTimeout()
     {
-        var lst = await ClientRepository.ToListAsync();
+        var lst = ClientRepository.ToList();
         // 心跳大于1分钟，认为已经下线了
         foreach (var client in lst.Where(client => (DateTime.Now - client.ActivateAt).TotalMinutes >= 1))
         {
-            await client.RemoveAsync();
+            client.Remove();
             IocManager.GetService<IClientOfflinePublish>().Publish(sender: this, message: client);
         }
     }

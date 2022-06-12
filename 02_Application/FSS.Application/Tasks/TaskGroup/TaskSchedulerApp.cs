@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Collections.Pooled;
 using FS.DI;
 using FS.Extends;
 using FSS.Application.Clients.Client.Entity;
@@ -17,10 +18,10 @@ public class TaskSchedulerApp : ISingletonDependency
     /// <summary>
     ///     任务调度
     /// </summary>
-    public Task<List<TaskDTO>> TaskSchedulerAsync(ClientDTO client, int requestTaskCount)
+    public Task<PooledList<TaskDTO>> TaskSchedulerAsync(ClientDTO client, int requestTaskCount)
     {
         if (requestTaskCount == 0) requestTaskCount = 3;
 
-        return TaskGroupRepository.GetCanSchedulerTaskGroup(jobsName: client.Jobs, ts: TimeSpan.FromSeconds(value: 15), count: requestTaskCount, client).MapAsync<TaskDTO, TaskDO>();
+        return TaskGroupRepository.GetCanSchedulerTaskGroup(jobsName: client.Jobs, ts: TimeSpan.FromSeconds(value: 15), count: requestTaskCount, client: client).MapAsync<TaskDTO, TaskDO>();
     }
 }
