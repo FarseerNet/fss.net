@@ -8,7 +8,6 @@ namespace FSS.Application.Log.TaskLog.Entity;
 /// <summary>
 ///     运行日志
 /// </summary>
-[Map(typeof(TaskLogDO))]
 public class TaskLogDTO
 {
     /// <summary>

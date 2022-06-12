@@ -63,14 +63,14 @@ public class TaskGroupRepository : ITaskGroupRepository
     public async Task<PooledList<TaskGroupDO>> ToListAsync(long clientId)
     {
         var lstTask = await ToListAsync();
-        return lstTask.FindAll(match: o => o.Task != null && o.Task.Client != null && o.Task.Client.ClientId == clientId && o.Task.StartAt < DateTime.Now);
+        return lstTask.FindAll(match: o => o.Task != null && o.Task.Client.Id == clientId && o.Task.StartAt < DateTime.Now);
     }
 
     public Task<int> TodayFailCountAsync() => TaskAgent.TodayFailCountAsync();
 
     public Task<PooledList<long>> ToTaskSpeedListAsync(int taskGroupId) => TaskAgent.ToSpeedListAsync(taskGroupId: taskGroupId);
 
-    public Task<PooledList<TaskDO>> ToFinishListAsync(int taskGroupId, int top) => TaskAgent.ToFinishListAsync(groupId: taskGroupId, top: top).MapAsync(mapRule: TaskPO.MapToDO);
+    public Task<PooledList<TaskDO>> ToFinishListAsync(int taskGroupId, int top) => TaskAgent.ToFinishListAsync(groupId: taskGroupId, top: top).MapAsync<TaskDO, TaskPO>();
 
     public void AddTask(TaskDO taskDO) => TaskAgent.AddToDbAsync(taskDO);
 
@@ -90,7 +90,7 @@ public class TaskGroupRepository : ITaskGroupRepository
             if (!locker.TryLock()) return new PooledList<TaskDO>();
 
             var lstTaskGroup = await ToListAsync();
-            lstTaskGroup = lstTaskGroup.Where(predicate: o => o.IsEnable && jobsName.Contains(value: o.JobName) && o.Task != null && o.Task.Status == EumTaskType.None && o.Task.StartAt < DateTime.Now.Add(value: ts) && o.Task.Client?.ClientId == 0).OrderBy(keySelector: o => o.Task.StartAt).Take(count: count).ToPooledList();
+            lstTaskGroup = lstTaskGroup.Where(predicate: o => o.IsEnable && jobsName.Contains(value: o.JobName) && o.Task != null && o.Task.Status == EumTaskType.None && o.Task.StartAt < DateTime.Now.Add(value: ts) && o.Task.Client.Id == 0).OrderBy(keySelector: o => o.Task.StartAt).Take(count: count).ToPooledList();
 
             var lst = new PooledList<TaskDO>();
             foreach (var taskGroup in lstTaskGroup)
@@ -99,7 +99,7 @@ public class TaskGroupRepository : ITaskGroupRepository
                 taskGroup.SchedulerAsync(client: client);
                 Save(taskGroup);
                 // 如果不相等，说明被其它客户端拿了
-                if (taskGroup.Task.Client.ClientId == client.ClientId) lst.Add(item: taskGroup.Task);
+                if (taskGroup.Task.Client.Id == client.Id) lst.Add(item: taskGroup.Task);
             }
             return lst;
         }
@@ -135,12 +135,12 @@ public class TaskGroupRepository : ITaskGroupRepository
     /// <summary>
     ///     获取指定任务组的任务列表（FOPS）
     /// </summary>
-    public Task<PageList<TaskDO>> ToListAsync(int groupId, int pageSize, int pageIndex) => TaskAgent.ToListAsync(groupId: groupId, pageSize: pageSize, pageIndex: pageIndex).MapAsync(mapRule: TaskPO.MapToDO);
+    public Task<PageList<TaskDO>> ToListAsync(int groupId, int pageSize, int pageIndex) => TaskAgent.ToListAsync(groupId: groupId, pageSize: pageSize, pageIndex: pageIndex).MapAsync<TaskDO, TaskPO>();
 
     /// <summary>
     ///     获取已完成的任务列表
     /// </summary>
-    public Task<PageList<TaskDO>> ToFinishPageListAsync(int pageSize, int pageIndex) => TaskAgent.ToFinishPageListAsync(pageSize: pageSize, pageIndex: pageIndex).MapAsync(mapRule: TaskPO.MapToDO);
+    public Task<PageList<TaskDO>> ToFinishPageListAsync(int pageSize, int pageIndex) => TaskAgent.ToFinishPageListAsync(pageSize: pageSize, pageIndex: pageIndex).MapAsync<TaskDO, TaskPO>();
 
     /// <summary>
     ///     获取在用的任务组

@@ -35,7 +35,7 @@ public class TaskProcessApp : ISingletonDependency
             }
 
             // 不相等，说明被覆盖了（JOB请求慢了。被调度重新执行了）
-            if (taskGroup.Task.Client.ClientId > 0 && taskGroup.Task.Client.ClientId != client.Id) throw new RefuseException(message: $"任务： {taskGroup.Caption}（{taskGroup.JobName}） ，{taskGroup.Task.Client.ClientId}与本次请求的客户端{client.Id} 不一致，忽略本次请求");
+            if (taskGroup.Task.Client.Id > 0 && taskGroup.Task.Client.Id != client.Id) throw new RefuseException(message: $"任务： {taskGroup.Caption}（{taskGroup.JobName}） ，{taskGroup.Task.Client.Id}与本次请求的客户端{client.Id} 不一致，忽略本次请求");
 
             // 更新执行中状态
             taskGroup.Working(data: dto.Data, nextTimespan: dto.NextTimespan, progress: dto.Progress, status: dto.Status, runSpeed: dto.RunSpeed);

@@ -10,7 +10,6 @@ namespace FSS.Application.Tasks.TaskGroup.Entity;
 /// <summary>
 ///     任务组记录
 /// </summary>
-[Map(typeof(TaskGroupDO))]
 public class TaskGroupDTO
 {
     /// <summary>

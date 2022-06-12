@@ -1,5 +1,5 @@
 using FS.DI;
-using FSS.Domain.Tasks.TaskGroup.Publish;
+using FSS.Domain.Tasks.TaskGroup.Event;
 using FSS.Domain.Tasks.TaskGroup.Repository;
 
 namespace FSS.Domain.Tasks;

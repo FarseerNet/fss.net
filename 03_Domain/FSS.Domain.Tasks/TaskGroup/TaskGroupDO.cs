@@ -1,12 +1,10 @@
 using FS.Core.Exception;
-using FS.DI;
 using FS.Extends;
 using FS.Utils.Common;
 using FS.Utils.Component;
 using FSS.Domain.Tasks.TaskGroup.Entity;
 using FSS.Domain.Tasks.TaskGroup.Enum;
-using FSS.Domain.Tasks.TaskGroup.Publish;
-using FSS.Domain.Tasks.TaskGroup.Repository;
+using FSS.Domain.Tasks.TaskGroup.Event;
 
 namespace FSS.Domain.Tasks.TaskGroup;
 

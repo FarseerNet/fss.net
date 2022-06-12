@@ -1,7 +1,6 @@
 using System;
 using FS.Core.Mapping.Attribute;
 using FS.Extends;
-using FS.Mapper;
 using FSS.Domain.Tasks.TaskGroup.Entity;
 using FSS.Domain.Tasks.TaskGroup.Enum;
 
@@ -10,23 +9,8 @@ namespace FSS.Infrastructure.Repository.Tasks.Model;
 /// <summary>
 ///     任务记录
 /// </summary>
-[Map(typeof(TaskDO))]
 public class TaskPO
 {
-
-
-    public static readonly Action<TaskPO, TaskDO> MapToPO = (po, taskDO) =>
-    {
-        po.ClientId   = taskDO.Client.ClientId;
-        po.ClientName = taskDO.Client.ClientName;
-        po.ClientIp   = taskDO.Client.ClientIp;
-    };
-
-
-    public static readonly Action<TaskDO, TaskPO> MapToDO = (taskDO, po) =>
-    {
-        taskDO.Client = new ClientVO(clientId: po.ClientId, clientIp: po.ClientIp, clientName: po.ClientName);
-    };
     /// <summary>
     ///     主键
     /// </summary>
@@ -99,6 +83,7 @@ public class TaskPO
     ///     调度时间
     /// </summary>
     [Field(Name = "scheduler_at")] public DateTime? SchedulerAt { get; set; }
-    public static implicit operator TaskPO(TaskDO taskDO) => taskDO.Map(mapRule: MapToPO);
-    public static implicit operator TaskDO(TaskPO po)     => po.Map(mapRule: MapToDO);
+
+    public static implicit operator TaskPO(TaskDO task) => task.Map<TaskPO>();
+    public static implicit operator TaskDO(TaskPO po)   => po.Map<TaskDO>();
 }

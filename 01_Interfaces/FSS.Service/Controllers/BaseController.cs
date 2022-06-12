@@ -16,8 +16,8 @@ public class BaseController : ControllerBase
         HttpContextAccessor = httpContextAccessor;
         Client = new ClientDTO
         {
-            ClientIp   = HttpContextAccessor.HttpContext.Request.Headers[key: "ClientIp"].ToString().Split(separator: ',')[0].Trim(),
-            ClientName = HttpContextAccessor.HttpContext.Request.Headers[key: "ClientName"],
+            Ip   = HttpContextAccessor.HttpContext.Request.Headers[key: "ClientIp"].ToString().Split(separator: ',')[0].Trim(),
+            Name = HttpContextAccessor.HttpContext.Request.Headers[key: "ClientName"],
             Id         = HttpContextAccessor.HttpContext.Request.Headers[key: "ClientId"].ToString().ConvertType(defValue: 0L),
             Jobs       = HttpContextAccessor.HttpContext.Request.Headers[key: "ClientJobs"].ToString().Split(separator: ','),
             ActivateAt = DateTime.Now

@@ -62,12 +62,12 @@ public class TaskQueryApp : ISingletonDependency
     /// <summary>
     ///     获取指定任务组的任务列表（FOPS）
     /// </summary>
-    public Task<PageList<TaskDTO>> ToListAsync(int groupId, int pageSize, int pageIndex) => TaskGroupRepository.ToListAsync(groupId: groupId, pageSize: pageSize, pageIndex: pageIndex).MapAsync(mapRule: TaskDTO.MapToDTO);
+    public Task<PageList<TaskDTO>> ToListAsync(int groupId, int pageSize, int pageIndex) => TaskGroupRepository.ToListAsync(groupId: groupId, pageSize: pageSize, pageIndex: pageIndex).MapAsync<TaskDTO, TaskDO>();
 
     /// <summary>
     ///     获取已完成的任务列表
     /// </summary>
-    public Task<PageList<TaskDTO>> ToFinishPageListAsync(int pageSize, int pageIndex) => TaskGroupRepository.ToFinishPageListAsync(pageSize: pageSize, pageIndex: pageIndex).MapAsync(mapRule: TaskDTO.MapToDTO);
+    public Task<PageList<TaskDTO>> ToFinishPageListAsync(int pageSize, int pageIndex) => TaskGroupRepository.ToFinishPageListAsync(pageSize: pageSize, pageIndex: pageIndex).MapAsync<TaskDTO, TaskDO>();
 
     /// <summary>
     ///     获取进行中的任务

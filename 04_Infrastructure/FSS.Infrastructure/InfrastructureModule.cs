@@ -9,8 +9,11 @@ using FS.LinkTrack;
 using FS.Mapper;
 using FS.Modules;
 using FS.MQ.Queue;
+using FSS.Application.Tasks.TaskGroup.Entity;
 using FSS.Domain.Client.Clients;
 using FSS.Domain.Tasks.TaskGroup;
+using FSS.Domain.Tasks.TaskGroup.Entity;
+using FSS.Infrastructure.Repository.Tasks.Model;
 
 namespace FSS.Infrastructure;
 
@@ -40,5 +43,8 @@ public class InfrastructureModule : FarseerModule
         IocManager.RegisterAssemblyByConvention(type: GetType());
         IocManager.Resolve<ICacheServices>().SetProfilesInRedis<TaskGroupDO>("FSS_TaskGroup","default");
         IocManager.Resolve<ICacheServices>().SetProfilesInRedis<ClientDO>("FSS_ClientList","default");
+        
+        MapConfig<TaskPO, TaskDO>.Set();
+        MapConfig<TaskDO, TaskDTO>.Set();
     }
 }

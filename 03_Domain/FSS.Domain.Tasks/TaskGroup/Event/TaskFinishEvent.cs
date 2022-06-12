@@ -1,7 +1,7 @@
 using FS.Core.DomainDriven.DomainEvent;
 using FSS.Domain.Tasks.TaskGroup.Entity;
 
-namespace FSS.Domain.Tasks.TaskGroup.Publish;
+namespace FSS.Domain.Tasks.TaskGroup.Event;
 
 /// <summary>
 /// 任务完成事件

@@ -6,7 +6,6 @@ using FSS.Domain.Tasks.TaskGroup.Entity;
 
 namespace FSS.Application.Clients.Client.Entity;
 
-[Map(typeof(ClientDO), typeof(ClientVO))]
 public class ClientDTO
 {
     /// <summary>
@@ -16,11 +15,11 @@ public class ClientDTO
     /// <summary>
     ///     客户端IP
     /// </summary>
-    public string ClientIp { get; set; }
+    public string Ip { get; set; }
     /// <summary>
     ///     客户端名称
     /// </summary>
-    public string ClientName { get; set; }
+    public string Name { get; set; }
     /// <summary>
     ///     客户端能执行的任务
     /// </summary>
@@ -31,5 +30,5 @@ public class ClientDTO
     public DateTime ActivateAt { get; set; }
 
     public static implicit operator ClientDO(ClientDTO dto) => dto.Map<ClientDO>();
-    public static implicit operator ClientVO(ClientDTO                            dto) => new(clientId: dto.Id, clientIp: dto.ClientIp, clientName: dto.ClientName);
+    public static implicit operator ClientVO(ClientDTO dto) => dto.Map<ClientVO>();
 }

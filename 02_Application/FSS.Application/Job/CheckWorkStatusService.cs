@@ -49,10 +49,10 @@ public class CheckWorkStatusService : BackgroundServiceTrace
             }
 
             // 任务不存在
-            if (taskGroup.Task != null && taskGroup.Task.Client.ClientId > 0)
+            if (taskGroup.Task != null && taskGroup.Task.Client.Id > 0)
             {
-                var client = ClientRepository.ToEntity(clientId: taskGroup.Task.Client.ClientId);
-                if (client == null) throw new RefuseException(message: $"【客户端不存在】{taskGroup.Task.Client.ClientId}，强制下线客户端");
+                var client = ClientRepository.ToEntity(clientId: taskGroup.Task.Client.Id);
+                if (client == null) throw new RefuseException(message: $"【客户端不存在】{taskGroup.Task.Client.Id}，强制下线客户端");
             }
 
             // 检查任务开启状态

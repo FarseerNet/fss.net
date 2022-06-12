@@ -12,7 +12,6 @@ namespace FSS.Infrastructure.Repository.TaskGroup.Model;
 /// <summary>
 ///     任务组记录
 /// </summary>
-[Map(typeof(TaskGroupDO))]
 public class TaskGroupPO
 {
     /// <summary>

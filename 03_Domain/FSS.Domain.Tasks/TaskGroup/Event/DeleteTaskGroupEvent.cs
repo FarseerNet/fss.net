@@ -1,6 +1,6 @@
 using FS.Core.DomainDriven.DomainEvent;
 
-namespace FSS.Domain.Tasks.TaskGroup.Publish;
+namespace FSS.Domain.Tasks.TaskGroup.Event;
 
 /// <summary>
 /// 删除任务组事件

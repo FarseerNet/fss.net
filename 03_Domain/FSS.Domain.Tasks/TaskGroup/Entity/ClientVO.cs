@@ -3,33 +3,12 @@ namespace FSS.Domain.Tasks.TaskGroup.Entity;
 /// <summary>
 ///     客户端
 /// </summary>
-public class ClientVO
-{
-    public ClientVO()
-    {
-        ClientIp   = "";
-        ClientName = "";
-    }
-
-    public ClientVO(long clientId, string clientIp, string clientName)
-    {
-        ClientId   = clientId;
-        ClientIp   = clientIp;
-        ClientName = clientName;
-    }
-
-    /// <summary>
-    ///     客户端Id
-    /// </summary>
-    public long ClientId { get; set; }
-
-    /// <summary>
-    ///     客户端IP
-    /// </summary>
-    public string ClientIp { get; set; }
-
-    /// <summary>
-    ///     客户端名称
-    /// </summary>
-    public string ClientName { get; set; }
-}
+/// <param name="Id">客户端Id</param>
+/// <param name="Ip">客户端IP</param>
+/// <param name="Name">客户端名称</param>
+public readonly record struct ClientVO
+(
+    long   Id,
+    string Ip,
+    string Name
+);
