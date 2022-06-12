@@ -1,7 +1,12 @@
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 using FS.Core.Abstract.Fss;
+using FS.DI;
 using FS.Fss;
 using FSS.Domain.Client.Clients;
+using FSS.Domain.Client.Clients.Publish;
+using FSS.Domain.Client.Clients.Repository;
 
 namespace FSS.Application.Job;
 
@@ -11,10 +16,19 @@ namespace FSS.Application.Job;
 [FssJob(Name = "FSS.CheckClientOffline")]
 public class CheckClientOfflineJob : IFssJob
 {
-    public ClientService ClientService { get; set; }
+    public IClientRepository ClientRepository { get; set; }
+
     public Task<bool> Execute(IFssContext context)
     {
-        ClientService.CheckTimeout();
+        var lst = ClientRepository.ToList();
+        
+        // 心跳大于1分钟，认为已经下线了
+        foreach (var client in lst.Where(client => client.IsTimeout()))
+        {
+            IocManager.GetService<IClientRepository>().RemoveClient(client.Id);
+            new ClientOfflinePublish(client).PublishEvent();
+        }
+
         return Task.FromResult(true);
     }
 }

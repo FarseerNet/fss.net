@@ -15,6 +15,22 @@ namespace FSS.Domain.Tasks.TaskGroup;
 /// </summary>
 public class TaskGroupDO
 {
+    public TaskGroupDO() { }
+
+    /// <summary>
+    /// 复制新的任务组
+    /// </summary>
+    public TaskGroupDO(TaskGroupDO copySource)
+    {
+        Caption    = copySource.Caption + "复制";
+        JobName    = copySource.JobName;
+        Data       = copySource.Data;
+        IntervalMs = copySource.IntervalMs;
+        Cron       = copySource.Cron;
+        IsEnable   = copySource.IsEnable;
+    }
+
+
     /// <summary>
     ///     主键
     /// </summary>
@@ -85,9 +101,9 @@ public class TaskGroupDO
     public int RunCount { get; set; }
 
     /// <summary>
-    ///     添加任务组信息
+    ///  保存任务组信息前，检查状态
     /// </summary>
-    public async Task<int> AddAsync()
+    public void CheckInterval()
     {
         // 是否为数字
         if (IsType.IsInt(number: Cron))
@@ -111,79 +127,46 @@ public class TaskGroupDO
         Caption = Caption.Trim();
         JobName = JobName.Trim();
         Cron    = Cron.Trim();
-
-
-        // 添加到数据库
-        await IocManager.GetService<ITaskGroupRepository>().AddAsync(taskGroupDO: this);
-
-        // 创建任务
-        CreateTask();
-        return Id;
     }
 
     /// <summary>
-    ///     复制任务组
+    /// 修改任务状态为不可用
     /// </summary>
-    public async Task<int> CopyAsync()
+    public void Disable()
     {
-        Caption     += "复制";
-        Id          =  0;
-        ActivateAt  =  DateTime.MinValue;
-        NextAt      =  DateTime.MinValue;
-        LastRunAt   =  DateTime.MinValue;
-        RunSpeedAvg =  0;
-
-        await IocManager.GetService<ITaskGroupRepository>().AddAsync(taskGroupDO: this);
-        return Id;
+        IsEnable = false;
     }
 
     /// <summary>
-    ///     删除任务组
+    /// 修改了任务组信息
     /// </summary>
-    public async Task DeleteAsync()
+    public void Set(string jobName, string caption, Dictionary<string, string> data, DateTime startAt)
     {
-        // 如果任务组是开启状态，则需要先暂定任务组
-        if (IsEnable)
-        {
-            IsEnable = false;
-            IocManager.GetService<ITaskGroupRepository>().Save(taskGroupDO: this);
-        }
-
-        await IocManager.GetService<ITaskGroupRepository>().DeleteAsync(taskGroupId: Id);
-
-        // 发布删除任务组事件
-        IocManager.GetService<IPublishDeleteTaskGroup>().Publish(sender: this, taskGroupId: Id);
-    }
-
-    /// <summary>
-    ///     保存
-    /// </summary>
-    public async Task SaveAsync(TaskGroupDO newTaskGroupDO)
-    {
-        var taskGroupRepository = IocManager.GetService<ITaskGroupRepository>();
-
         // 更新了JobName，则要立即更新Task的JobName
-        if (JobName != newTaskGroupDO.JobName)
-            if (Task.Status == EumTaskType.None)
-                Task.JobName = newTaskGroupDO.JobName;
+        if (JobName != jobName && Task.Status == EumTaskType.None) Task.SetJobName(jobName);
+        JobName = jobName;
+        Caption = caption;
+        Data    = data;
+        StartAt = startAt;
+    }
 
-        Caption = newTaskGroupDO.Caption;
-        JobName = newTaskGroupDO.JobName;
-        Data    = newTaskGroupDO.Data;
-        StartAt = newTaskGroupDO.StartAt;
-
+    /// <summary>
+    /// 修改了任务的时间间隔
+    /// </summary>
+    public void Set(string strCron, long intervalMs)
+    {
         // 是否为数字
-        if (Cron != newTaskGroupDO.Cron || IntervalMs != newTaskGroupDO.IntervalMs)
+        if (Cron != strCron || IntervalMs != intervalMs)
         {
-            if (IsType.IsInt(number: newTaskGroupDO.Cron))
+            if (IsType.IsInt(strCron))
             {
-                IntervalMs = newTaskGroupDO.Cron.ConvertType(defValue: 0L);
+                IntervalMs = strCron.ConvertType(defValue: 0L);
                 Cron       = "";
                 NextAt     = DateTime.Now.AddMilliseconds(value: IntervalMs);
             }
             else
             {
-                var cron = new Cron(expression: newTaskGroupDO.Cron);
+                var cron = new Cron(expression: strCron);
                 if (cron.Parse())
                 {
                     IntervalMs = 0;
@@ -193,24 +176,18 @@ public class TaskGroupDO
                     throw new RefuseException(message: "Cron格式错误");
             }
         }
-
-        // 停止了任务，需要把任务取消掉
-        if (IsEnable != newTaskGroupDO.IsEnable)
-            await SetEnable(enable: newTaskGroupDO.IsEnable);
-        else
-            taskGroupRepository.Save(taskGroupDO: this);
     }
 
     /// <summary>
     ///     更改启用状态
     /// </summary>
-    public async Task SetEnable(bool enable)
+    public void SetEnable(bool enable)
     {
         // 停止了任务，需要把任务取消掉
         if (IsEnable && !enable)
         {
             IsEnable = enable;
-            await CancelAsync();
+            Cancel();
         }
         // 重新开启了任务
         else if (!IsEnable && enable)
@@ -221,36 +198,46 @@ public class TaskGroupDO
                 // 进行中的任务，要先取消
                 case EumTaskType.Scheduler:
                 case EumTaskType.Working:
-                    await CancelAsync();
+                    Cancel();
                     break;
                 // 未开始的任务，直接保存
                 case EumTaskType.None:
                 case EumTaskType.Fail:
                 case EumTaskType.Success:
-                    await FinishAsync();
+                    Finish();
                     break;
             }
         }
-
     }
 
     /// <summary>
     ///     取消任务
     /// </summary>
-    public async Task CancelAsync()
+    public void Cancel()
     {
-        if (Task != null) Task.Status = EumTaskType.Fail;
-
+        Task?.SetFail();
         // 这里不设置的话，下次执行时间，有可能还是将来的，导致如果设置错了时间的话，会一直等待原来设置错的时间
         NextAt = LastRunAt;
-
-        await FinishAsync();
+        // 设置下一次的执行时间
+        CalculateNextTime();
+        // 创建新的任务
+        CreateTask();
     }
 
     /// <summary>
     ///     保存Task（taskGroup必须是最新的）
     /// </summary>
-    public async Task FinishAsync()
+    public void Finish()
+    {
+        CalculateNextTime();
+        // 如果是停止状态，创建任务不会执行。则需要在这里进行保存
+        CreateTask();
+    }
+
+    /// <summary>
+    /// 任务完成后，计算下一次的时间
+    /// </summary>
+    public void CalculateNextTime()
     {
         // 本次的时间策略晚，则通过时间策略计算出来
         if (DateTime.Now > NextAt)
@@ -263,10 +250,6 @@ public class TaskGroupDO
             else // 没有找到设置下一次时间的设置，则默认30S执行一次
                 NextAt = DateTime.Now.AddSeconds(value: 30);
         }
-
-        // 如果是停止状态，创建任务不会执行。则需要在这里进行保存
-        if (!IsEnable) IocManager.GetService<ITaskGroupRepository>().Save(taskGroupDO: this);
-        else CreateTask();
     }
 
     /// <summary>
@@ -281,7 +264,11 @@ public class TaskGroupDO
         }
 
         if (Task != null && Task.Status != EumTaskType.Fail && Task.Status != EumTaskType.Success) return;
-        if (Task is { Status: EumTaskType.Success or EumTaskType.Fail }) Task.AddTask();
+        if (Task is { Status: EumTaskType.Success or EumTaskType.Fail })
+        {
+            // 任务完成，发布完成事件
+            new TaskFinishEvent(Task).PublishEvent();
+        }
 
         // 没查到时，自动创建一条对应的Task
         Task = new TaskDO
@@ -299,8 +286,6 @@ public class TaskGroupDO
             SchedulerAt = DateTime.Now,
             Data        = this.Data
         };
-
-        IocManager.GetService<ITaskGroupRepository>().Save(taskGroupDO: this);
     }
 
     /// <summary>
@@ -313,7 +298,6 @@ public class TaskGroupDO
             Task.SetClient(client: client);
             Task.Data  = Data;
             ActivateAt = DateTime.Now;
-            IocManager.GetService<ITaskGroupRepository>().Save(taskGroupDO: this);
         }
     }
 
@@ -322,12 +306,6 @@ public class TaskGroupDO
     /// </summary>
     public void CheckClientOffline()
     {
-        if (Task == null)
-        {
-            CreateTask();
-            return;
-        }
-
         if (Task.Status != EumTaskType.Scheduler && Task.Status != EumTaskType.Working) return;
 
         // 任务组活动时间大于1分钟，判定为客户端下线
@@ -356,9 +334,9 @@ public class TaskGroupDO
     }
 
     /// <summary>
-    ///     执行执行中
+    ///     执行中
     /// </summary>
-    public async Task Working(Dictionary<string, string> data, long nextTimespan, int progress, EumTaskType status, long runSpeed)
+    public void Working(Dictionary<string, string> data, long nextTimespan, int progress, EumTaskType status, long runSpeed)
     {
         // 数据库的状态处于调度状态，说明客户端第一次请求进来
         if (Task.Status == EumTaskType.Scheduler)
@@ -383,10 +361,7 @@ public class TaskGroupDO
         {
             case EumTaskType.Fail:
             case EumTaskType.Success:
-                await FinishAsync();
-                break;
-            default:
-                IocManager.GetService<ITaskGroupRepository>().Save(taskGroupDO: this);
+                Finish();
                 break;
         }
     }

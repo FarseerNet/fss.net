@@ -9,6 +9,19 @@ namespace FSS.Domain.Log.TaskLog;
 /// </summary>
 public class TaskLogDO
 {
+    public TaskLogDO() { }
+    public TaskLogDO(int taskGroupId, string jobName, string caption, LogLevel logLevel, string content)
+    {
+        TaskGroupId = taskGroupId;
+        Caption     = caption ?? "";
+        JobName     = jobName ?? "";
+        LogLevel    = logLevel;
+        Content     = content;
+        CreateAt    = DateTime.Now;
+        
+        if (LogLevel is LogLevel.Error or LogLevel.Warning) IocManager.Instance.Logger<TaskLogDO>().Log(logLevel: LogLevel, message: Content);
+    }
+
     /// <summary>
     ///     主键
     /// </summary>
@@ -49,10 +62,7 @@ public class TaskLogDO
     /// </summary>
     public void Add()
     {
-        if (LogLevel is LogLevel.Error or LogLevel.Warning) IocManager.Instance.Logger<TaskLogDO>().Log(logLevel: LogLevel, message: Content);
-        Caption  ??= "";
-        JobName  ??= "";
-        CreateAt =   DateTime.Now;
+        
 
         IocManager.GetService<ITaskLogRepository>().Add(taskLogDO: this);
     }

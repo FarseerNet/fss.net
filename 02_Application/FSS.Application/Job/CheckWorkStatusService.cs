@@ -29,33 +29,41 @@ public class CheckWorkStatusService : BackgroundServiceTrace
             var lstTask = await TaskGroupRepository.ToSchedulerWorkingListAsync();
             foreach (var taskGroupDO in lstTask)
             {
-                if (await CheckTaskGroup(taskGroupDO: taskGroupDO)) continue;
+                await CheckTaskGroup(taskGroup: taskGroupDO);
                 await Task.Delay(millisecondsDelay: 200, cancellationToken: stoppingToken);
             }
             await Task.Delay(delay: TimeSpan.FromSeconds(value: 30), cancellationToken: stoppingToken);
         }
     }
 
-    private async Task<bool> CheckTaskGroup(TaskGroupDO taskGroupDO)
+    private async Task CheckTaskGroup(TaskGroupDO taskGroup)
     {
         try
         {
-            taskGroupDO = await TaskGroupRepository.ToEntityAsync(taskGroupId: taskGroupDO.Id);
-            // 任务不存在
-            if (taskGroupDO.Task != null && taskGroupDO.Task.Client.ClientId > 0)
+            taskGroup = await TaskGroupRepository.ToEntityAsync(taskGroupId: taskGroup.Id);
+            if (taskGroup.Task == null)
             {
-                var client = ClientRepository.ToEntity(clientId: taskGroupDO.Task.Client.ClientId);
-                if (client == null) throw new RefuseException(message: $"【客户端不存在】{taskGroupDO.Task.Client.ClientId}，强制下线客户端");
+                taskGroup.CreateTask();
+                TaskGroupRepository.Save(taskGroup);
+                return;
+            }
+
+            // 任务不存在
+            if (taskGroup.Task != null && taskGroup.Task.Client.ClientId > 0)
+            {
+                var client = ClientRepository.ToEntity(clientId: taskGroup.Task.Client.ClientId);
+                if (client == null) throw new RefuseException(message: $"【客户端不存在】{taskGroup.Task.Client.ClientId}，强制下线客户端");
             }
 
             // 检查任务开启状态
-            taskGroupDO.CheckClientOffline();
+            taskGroup.CheckClientOffline();
         }
         catch (RefuseException e)
         {
-            TaskLogService.Add(taskGroupId: taskGroupDO.Id, jobName: taskGroupDO.JobName, caption: taskGroupDO.Caption, logLevel: LogLevel.Warning, content: e.Message);
-            await taskGroupDO.CancelAsync();
+            TaskLogService.Add(taskGroupId: taskGroup.Id, jobName: taskGroup.JobName, caption: taskGroup.Caption, logLevel: LogLevel.Warning, content: e.Message);
+            taskGroup.Cancel();
+            TaskGroupRepository.Save(taskGroup);
         }
-        return false;
+        return;
     }
 }

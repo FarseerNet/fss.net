@@ -23,11 +23,6 @@ public class TaskLogApp : ISingletonDependency
     public void Add(int taskGroupId, string jobName, string caption, LogLevel logLevel, string content) => TaskLogService.Add(taskGroupId: taskGroupId, jobName: jobName, caption: caption, logLevel: logLevel, content: content);
 
     /// <summary>
-    ///     添加日志记录
-    /// </summary>
-    public void Add(TaskGroupDO taskGroupDO, LogLevel logLevel, string content) => TaskLogService.Add(taskGroupId: taskGroupDO.Id, jobName: taskGroupDO.JobName, caption: taskGroupDO.Caption, logLevel: logLevel, content: content);
-
-    /// <summary>
     ///     获取日志
     /// </summary>
     public PageList<TaskLogDTO> GetList(string jobName, LogLevel? logLevel, int pageSize, int pageIndex) => TaskLogRepository.GetList(jobName: jobName, logLevel: logLevel, pageSize: pageSize, pageIndex: pageIndex).Map<TaskLogDTO>();

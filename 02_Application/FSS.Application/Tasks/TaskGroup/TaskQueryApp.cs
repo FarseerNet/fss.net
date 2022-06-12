@@ -18,7 +18,6 @@ namespace FSS.Application.Tasks.TaskGroup;
 
 public class TaskQueryApp : ISingletonDependency
 {
-    public TaskGroupService     TaskGroupService    { get; set; }
     public ITaskGroupRepository TaskGroupRepository { get; set; }
     public IClientRepository    ClientRepository    { get; set; }
 
@@ -30,7 +29,20 @@ public class TaskQueryApp : ISingletonDependency
     /// <summary>
     ///     获取所有任务组中的任务
     /// </summary>
-    public Task<PooledList<TaskGroupDO>> ToListAsync() => TaskGroupService.ToListAsync();
+    public async Task<PooledList<TaskGroupDO>> ToListAsync()
+    {
+        var lstTaskGroup = await TaskGroupRepository.ToListAsync();
+
+        foreach (var taskGroup in lstTaskGroup)
+        {
+            if (taskGroup.Task == null)
+            {
+                taskGroup.CreateTask();
+                TaskGroupRepository.Save(taskGroup);
+            }
+        }
+        return lstTaskGroup;
+    }
 
     /// <summary>
     ///     今日执行失败数量

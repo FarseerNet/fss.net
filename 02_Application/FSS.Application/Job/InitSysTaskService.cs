@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Collections.Pooled;
 using FS.Core.LinkTrack;
 using FS.DI;
+using FSS.Application.Tasks.TaskGroup;
 using FSS.Application.Tasks.TaskGroup.Entity;
 using FSS.Domain.Tasks.TaskGroup;
 using FSS.Domain.Tasks.TaskGroup.Entity;
@@ -21,19 +22,21 @@ public class InitSysTaskService : BackgroundServiceTrace
 {
     private readonly ILogger              _logger;
     private readonly ITaskGroupRepository _taskGroupRepository;
-    private readonly TaskGroupService     _taskGroupService;
+    private readonly TaskQueryApp         _taskQueryApp;
+    private readonly TaskGroupApp         TaskGroupApp;
 
     public InitSysTaskService(IIocManager ioc)
     {
         _logger              = ioc.Logger<InitSysTaskService>();
-        _taskGroupService    = ioc.Resolve<TaskGroupService>();
+        _taskQueryApp        = ioc.Resolve<TaskQueryApp>();
+        TaskGroupApp         = ioc.Resolve<TaskGroupApp>();
         _taskGroupRepository = ioc.Resolve<ITaskGroupRepository>();
     }
 
     protected override async Task ExecuteJobAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation(message: "正在读取所有任务组信息");
-        var lstTaskGroup = await _taskGroupService.ToListAsync();
+        var lstTaskGroup = await _taskQueryApp.ToListAsync();
 
         // 检查是否存在系统任务组
         await CreateSysJob(lstTaskGroup: lstTaskGroup, jobName: "FSS.ClearHisTask", caption: "清除历史任务", intervalMs: TimeSpan.FromHours(value: 1));
@@ -61,15 +64,17 @@ public class InitSysTaskService : BackgroundServiceTrace
                 Data    = data ?? new Dictionary<string, string>(), Cron = $"{(int)intervalMs.TotalMilliseconds}", StartAt = DateTime.Now, NextAt = DateTime.Now, ActivateAt = DateTime.Now, LastRunAt = DateTime.Now, IsEnable = true
             };
 
-            taskGroupDTO.Id = await ((TaskGroupDO)taskGroupDTO).AddAsync();
+            taskGroupDTO.Id = await TaskGroupApp.AddAsync(taskGroupDTO);
             lstTaskGroup.Add(item: taskGroupDTO);
         }
 
         foreach (var taskGroupVo in lstTaskGroup.FindAll(match: o => o.JobName == jobName && o.IsEnable == false))
         {
-            var taskGroupDO = await _taskGroupRepository.ToEntityAsync(taskGroupId: taskGroupVo.Id);
-            if (taskGroupDO == null) throw new Exception(message: "任务组不存在");
-            await taskGroupDO.SetEnable(enable: true);
+            var taskGroup = await _taskGroupRepository.ToEntityAsync(taskGroupId: taskGroupVo.Id);
+            if (taskGroup == null) throw new Exception(message: "任务组不存在");
+            
+            taskGroup.SetEnable(enable: true);
+            _taskGroupRepository.Save(taskGroup);
             taskGroupVo.IsEnable = true;
         }
     }

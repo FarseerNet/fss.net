@@ -35,6 +35,15 @@ public class TaskAgent : ISingletonDependency
     }
 
     /// <summary>
+    ///     将任务暂时写入redis集合，再通过job集中写入数据库
+    /// </summary>
+    public Task<int> AddToDbAsync(TaskPO task)
+    {
+        task.Id = null;
+        return MysqlContext.Data.Task.InsertAsync(task);
+    }
+
+    /// <summary>
     ///     获取指定任务组执行成功的任务列表
     /// </summary>
     public Task<PooledList<TaskPO>> ToFinishListAsync(int groupId, int top) => MysqlContext.Data.Task.Where(where: o => o.TaskGroupId == groupId && (o.Status == EumTaskType.Success || o.Status == EumTaskType.Fail)).Desc(desc: o => o.CreateAt).ToListAsync(top: top);

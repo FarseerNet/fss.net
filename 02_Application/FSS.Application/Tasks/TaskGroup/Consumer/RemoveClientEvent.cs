@@ -22,7 +22,11 @@ public class RemoveClientEvent : IListenerMessage
         // 读取当前所有任务组的任务
         var lstTaskGroup    = await TaskGroupRepository.ToListAsync();
         var cancelTaskGroup = lstTaskGroup.FindAll(match: o => o.Task != null && o.Task.Client.ClientId == clientId && o.Task.Status is EumTaskType.Scheduler or EumTaskType.Working);
-        foreach (var taskGroupPO in cancelTaskGroup) await taskGroupPO.CancelAsync();
+        foreach (var taskGroup in cancelTaskGroup)
+        {
+            taskGroup.Cancel();
+            TaskGroupRepository.Save(taskGroup);
+        }
         return true;
     }
 }

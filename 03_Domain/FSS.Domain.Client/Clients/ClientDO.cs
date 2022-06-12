@@ -27,12 +27,7 @@ public class ClientDO
     public DateTime ActivateAt { get; set; }
 
     /// <summary>
-    ///     移除客户端
+    /// 是否超时下线
     /// </summary>
-    public void Remove() => IocManager.GetService<IClientRepository>().RemoveClient(Id);
-
-    /// <summary>
-    ///     更新客户端的使用时间
-    /// </summary>
-    public void Update() => IocManager.GetService<IClientRepository>().Update(clientDO: this);
+    public bool IsTimeout() => (DateTime.Now - ActivateAt).TotalMinutes >= 1;
 }

@@ -19,7 +19,7 @@ public class ClientApp : ISingletonDependency
     /// <summary>
     ///     更新客户端的使用时间
     /// </summary>
-    public void UpdateClient(ClientDO clientDO) => clientDO.Update();
+    public void UpdateClient(ClientDO clientDO) => ClientRepository.Update(clientDO);
 
     /// <summary>
     ///     客户端数量

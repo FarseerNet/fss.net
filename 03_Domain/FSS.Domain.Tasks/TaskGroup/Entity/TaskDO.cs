@@ -75,11 +75,6 @@ public class TaskDO
     public Dictionary<string, string> Data { get; set; }
 
     /// <summary>
-    ///     创建任务
-    /// </summary>
-    public void AddTask() => IocManager.GetService<ITaskGroupRepository>().AddTask(taskDO: this);
-
-    /// <summary>
     ///     调度时设置客户端
     /// </summary>
     public void SetClient(ClientVO client)
@@ -87,5 +82,18 @@ public class TaskDO
         Status      = EumTaskType.Scheduler;
         SchedulerAt = DateTime.Now;
         Client      = client;
+    }
+
+    /// <summary>
+    /// 更新了JobName，则要立即更新Task的JobName
+    /// </summary>
+    public void SetJobName(string jobName)
+    {
+        JobName = jobName;
+    }
+
+    public void SetFail()
+    {
+        Status = EumTaskType.Fail;
     }
 }

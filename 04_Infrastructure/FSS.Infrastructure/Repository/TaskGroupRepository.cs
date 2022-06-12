@@ -72,7 +72,7 @@ public class TaskGroupRepository : ITaskGroupRepository
 
     public Task<PooledList<TaskDO>> ToFinishListAsync(int taskGroupId, int top) => TaskAgent.ToFinishListAsync(groupId: taskGroupId, top: top).MapAsync(mapRule: TaskPO.MapToDO);
 
-    public void AddTask(TaskDO taskDO) => IocManager.GetService<IQueueProduct>(name: "TaskQueue").Send(taskDO.Map<TaskPO>());
+    public void AddTask(TaskDO taskDO) => TaskAgent.AddToDbAsync(taskDO);
 
     public async Task SyncToData()
     {
@@ -93,13 +93,13 @@ public class TaskGroupRepository : ITaskGroupRepository
             lstTaskGroup = lstTaskGroup.Where(predicate: o => o.IsEnable && jobsName.Contains(value: o.JobName) && o.Task != null && o.Task.Status == EumTaskType.None && o.Task.StartAt < DateTime.Now.Add(value: ts) && o.Task.Client?.ClientId == 0).OrderBy(keySelector: o => o.Task.StartAt).Take(count: count).ToPooledList();
 
             var lst = new PooledList<TaskDO>();
-            foreach (var taskGroupDO in lstTaskGroup)
+            foreach (var taskGroup in lstTaskGroup)
             {
                 // 设为调度状态
-                taskGroupDO.SchedulerAsync(client: client);
-
+                taskGroup.SchedulerAsync(client: client);
+                Save(taskGroup);
                 // 如果不相等，说明被其它客户端拿了
-                if (taskGroupDO.Task.Client.ClientId == client.ClientId) lst.Add(item: taskGroupDO.Task);
+                if (taskGroup.Task.Client.ClientId == client.ClientId) lst.Add(item: taskGroup.Task);
             }
             return lst;
         }
