@@ -18,7 +18,7 @@ public class SyncTaskGroupJob : IFssJob
     public async Task<bool> Execute(IFssContext context)
     {
         // 数据库同步到缓存
-        var lstGroupByDb = await TaskGroupAgent.ToListAsync();
+        using var lstGroupByDb = await TaskGroupAgent.ToListAsync();
         var curIndex     = 0;
         foreach (var taskGroupVo in lstGroupByDb)
         {

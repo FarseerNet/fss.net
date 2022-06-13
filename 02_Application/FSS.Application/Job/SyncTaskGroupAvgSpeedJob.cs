@@ -17,7 +17,7 @@ public class SyncTaskGroupAvgSpeedJob : IFssJob
 
     public async Task<bool> Execute(IFssContext context)
     {
-        var taskGroupVos = await TaskQueryApp.ToListAsync();
+        using var taskGroupVos = await TaskQueryApp.ToListAsync();
         foreach (var taskGroupVo in taskGroupVos)
         {
             // 先计算在更新

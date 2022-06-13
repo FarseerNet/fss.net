@@ -14,14 +14,12 @@ public class LogAgent : ISingletonDependency
     /// <summary>
     ///     将日志写入ES或数据库
     /// </summary>
-    public async Task<int> AddAsync(List<TaskLogPO> lstLog)
+    public async Task AddAsync(IEnumerable<TaskLogPO> lstLog)
     {
         if (EsContext.UseEs)
             await EsContext.Data.RunLog.InsertAsync(lst: lstLog);
         else
             await MysqlContext.Data.RunLog.InsertAsync(lst: lstLog);
-
-        return lstLog.Count;
     }
 
     /// <summary>

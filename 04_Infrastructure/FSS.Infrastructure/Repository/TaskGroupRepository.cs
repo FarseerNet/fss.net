@@ -76,7 +76,7 @@ public class TaskGroupRepository : ITaskGroupRepository
 
     public async Task SyncToData()
     {
-        var lst = await ToListAsync();
+        using var lst = await ToListAsync();
         foreach (var taskGroupPO in lst) await TaskGroupAgent.UpdateAsync(id: taskGroupPO.Id, taskGroup: taskGroupPO);
     }
 
@@ -101,6 +101,7 @@ public class TaskGroupRepository : ITaskGroupRepository
                 // 如果不相等，说明被其它客户端拿了
                 if (taskGroup.Task.Client.Id == client.Id) lst.Add(item: taskGroup.Task);
             }
+            lstTaskGroup.Dispose();
             return lst;
         }
     }
@@ -110,7 +111,7 @@ public class TaskGroupRepository : ITaskGroupRepository
     /// </summary>
     public async Task<PooledList<TaskGroupDO>> GetTaskUnFinishList(IEnumerable<string> jobsName, int top)
     {
-        var lstTaskGroup = await ToListAsync();
+        using var lstTaskGroup = await ToListAsync();
         return lstTaskGroup.Where(predicate: o => o.IsEnable && jobsName.Contains(o.JobName) && o.Task != null && o.Task.Status != EumTaskType.Success && o.Task.Status != EumTaskType.Fail).OrderBy(keySelector: o => o.Task.StartAt).Take(count: top).ToPooledList();
     }
 
@@ -119,7 +120,7 @@ public class TaskGroupRepository : ITaskGroupRepository
     /// </summary>
     public async Task<PooledList<TaskGroupDO>> ToSchedulerWorkingListAsync()
     {
-        var lst = await ToListAsync();
+        using var lst = await ToListAsync();
         return lst.Where(predicate: o => o.Task is { Status: EumTaskType.Scheduler or EumTaskType.Working }).ToPooledList();
     }
 
@@ -128,7 +129,7 @@ public class TaskGroupRepository : ITaskGroupRepository
     /// </summary>
     public async Task<int> ToUnRunCountAsync()
     {
-        var lst = await ToListAsync();
+        using var lst = await ToListAsync();
         return lst.Count(predicate: o => o.Task == null || o.Task.Status is EumTaskType.None or EumTaskType.Scheduler || o.Task.CreateAt < DateTime.Now);
     }
 

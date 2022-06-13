@@ -26,7 +26,7 @@ public class CheckWorkStatusService : BackgroundServiceTrace
         while (!stoppingToken.IsCancellationRequested)
         {
             // 取出任务组
-            var lstTask = await TaskGroupRepository.ToSchedulerWorkingListAsync();
+            using var lstTask = await TaskGroupRepository.ToSchedulerWorkingListAsync();
             foreach (var taskGroupDO in lstTask)
             {
                 await CheckTaskGroup(taskGroup: taskGroupDO);
@@ -64,6 +64,5 @@ public class CheckWorkStatusService : BackgroundServiceTrace
             taskGroup.Cancel();
             TaskGroupRepository.Save(taskGroup);
         }
-        return;
     }
 }

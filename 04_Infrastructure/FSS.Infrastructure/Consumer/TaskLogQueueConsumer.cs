@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Collections.Pooled;
 using FS.Core.Abstract.MQ.Queue;
 using FSS.Infrastructure.Repository.Log;
 using FSS.Infrastructure.Repository.Log.Model;
@@ -17,7 +18,7 @@ namespace FSS.Infrastructure.Consumer
         
         public async Task<bool> Consumer(IEnumerable<object> queueList)
         {
-            var lst = queueList.Select(o => (TaskLogPO)o).ToList();
+            using var lst = queueList.Select(o => (TaskLogPO)o).ToPooledList();
             await LogAgent.AddAsync(lst);
             
             return true;

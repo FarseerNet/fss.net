@@ -19,7 +19,7 @@ public class CheckClientOfflineJob : IFssJob
 
     public Task<bool> Execute(IFssContext context)
     {
-        var lst = ClientRepository.ToList();
+        using var lst = ClientRepository.ToList();
         
         // 心跳大于1分钟，认为已经下线了
         foreach (var client in lst.Where(client => client.IsTimeout()))

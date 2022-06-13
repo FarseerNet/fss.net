@@ -22,7 +22,7 @@ public class CheckFinishStatusService : BackgroundServiceTrace
         while (!stoppingToken.IsCancellationRequested)
         {
             // 取出任务组
-            var dicTaskGroup = await TaskQueryApp.ToListAsync();
+            using var dicTaskGroup = await TaskQueryApp.ToListAsync();
 
             // 只检测Enable状态的任务组
             foreach (var taskGroupId in dicTaskGroup.Where(predicate: o => o.IsEnable).Select(o => o.Id))

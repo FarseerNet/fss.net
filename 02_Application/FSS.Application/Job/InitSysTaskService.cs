@@ -35,7 +35,7 @@ public class InitSysTaskService : BackgroundServiceTrace
     protected override async Task ExecuteJobAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation(message: "正在读取所有任务组信息");
-        var lstTaskGroup = await _taskQueryApp.ToListAsync();
+        using var lstTaskGroup = await _taskQueryApp.ToListAsync();
 
         // 检查是否存在系统任务组
         await CreateSysJob(lstTaskGroup: lstTaskGroup, jobName: "FSS.ClearHisTask", caption: "清除历史任务", intervalMs: TimeSpan.FromHours(value: 1));

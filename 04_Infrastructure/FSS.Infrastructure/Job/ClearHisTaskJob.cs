@@ -30,7 +30,7 @@ public class ClearHisTaskJob : IFssJob
 
     public async Task<bool> Execute(IFssContext context)
     {
-        var lst      = await TaskGroupRepository.ToListAsync();
+        using var lst      = await TaskGroupRepository.ToListAsync();
         var curIndex = 0;
         var result   = 0;
         foreach (var taskGroupVO in lst)
