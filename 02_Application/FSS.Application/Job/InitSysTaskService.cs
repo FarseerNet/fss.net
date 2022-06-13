@@ -9,7 +9,6 @@ using FS.DI;
 using FSS.Application.Tasks.TaskGroup;
 using FSS.Application.Tasks.TaskGroup.Entity;
 using FSS.Domain.Tasks.TaskGroup;
-using FSS.Domain.Tasks.TaskGroup.Entity;
 using FSS.Domain.Tasks.TaskGroup.Repository;
 using Microsoft.Extensions.Logging;
 

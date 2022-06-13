@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 using FS.Core.Abstract.EventBus;
-using FSS.Domain.Tasks.TaskGroup.Entity;
+using FSS.Domain.Tasks.TaskGroup.Event;
 using FSS.Domain.Tasks.TaskGroup.Repository;
 
 namespace FSS.Infrastructure.Consumer;
@@ -15,8 +15,8 @@ public class TaskFinishConsumer : IListenerMessage
 
     public Task<bool> Consumer(object message, DomainEventArgs ea)
     {
-        var task = (TaskDO)message;
-        TaskGroupRepository.AddTask(task);
+        var taskFinishEvent = (TaskFinishEvent)message;
+        TaskGroupRepository.AddTask(taskFinishEvent.Task);
         return Task.FromResult(true);
     }
 }

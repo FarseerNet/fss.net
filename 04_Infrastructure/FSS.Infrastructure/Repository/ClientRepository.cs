@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Collections.Pooled;
 using FS.Cache.Attribute;
 using FSS.Domain.Client.Clients;
 using FSS.Domain.Client.Clients.Repository;
@@ -11,9 +12,9 @@ public class ClientRepository : IClientRepository
     private const string cacheKey = "FSS_ClientList";
 
     [Cache(cacheKey)]
-    private List<ClientDO> ToListInternal() => new();
+    private PooledList<ClientDO> ToListInternal() => new();
 
-    public List<ClientDO> ToList()
+    public PooledList<ClientDO> ToList()
     {
         var lst = ToListInternal();
         for (var i = 0; i < lst.Count; i++)

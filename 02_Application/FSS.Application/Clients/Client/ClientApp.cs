@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Collections.Pooled;
 using FS.DI;
 using FS.Extends;
 using FSS.Application.Clients.Client.Entity;
@@ -14,7 +15,7 @@ public class ClientApp : ISingletonDependency
     /// <summary>
     ///     取出全局客户端列表
     /// </summary>
-    public List<ClientDTO> ToList() => ClientRepository.ToList().Map<ClientDTO>();
+    public PooledList<ClientDTO> ToList() => ClientRepository.ToList().Map<ClientDTO>();
 
     /// <summary>
     ///     更新客户端的使用时间

@@ -9,7 +9,7 @@ using FS.Utils.Common;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace FSS.Service.Background;
+namespace FSS.Application.Job;
 
 /// <summary>
 ///     打印系统信息
@@ -22,7 +22,7 @@ public class PrintSysInfoService : BackgroundServiceTrace
     public PrintSysInfoService(IIocManager ioc)
     {
         _ioc    = ioc;
-        _logger = _ioc.Logger<Startup>();
+        _logger = _ioc.Logger<PrintSysInfoService>();
     }
 
     protected override Task ExecuteJobAsync(CancellationToken stoppingToken)

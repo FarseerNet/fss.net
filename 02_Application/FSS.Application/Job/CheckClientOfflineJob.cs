@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using FS.Core.Abstract.Fss;
 using FS.DI;
 using FS.Fss;
-using FSS.Domain.Client.Clients;
 using FSS.Domain.Client.Clients.Publish;
 using FSS.Domain.Client.Clients.Repository;
 

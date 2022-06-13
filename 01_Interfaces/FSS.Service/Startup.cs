@@ -4,7 +4,6 @@ using FS.Modules;
 using FSS.Application;
 using FSS.Application.Job;
 using FSS.Infrastructure;
-using FSS.Service.Background;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -45,8 +44,6 @@ public class Startup : FarseerModule
         services.AddHostedService<InitSysTaskService>();
         services.AddHostedService<CheckFinishStatusService>();
         services.AddHostedService<CheckWorkStatusService>();
-        services.AddLogging(configure: o =>
-                            o.AddConsole());
 
     }
 

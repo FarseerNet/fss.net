@@ -35,10 +35,10 @@ public class MetaController : ControllerBase
     /// </summary>
     [HttpPost]
     [Route(template: "GetClientList")]
-    public Task<ApiResponseJson<List<ClientDTO>>> GetClientList()
+    public Task<ApiResponseJson<PooledList<ClientDTO>>> GetClientList()
     {
         // 取出全局客户端列表
-        return ApiResponseJson<List<ClientDTO>>.SuccessAsync(data: ClientApp.ToList());
+        return ApiResponseJson<PooledList<ClientDTO>>.SuccessAsync(data: ClientApp.ToList());
     }
 
     /// <summary>

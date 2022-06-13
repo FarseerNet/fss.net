@@ -41,9 +41,9 @@ public class InfrastructureModule : FarseerModule
     public override void Initialize()
     {
         IocManager.RegisterAssemblyByConvention(type: GetType());
-        IocManager.Resolve<ICacheServices>().SetProfilesInRedis<TaskGroupDO>("FSS_TaskGroup","default");
-        IocManager.Resolve<ICacheServices>().SetProfilesInRedis<ClientDO>("FSS_ClientList","default");
-        
+        IocManager.Resolve<ICacheServices>().SetProfilesInRedis<TaskGroupDO, int>("FSS_TaskGroup", "default", o => o.Id);
+        IocManager.Resolve<ICacheServices>().SetProfilesInRedis<ClientDO, long>("FSS_ClientList", "default", o => o.Id);
+
         MapConfig<TaskPO, TaskDO>.Set();
         MapConfig<TaskDO, TaskDTO>.Set();
     }

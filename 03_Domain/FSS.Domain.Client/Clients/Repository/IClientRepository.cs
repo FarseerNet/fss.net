@@ -1,3 +1,4 @@
+using Collections.Pooled;
 using FS.DI;
 
 namespace FSS.Domain.Client.Clients.Repository;
@@ -7,7 +8,7 @@ public interface IClientRepository : ISingletonDependency
     /// <summary>
     ///     获取客户端列表
     /// </summary>
-    List<ClientDO> ToList();
+    PooledList<ClientDO> ToList();
 
     /// <summary>
     ///     移除客户端

@@ -33,7 +33,7 @@ public class TaskGroupRepository : ITaskGroupRepository
     public Task<PooledList<TaskGroupDO>> ToListAsync() => TaskGroupAgent.ToListAsync().MapAsync<TaskGroupDO, TaskGroupPO>();
 
     [Cache(cacheKey)]
-    public List<TaskGroupDO> ToList() => TaskGroupAgent.ToList().Map<TaskGroupDO>();
+    public PooledList<TaskGroupDO> ToList() => TaskGroupAgent.ToList().Map<TaskGroupDO>();
 
     [CacheUpdate(cacheKey)]
     public TaskGroupDO Save(TaskGroupDO taskGroupDO) => taskGroupDO; // 直接返回，是因为暂时不直接更新到数据库，减少数据库IO
@@ -108,19 +108,19 @@ public class TaskGroupRepository : ITaskGroupRepository
     /// <summary>
     ///     获取进行中的任务
     /// </summary>
-    public async Task<List<TaskGroupDO>> GetTaskUnFinishList(IEnumerable<string> jobsName, int top)
+    public async Task<PooledList<TaskGroupDO>> GetTaskUnFinishList(IEnumerable<string> jobsName, int top)
     {
         var lstTaskGroup = await ToListAsync();
-        return lstTaskGroup.Where(predicate: o => o.IsEnable && jobsName.Contains(o.JobName) && o.Task != null && o.Task.Status != EumTaskType.Success && o.Task.Status != EumTaskType.Fail).OrderBy(keySelector: o => o.Task.StartAt).Take(count: top).ToList();
+        return lstTaskGroup.Where(predicate: o => o.IsEnable && jobsName.Contains(o.JobName) && o.Task != null && o.Task.Status != EumTaskType.Success && o.Task.Status != EumTaskType.Fail).OrderBy(keySelector: o => o.Task.StartAt).Take(count: top).ToPooledList();
     }
 
     /// <summary>
     ///     获取执行中的任务
     /// </summary>
-    public async Task<List<TaskGroupDO>> ToSchedulerWorkingListAsync()
+    public async Task<PooledList<TaskGroupDO>> ToSchedulerWorkingListAsync()
     {
         var lst = await ToListAsync();
-        return lst.Where(predicate: o => o.Task is { Status: EumTaskType.Scheduler or EumTaskType.Working }).ToList();
+        return lst.Where(predicate: o => o.Task is { Status: EumTaskType.Scheduler or EumTaskType.Working }).ToPooledList();
     }
 
     /// <summary>
