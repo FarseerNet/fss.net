@@ -1,6 +1,6 @@
 using FSS.Domain.Tasks.TaskGroup.Enum;
 
-namespace FSS.Service.Request;
+namespace FSS.Application.Tasks.TaskGroup.Entity;
 
 public class GetAllTaskListRequest
 {

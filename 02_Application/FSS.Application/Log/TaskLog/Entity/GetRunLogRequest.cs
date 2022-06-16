@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 
-namespace FSS.Service.Request;
+namespace FSS.Application.Log.TaskLog.Entity;
 
 public class GetRunLogRequest
 {

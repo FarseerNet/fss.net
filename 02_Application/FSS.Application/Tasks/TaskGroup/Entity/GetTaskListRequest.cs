@@ -1,4 +1,4 @@
-namespace FSS.Service.Request;
+namespace FSS.Application.Tasks.TaskGroup.Entity;
 
 public class GetTaskListRequest
 {

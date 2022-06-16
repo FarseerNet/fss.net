@@ -1,4 +1,4 @@
-namespace FSS.Service.Request;
+namespace FSS.Application.Request;
 
 public class UpdateTaskJobNameRequest
 {

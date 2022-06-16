@@ -9,7 +9,6 @@ using FSS.Domain.Log.TaskLog;
 using FSS.Domain.Log.TaskLog.Repository;
 using FSS.Domain.Tasks.TaskGroup;
 using FSS.Domain.Tasks.TaskGroup.Entity;
-using FSS.Service.Request;
 using Microsoft.Extensions.Logging;
 
 namespace FSS.Application.Log.TaskLog;
