@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Collections.Pooled;
+using FS.Core.Extend;
 using FS.Core.Net;
 using FSS.Application.Log.TaskLog;
 using FSS.Application.Tasks.TaskGroup;
@@ -35,25 +36,25 @@ public class TaskController : BaseController
     public async Task<ApiResponseJson<PooledList<TaskDTO>>> Pull(PullDTO dto)
     {
         // 拉取任务
-        var lstTask = await TaskSchedulerApp.TaskSchedulerAsync(client: Client, requestTaskCount: dto.TaskCount) ?? new();
-        return await ApiResponseJson<PooledList<TaskDTO>>.SuccessAsync(statusMessage: "默认", data: lstTask);
+        var taskScheduler = await TaskSchedulerApp.TaskSchedulerAsync(client: Client, requestTaskCount: dto.TaskCount) ?? new();
+        return taskScheduler.ToSuccess();
     }
 
-    /// <summary>
-    ///     客户端执行任务
-    /// </summary>
-    [HttpPost]
-    [Route(template: "JobInvoke")]
-    public async Task<ApiResponseJson> JobInvoke(JobInvokeDTO dto)
-    {
-        var taskGroup = await TaskQueryApp.ToEntityAsync(taskGroupId: dto.TaskGroupId);
-        if (taskGroup == null)
-        {
-            TaskLogApp.Add(taskGroupId: dto.TaskGroupId, jobName: "", caption: "", logLevel: LogLevel.Warning, content: $"所属的任务组：{dto.TaskGroupId} 不存在");
-            return await ApiResponseJson.ErrorAsync(statusMessage: $"所属的任务组：{dto.TaskGroupId} 不存在");
-        }
-
-        await TaskProcessApp.JobInvoke(dto: dto, taskGroup: taskGroup, client: Client);
-        return await ApiResponseJson.SuccessAsync(statusMessage: $"任务组：TaskGroupId={dto.TaskGroupId}，Caption={taskGroup.Caption}，JobName={taskGroup.JobName} 处理成功");
-    }
+    // /// <summary>
+    // ///     客户端执行任务
+    // /// </summary>
+    // [HttpPost]
+    // [Route(template: "JobInvoke")]
+    // public async Task<ApiResponseJson> JobInvoke(JobInvokeDTO dto)
+    // {
+    //     var taskGroup = await TaskQueryApp.ToEntityAsync(taskGroupId: dto.TaskGroupId);
+    //     if (taskGroup == null)
+    //     {
+    //         TaskLogApp.Add(taskGroupId: dto.TaskGroupId, jobName: "", caption: "", logLevel: LogLevel.Warning, content: $"所属的任务组：{dto.TaskGroupId} 不存在");
+    //         return await ApiResponseJson.ErrorAsync(statusMessage: $"所属的任务组：{dto.TaskGroupId} 不存在");
+    //     }
+    //
+    //     var statusMessage = $"任务组：TaskGroupId={dto.TaskGroupId}，Caption={taskGroup.Caption}，JobName={taskGroup.JobName} 处理成功";
+    //     return await TaskProcessApp.JobInvoke(dto: dto, taskGroup: taskGroup, client: Client).ToSuccessAsync(statusMessage);
+    // }
 }

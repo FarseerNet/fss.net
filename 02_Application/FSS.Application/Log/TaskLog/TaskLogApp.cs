@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using FS.Core;
+using FS.Core.Abstract.AspNetCore;
 using FS.Core.Abstract.Data;
 using FS.DI;
 using FS.Extends;
@@ -8,10 +9,12 @@ using FSS.Domain.Log.TaskLog;
 using FSS.Domain.Log.TaskLog.Repository;
 using FSS.Domain.Tasks.TaskGroup;
 using FSS.Domain.Tasks.TaskGroup.Entity;
+using FSS.Service.Request;
 using Microsoft.Extensions.Logging;
 
 namespace FSS.Application.Log.TaskLog;
 
+[UseApi(Area = "meta")]
 public class TaskLogApp : ISingletonDependency
 {
     public TaskLogService     TaskLogService    { get; set; }
@@ -25,5 +28,6 @@ public class TaskLogApp : ISingletonDependency
     /// <summary>
     ///     获取日志
     /// </summary>
-    public PageList<TaskLogDTO> GetList(string jobName, LogLevel? logLevel, int pageSize, int pageIndex) => TaskLogRepository.GetList(jobName: jobName, logLevel: logLevel, pageSize: pageSize, pageIndex: pageIndex).Map<TaskLogDTO>();
+    [Api("GetRunLogList")]
+    public PageList<TaskLogDTO> GetList(GetRunLogRequest request) => TaskLogRepository.GetList(jobName: request.JobName, logLevel: request.LogLevel, pageSize: request.PageSize, pageIndex: request.PageIndex).Map<TaskLogDTO>();
 }

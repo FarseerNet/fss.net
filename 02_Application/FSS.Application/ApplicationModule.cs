@@ -11,9 +11,7 @@ public class ApplicationModule : FarseerModule
     /// <summary>
     ///     初始化之前
     /// </summary>
-    public override void PreInitialize()
-    {
-    }
+    public override void PreInitialize() { }
 
     /// <summary>
     ///     初始化

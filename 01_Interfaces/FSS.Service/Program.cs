@@ -10,7 +10,6 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        FarseerApplication.Run<Startup>(appName: "FSS.Service").Initialize();
         CreateHostBuilder(args: args).Build().Run();
     }
 
