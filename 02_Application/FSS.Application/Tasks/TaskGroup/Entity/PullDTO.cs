@@ -1,3 +1,5 @@
+using FSS.Application.Clients.Client.Entity;
+
 namespace FSS.Application.Tasks.TaskGroup.Entity;
 
 public class PullDTO

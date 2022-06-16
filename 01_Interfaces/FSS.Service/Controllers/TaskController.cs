@@ -19,7 +19,6 @@ namespace FSS.Service.Controllers;
 [Route(template: "task")]
 public class TaskController : BaseController
 {
-
     public TaskController(IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor: httpContextAccessor)
     {
     }
@@ -28,17 +27,17 @@ public class TaskController : BaseController
     public TaskQueryApp     TaskQueryApp     { get; set; }
     public TaskSchedulerApp TaskSchedulerApp { get; set; }
 
-    /// <summary>
-    ///     客户端拉取任务
-    /// </summary>
-    [HttpPost]
-    [Route(template: "Pull")]
-    public async Task<ApiResponseJson<PooledList<TaskDTO>>> Pull(PullDTO dto)
-    {
-        // 拉取任务
-        var taskScheduler = await TaskSchedulerApp.TaskSchedulerAsync(client: Client, requestTaskCount: dto.TaskCount) ?? new();
-        return taskScheduler.ToSuccess();
-    }
+    // /// <summary>
+    // ///     客户端拉取任务
+    // /// </summary>
+    // [HttpPost]
+    // [Route(template: "Pull")]
+    // public async Task<ApiResponseJson<PooledList<TaskDTO>>> Pull(PullDTO dto)
+    // {
+    //     // 拉取任务
+    //     var taskScheduler = await TaskSchedulerApp.TaskSchedulerAsync(client: Client, requestTaskCount: dto.TaskCount) ?? new();
+    //     return taskScheduler.ToSuccess();
+    // }
 
     // /// <summary>
     // ///     客户端执行任务

@@ -1,3 +1,4 @@
+using System;
 using Collections.Pooled;
 using FS.Core.Abstract.AspNetCore;
 using FS.DI;
@@ -5,13 +6,15 @@ using FS.Extends;
 using FSS.Application.Clients.Client.Entity;
 using FSS.Domain.Client.Clients;
 using FSS.Domain.Client.Clients.Repository;
+using Microsoft.AspNetCore.Http;
 
 namespace FSS.Application.Clients.Client;
 
 [UseApi(Area = "meta")]
 public class ClientApp : ISingletonDependency
 {
-    public IClientRepository ClientRepository { get; set; }
+    public IClientRepository    ClientRepository    { get; set; }
+    public IHttpContextAccessor HttpContextAccessor { get; set; }
 
     /// <summary>
     ///     取出全局客户端列表
@@ -29,4 +32,20 @@ public class ClientApp : ISingletonDependency
     ///     更新客户端的使用时间
     /// </summary>
     public void UpdateClient(ClientDO clientDO) => ClientRepository.Update(clientDO);
+
+    public ClientDTO GetClient()
+    {
+        var client = new ClientDTO
+        {
+            Ip         = HttpContextAccessor.HttpContext.Request.Headers[key: "ClientIp"].ToString().Split(separator: ',')[0].Trim(),
+            Name       = HttpContextAccessor.HttpContext.Request.Headers[key: "ClientName"],
+            Id         = HttpContextAccessor.HttpContext.Request.Headers[key: "ClientId"].ToString().ConvertType(defValue: 0L),
+            Jobs       = HttpContextAccessor.HttpContext.Request.Headers[key: "ClientJobs"].ToString().Split(separator: ','),
+            ActivateAt = DateTime.Now
+        };
+        // 更新客户端的使用时间
+        ClientRepository.Update(client);
+
+        return client;
+    }
 }

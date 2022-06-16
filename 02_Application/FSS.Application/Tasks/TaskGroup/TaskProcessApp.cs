@@ -1,29 +1,38 @@
 using System;
 using System.Threading.Tasks;
+using FS.Core.Abstract.AspNetCore;
 using FS.Core.Exception;
 using FS.DI;
-using FSS.Application.Clients.Client.Entity;
-using FSS.Application.Log.TaskLog;
+using FSS.Application.Clients.Client;
 using FSS.Application.Tasks.TaskGroup.Entity;
 using FSS.Domain.Log.TaskLog;
-using FSS.Domain.Tasks.TaskGroup;
-using FSS.Domain.Tasks.TaskGroup.Entity;
 using FSS.Domain.Tasks.TaskGroup.Enum;
 using FSS.Domain.Tasks.TaskGroup.Repository;
 using Microsoft.Extensions.Logging;
 
 namespace FSS.Application.Tasks.TaskGroup;
 
+[UseApi(Area = "task")]
 public class TaskProcessApp : ISingletonDependency
 {
     public TaskLogService       TaskLogService      { get; set; }
     public ITaskGroupRepository TaskGroupRepository { get; set; }
+    public ClientApp            ClientApp           { get; set; }
 
     /// <summary>
     ///     客户端执行任务
     /// </summary>
-    public Task JobInvoke(JobInvokeDTO dto, TaskGroupDO taskGroup, ClientDTO client)
+    [Api("JobInvoke")]
+    public async Task<string> JobInvoke(JobInvokeDTO dto)
     {
+        var client    = ClientApp.GetClient();
+        var taskGroup = await TaskGroupRepository.ToEntityAsync(dto.TaskGroupId);
+        if (taskGroup == null)
+        {
+            TaskLogService.Add(taskGroupId: dto.TaskGroupId, jobName: "", caption: "", logLevel: LogLevel.Warning, content: $"所属的任务组：{dto.TaskGroupId} 不存在");
+            throw new RefuseException($"所属的任务组：{dto.TaskGroupId} 不存在");
+        }
+        
         try
         {
             if (taskGroup == null) throw new RefuseException(message: $"所属的任务组：{dto.TaskGroupId} 不存在");
@@ -40,7 +49,7 @@ public class TaskProcessApp : ISingletonDependency
             // 更新执行中状态
             taskGroup.Working(data: dto.Data, nextTimespan: dto.NextTimespan, progress: dto.Progress, status: dto.Status, runSpeed: dto.RunSpeed);
             TaskGroupRepository.Save(taskGroup);
-            
+
             if (dto.Status is not (EumTaskType.Working or EumTaskType.Success)) throw new RefuseException(message: $"任务组：TaskGroupId={taskGroup.Id}，Caption={taskGroup.Caption}，JobName={taskGroup.JobName} 执行失败");
         }
         catch (RefuseException e)
@@ -62,6 +71,7 @@ public class TaskProcessApp : ISingletonDependency
             }
             throw e;
         }
-        return Task.CompletedTask;
+        
+        return $"任务组：TaskGroupId={dto.TaskGroupId}，Caption={taskGroup.Caption}，JobName={taskGroup.JobName} 处理成功";
     }
 }
