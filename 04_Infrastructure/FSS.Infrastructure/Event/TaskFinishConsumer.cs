@@ -3,7 +3,7 @@ using FS.Core.Abstract.EventBus;
 using FSS.Domain.Tasks.TaskGroup.Event;
 using FSS.Domain.Tasks.TaskGroup.Repository;
 
-namespace FSS.Infrastructure.Consumer;
+namespace FSS.Infrastructure.Event;
 
 /// <summary>
 ///     删除任务组

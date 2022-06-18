@@ -1,14 +1,11 @@
-using FS.Core;
 using FS.Core.Abstract.Data;
 using FS.Core.Abstract.MQ.Queue;
 using FS.DI;
 using FS.Extends;
-using FS.MQ.Queue;
 using FSS.Domain.Log.TaskLog;
 using FSS.Domain.Log.TaskLog.Repository;
 using FSS.Infrastructure.Repository.Log;
 using FSS.Infrastructure.Repository.Log.Model;
-using Mapster;
 using Microsoft.Extensions.Logging;
 
 namespace FSS.Infrastructure.Repository;

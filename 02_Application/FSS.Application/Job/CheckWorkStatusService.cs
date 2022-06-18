@@ -6,7 +6,6 @@ using FS.Core.LinkTrack;
 using FSS.Domain.Client.Clients.Repository;
 using FSS.Domain.Log.TaskLog;
 using FSS.Domain.Tasks.TaskGroup;
-using FSS.Domain.Tasks.TaskGroup.Entity;
 using FSS.Domain.Tasks.TaskGroup.Repository;
 using Microsoft.Extensions.Logging;
 

@@ -1,4 +1,3 @@
-using Collections.Pooled;
 using FS.DI;
 using FSS.Domain.Tasks.TaskGroup.Entity;
 using FSS.Domain.Tasks.TaskGroup.Repository;

@@ -6,7 +6,7 @@ using FS.Core.Abstract.MQ.Queue;
 using FSS.Infrastructure.Repository.Log;
 using FSS.Infrastructure.Repository.Log.Model;
 
-namespace FSS.Infrastructure.Consumer
+namespace FSS.Infrastructure.Queue
 {
     /// <summary>
     ///     添加任务日志
