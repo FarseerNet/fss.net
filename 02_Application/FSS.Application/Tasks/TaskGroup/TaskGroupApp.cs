@@ -2,7 +2,6 @@ using System;
 using System.Threading.Tasks;
 using FS;
 using FS.Core.Abstract.AspNetCore;
-using FS.Core.Extend;
 using FS.DI;
 using FSS.Application.Tasks.TaskGroup.Entity;
 using FSS.Domain.Log.TaskLog;
@@ -39,7 +38,7 @@ public class TaskGroupApp : ISingletonDependency
     ///     删除任务组
     /// </summary>
     [Api("DeleteTaskGroup")]
-    public Task DeleteAsync(OnlyIdRequest request) => TaskGroupDeleteService.DeleteAsync(request.Id).ToSuccessAsync("删除成功");
+    public Task DeleteAsync(OnlyIdRequest request) => TaskGroupDeleteService.DeleteAsync(request.Id);
 
     /// <summary>
     ///     添加任务组信息

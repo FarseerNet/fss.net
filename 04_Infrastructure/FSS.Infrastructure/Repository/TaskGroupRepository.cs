@@ -89,11 +89,11 @@ public class TaskGroupRepository : ITaskGroupRepository
         {
             if (!locker.TryLock()) return new PooledList<TaskDO>();
 
-            var lstTaskGroup = await ToListAsync();
-            lstTaskGroup = lstTaskGroup.Where(predicate: o => o.IsEnable && jobsName.Contains(value: o.JobName) && o.Task != null && o.Task.Status == EumTaskType.None && o.Task.StartAt < DateTime.Now.Add(value: ts) && o.Task.Client.Id == 0).OrderBy(keySelector: o => o.Task.StartAt).Take(count: count).ToPooledList();
+            using var lstTaskGroup          = await ToListAsync();
+            using var lstSchedulerTaskGroup = lstTaskGroup.Where(predicate: o => o.IsEnable && jobsName.Contains(value: o.JobName) && o.Task != null && o.Task.Status == EumTaskType.None && o.Task.StartAt < DateTime.Now.Add(value: ts) && o.Task.Client.Id == 0).OrderBy(keySelector: o => o.Task.StartAt).Take(count: count).ToPooledList();
 
             var lst = new PooledList<TaskDO>();
-            foreach (var taskGroup in lstTaskGroup)
+            foreach (var taskGroup in lstSchedulerTaskGroup)
             {
                 // 设为调度状态
                 taskGroup.SchedulerAsync(client: client);
@@ -101,7 +101,6 @@ public class TaskGroupRepository : ITaskGroupRepository
                 // 如果不相等，说明被其它客户端拿了
                 if (taskGroup.Task.Client.Id == client.Id) lst.Add(item: taskGroup.Task);
             }
-            lstTaskGroup.Dispose();
             return lst;
         }
     }

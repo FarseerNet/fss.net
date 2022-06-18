@@ -25,7 +25,7 @@ public class TaskSchedulerApp : ISingletonDependency
     ///     任务调度
     /// </summary>
     [Api("Pull")]
-    public Task<PooledList<TaskDTO>> TaskSchedulerAsync(PullDTO dto)
+    public Task<PooledList<TaskDTO>> PullAsync(PullDTO dto)
     {
         var client = ClientApp.GetClient();
         if (dto.TaskCount == 0) dto.TaskCount = 3;
