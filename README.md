@@ -9,6 +9,8 @@ GitHub：https://github.com/FarseerNet/FarseerSchedulerService
 
 Docker：https://hub.docker.com/r/farseernet/fss
 
+10 m2860.28 Mi
+
 ## 设计目标
 
 高可用（HA）：`多实例`的job客户端。同一个任务、同一个job实例只会被调度一次
@@ -171,7 +173,7 @@ post :
     "NextTimespan" : 0, // 时间戳（毫秒），0：根据任务组的设置。>0 ：按当前传入的值为下一次执行时间
     "Progress" : 20, // 当前进度：0~100
     "Status" : 2, // 任务的执行状态：0、未开始，1、已调度，2、执行中，3、失败（完成），4、成功（完成）
-    "RunSpeed" : 1000, // 毫秒，当前任务执行耗时
+    "RunSpeed" : 1000, // 毫秒，当前任务执行耗时。
     "Log" : { // 日志
         "LogLevel" : 1000, // 日志等级,Trace=0,Debug=1,Info=2,Warning=3,Error=4,Critical=5
         "Log" : "日志内容",

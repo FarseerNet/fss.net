@@ -24,7 +24,7 @@ spec:
         app: fss
     spec:
       nodeSelector: #节点筛选器
-        rt: middleware
+        rt: resource
       containers:
         - name: fss
           image: farseernet/fss:latest
@@ -32,7 +32,7 @@ spec:
           imagePullSecrets:
             - name: regsecret
           ports:
-            - containerPort: 80
+            - containerPort: 888
           envFrom: #以密文的方式，把配置项写到env
             - secretRef:
                 name: fss
@@ -52,16 +52,10 @@ spec:
 ---
 apiVersion: v1
 data:
-  Database__Items__0__Catalog: ''
-  Database__Items__0__DataType: ''
-  Database__Items__0__PassWord: ''
-  Database__Items__0__Port: ''
-  Database__Items__0__Server: ''
-  Database__Items__0__UserID: ''
-  Logging__LogLevel__Default: ''
-  Redis__0__Password: ''
-  Redis__0__Server: ''
-  ElasticSearch__Server: aHR0cDovL2Vz
+  Database__default: ''
+  Redis__default: ''
+  ElasticSearch__es: ''
+  ElasticSearch__LinkTrack: ''
 kind: Secret
 metadata:
   name: fss
@@ -80,19 +74,23 @@ spec:
     - name: http # 请为所有端口指定名称
       port: 80 # 暴露在集群内的服务端口
       protocol: TCP
-      targetPort: 80
+      targetPort: 888
 ---
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: fss
   annotations:
+    traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
   rules:
     - host: fss.abtest.ws # 内网则可以直接使用Service
       http:
         paths:
           - path: /
+            pathType: Prefix
             backend:
-              serviceName: fss
-              servicePort: 80
+              service:
+                name: fss
+                port:
+                  number: 888

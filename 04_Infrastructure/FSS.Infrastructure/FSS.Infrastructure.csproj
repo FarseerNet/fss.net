@@ -17,7 +17,7 @@
         <ProjectReference Include="..\..\03_Domain\FSS.Domain.Client\FSS.Domain.Client.csproj" />
         <ProjectReference Include="..\..\03_Domain\FSS.Domain.Log\FSS.Domain.Log.csproj" />
         <ProjectReference Include="..\..\03_Domain\FSS.Domain.Tasks\FSS.Domain.Tasks.csproj" />
-        <PackageReference Include="PostSharp" Version="6.10.12" />
+        <PackageReference Include="PostSharp" Version="6.10.13" />
     </ItemGroup>
 
 </Project>
