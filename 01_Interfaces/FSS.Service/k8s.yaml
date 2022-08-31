@@ -52,10 +52,14 @@ spec:
 ---
 apiVersion: v1
 data:
-  Database__default: ''
-  Redis__default: ''
-  ElasticSearch__es: ''
-  ElasticSearch__LinkTrack: ''
+  Database__default: >-
+    RGF0YVR5cGU9TXlTcWwsU2VydmVyPTE5Mi4xNjguMS44OjMzMDYsVXNlcklEPXJvb3QsUGFzc1dvcmQ9c3RlZGVuQDEyMyxDYXRhbG9nPWZzcyxQb29sTWF4U2l6ZT01MCxQb29sTWluU2l6ZT0x
+  ElasticSearch__LinkTrack: >-
+    U2VydmVyPWh0dHA6Ly8xOTIuMTY4LjEuODo5MjAwLFVzZXJuYW1lPWVzLFBhc3N3b3JkPTEyMzQ1Ng==
+  ElasticSearch__es: >-
+    U2VydmVyPWh0dHA6Ly8xOTIuMTY4LjEuODo5MjAwLFVzZXJuYW1lPWVzLFBhc3N3b3JkPTEyMzQ1Ng==
+  Redis__default: >-
+    U2VydmVyPTE5Mi4xNjguMS44OjYzNzksREI9MTUsUGFzc3dvcmQ9c3RlZGVuQDEyMyxDb25uZWN0VGltZW91dD02MDAwMDAsU3luY1RpbWVvdXQ9MTAwMDAsUmVzcG9uc2VUaW1lb3V0PTEwMDAw
 kind: Secret
 metadata:
   name: fss
@@ -93,4 +97,4 @@ spec:
               service:
                 name: fss
                 port:
-                  number: 888
+                  number: 80

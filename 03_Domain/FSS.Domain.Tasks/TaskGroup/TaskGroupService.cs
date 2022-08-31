@@ -20,7 +20,7 @@ public class TaskGroupService : ISingletonDependency
         {
             var taskGroup = await TaskGroupRepository.ToEntityAsync(taskGroupId);
             taskGroup.RunSpeedAvg = runSpeedAvg;
-            IocManager.GetService<ITaskGroupRepository>().Save(taskGroup);
+            TaskGroupRepository.Save(taskGroup);
         }
     }
 }

@@ -62,8 +62,6 @@ public class TaskLogDO
     /// </summary>
     public void Add()
     {
-        
-
         IocManager.GetService<ITaskLogRepository>().Add(taskLogDO: this);
     }
 }

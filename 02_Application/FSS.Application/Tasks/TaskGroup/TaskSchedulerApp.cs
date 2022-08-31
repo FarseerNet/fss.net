@@ -20,7 +20,7 @@ public class TaskSchedulerApp : ISingletonDependency
 {
     public ITaskGroupRepository TaskGroupRepository { get; set; }
     public ClientApp            ClientApp           { get; set; }
-
+ 
     /// <summary>
     ///     任务调度
     /// </summary>
