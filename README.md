@@ -1,3 +1,10 @@
+# 停止更新
+感谢大家一直以来的支持，我们于2023年03月03日发布了FSS2.0并更名为FShedule
+
+2.0采用go语言设计，因此1.0（.NET设计）将不再更新维护。
+
+2.0，请前往：[https://github.com/FSchedule/FSchedule](https://github.com/FSchedule/FSchedule)
+
 ## FSS是什么？
 
 一款跨语言分布式的调度中心（基于`.NET CORE 5`语言编写）。
